@@ -9,11 +9,11 @@ import { Waves } from 'lucide-react';
 import RiverSelector from '@/components/ui/RiverSelector';
 import VesselSelector from '@/components/ui/VesselSelector';
 import PlanSummary from '@/components/plan/PlanSummary';
-import ConditionsPanel from '@/components/ui/ConditionsPanel';
-import WeatherBug from '@/components/ui/WeatherBug';
+import RiverOverviewPanel from '@/components/river/RiverOverviewPanel';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useRivers, useRiver } from '@/hooks/useRivers';
 import { useAccessPoints } from '@/hooks/useAccessPoints';
+import { useConditions } from '@/hooks/useConditions';
 import { useFloatPlan } from '@/hooks/useFloatPlan';
 import { useVesselTypes } from '@/hooks/useVesselTypes';
 import type { AccessPoint } from '@/types/api';
@@ -42,6 +42,7 @@ export default function Home() {
   const { data: rivers, isLoading: riversLoading, error: riversError } = useRivers();
   const { data: river } = useRiver(selectedRiverSlug || '');
   const { data: accessPoints } = useAccessPoints(selectedRiverSlug);
+  const { data: condition } = useConditions(selectedRiverId);
   const { data: vesselTypes } = useVesselTypes();
 
   // Set default vessel type when loaded (using useEffect to avoid render issues)
@@ -115,6 +116,14 @@ export default function Home() {
 
   // Clear selections
   const handleClearSelection = () => {
+    setSelectedPutIn(null);
+    setSelectedTakeOut(null);
+    setShowPlan(false);
+  };
+
+  const handleClearRiver = () => {
+    setSelectedRiverId(null);
+    setSelectedRiverSlug(null);
     setSelectedPutIn(null);
     setSelectedTakeOut(null);
     setShowPlan(false);
@@ -287,8 +296,24 @@ export default function Home() {
                 </p>
               </div>
 
-              {/* Decorative elements */}
-              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-river-night to-transparent" />
+        {!showPlan && selectedRiverId && river && (
+          <div className="absolute top-4 right-4 z-30">
+            <RiverOverviewPanel
+              river={river}
+              condition={condition || null}
+              accessPointCount={accessPoints?.length || 0}
+              onClear={handleClearRiver}
+            />
+          </div>
+        )}
+
+        {/* Mobile bottom sheet indicator */}
+        {selectedPutIn && !selectedTakeOut && (
+          <div className="absolute bottom-4 left-4 right-4 md:hidden z-20">
+            <div className="bg-ozark-800/95 backdrop-blur-md rounded-xl p-4 text-center">
+              <p className="text-river-300">
+                👆 Tap another marker for your <span className="text-sunset-400 font-medium">take-out</span>
+              </p>
             </div>
           ) : (
             <MapContainer initialBounds={initialBounds}>
