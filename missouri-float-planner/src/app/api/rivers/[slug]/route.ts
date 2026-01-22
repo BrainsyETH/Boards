@@ -18,13 +18,13 @@ export async function GET(
     const supabase = await createClient();
 
     // Get river details
-    const { data: river, error } = await supabase
+    const { data: river, error: riverError } = await supabase
       .from('rivers')
-      .select('*')
+      .select('id, name, slug, length_miles, description, difficulty_rating, region, nhd_feature_id')
       .eq('slug', slug)
       .single();
 
-    if (error || !river) {
+    if (riverError || !river) {
       return NextResponse.json(
         { error: 'River not found' },
         { status: 404 }
@@ -32,20 +32,44 @@ export async function GET(
     }
 
     // Get geometry as GeoJSON using PostGIS function
-    // Note: Supabase may return geometry in different formats
-    // We'll handle it as GeoJSON or convert if needed
+    const { data: geomData, error: geomError } = await supabase.rpc('get_river_geometry_json', {
+      p_slug: slug,
+    });
+
     let geometry: GeoJSON.LineString;
-    
-    if (river.geom && typeof river.geom === 'object' && 'type' in river.geom) {
-      // Already in GeoJSON format
-      geometry = river.geom as GeoJSON.LineString;
+
+    if (geomError || !geomData) {
+      console.error('Error fetching river geometry:', geomError);
+      // Fallback: try to get geometry directly (may work if Supabase auto-converts)
+      const { data: riverWithGeom } = await supabase
+        .from('rivers')
+        .select('geom')
+        .eq('slug', slug)
+        .single();
+
+      if (riverWithGeom?.geom && typeof riverWithGeom.geom === 'object' && 'type' in riverWithGeom.geom) {
+        geometry = riverWithGeom.geom as GeoJSON.LineString;
+      } else {
+        // Last resort: empty geometry
+        console.warn('Could not fetch river geometry for:', slug);
+        geometry = {
+          type: 'LineString',
+          coordinates: [],
+        };
+      }
     } else {
-      // Need to query with ST_AsGeoJSON - use a raw query approach
-      // For now, return empty geometry - can be enhanced with proper PostGIS query
-      geometry = {
-        type: 'LineString',
-        coordinates: [],
-      };
+      // Parse the GeoJSON returned from PostGIS function
+      try {
+        // The function returns JSONB, which Supabase should parse automatically
+        const geomJson = typeof geomData === 'string' ? JSON.parse(geomData) : geomData;
+        geometry = geomJson as GeoJSON.LineString;
+      } catch (parseError) {
+        console.error('Error parsing geometry JSON:', parseError);
+        geometry = {
+          type: 'LineString',
+          coordinates: [],
+        };
+      }
     }
 
     const bounds = calculateBounds(geometry);

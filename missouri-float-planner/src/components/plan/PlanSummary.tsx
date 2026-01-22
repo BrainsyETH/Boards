@@ -180,14 +180,20 @@ export default function PlanSummary({
             </div>
             <div className="flex-1">
               <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Put-in</p>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayPlan.putIn.name + ' ' + displayPlan.river.name + ' Missouri')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-river-water hover:text-river-forest underline decoration-river-water/30 hover:decoration-river-forest transition-colors"
-              >
-                {displayPlan.putIn.name}
-              </a>
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-ozark-800">{displayPlan.putIn.name}</p>
+                <a
+                  href={`https://www.google.com/maps/dir/${displayPlan.takeOut.coordinates.lat},${displayPlan.takeOut.coordinates.lng}/${displayPlan.putIn.coordinates.lat},${displayPlan.putIn.coordinates.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-river-600 hover:text-river-700 transition-colors"
+                  title="Get directions to put-in"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                </a>
+              </div>
               <p className="text-sm text-bluff-500">Mile {displayPlan.putIn.riverMile.toFixed(1)}</p>
             </div>
           </div>
@@ -203,14 +209,20 @@ export default function PlanSummary({
             </div>
             <div className="flex-1">
               <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Take-out</p>
-              <a
-                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayPlan.takeOut.name + ' ' + displayPlan.river.name + ' Missouri')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-semibold text-sky-warm hover:text-sky-soft underline decoration-sky-warm/30 hover:decoration-sky-soft transition-colors"
-              >
-                {displayPlan.takeOut.name}
-              </a>
+              <div className="flex items-center gap-2">
+                <p className="font-semibold text-ozark-800">{displayPlan.takeOut.name}</p>
+                <a
+                  href={`https://www.google.com/maps/dir/${displayPlan.putIn.coordinates.lat},${displayPlan.putIn.coordinates.lng}/${displayPlan.takeOut.coordinates.lat},${displayPlan.takeOut.coordinates.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-river-600 hover:text-river-700 transition-colors"
+                  title="Get directions to take-out"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                  </svg>
+                </a>
+              </div>
               <p className="text-sm text-bluff-500">Mile {displayPlan.takeOut.riverMile.toFixed(1)}</p>
             </div>
           </div>
@@ -219,9 +231,14 @@ export default function PlanSummary({
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3">
           {/* Distance */}
-          <div className="bg-white/10 rounded-xl p-4 border border-white/10">
-            <p className="text-xs font-medium text-river-gravel uppercase tracking-wide">Distance</p>
-            <p className="text-xl font-bold text-white">{displayPlan.distance.formatted}</p>
+          <div className="bg-bluff-50 rounded-xl p-3">
+            <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Distance</p>
+            <p className="text-xl font-bold text-ozark-800">{displayPlan.distance.formatted}</p>
+            <div className="mt-2 pt-2 border-t border-bluff-200">
+              <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">ETA (one way)</p>
+              <p className="text-lg font-bold text-ozark-800">{displayPlan.driveBack.formatted}</p>
+              <p className="text-sm text-bluff-500">{displayPlan.driveBack.miles.toFixed(1)} miles</p>
+            </div>
           </div>
 
           {/* Float Time */}
@@ -270,18 +287,6 @@ export default function PlanSummary({
               <p className="text-sm text-red-400 font-medium">Not safe to float</p>
             )}
           </div>
-        </div>
-
-        {/* Drive Back */}
-        <div className="bg-white/10 rounded-xl p-4 border border-white/10">
-          <div className="flex items-center gap-2 mb-1">
-            <svg className="w-4 h-4 text-river-gravel" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-            </svg>
-            <p className="text-xs font-medium text-river-gravel uppercase tracking-wide">Drive Back</p>
-          </div>
-          <p className="text-lg font-bold text-white">{displayPlan.driveBack.formatted}</p>
-          <p className="text-sm text-river-gravel">{displayPlan.driveBack.miles.toFixed(1)} miles</p>
         </div>
 
         {/* Condition Badge */}
@@ -334,14 +339,6 @@ export default function PlanSummary({
             </ul>
           </div>
         )}
-
-        {/* Vessel */}
-        <div className="text-sm text-river-gravel flex items-center gap-2 px-1">
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
-          </svg>
-          <span>Estimated for <span className="font-medium text-white">{displayPlan.vessel.name}</span></span>
-        </div>
       </div>
 
       {/* Actions */}

@@ -319,3 +319,54 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER access_points_auto_snap
     BEFORE INSERT OR UPDATE OF location_orig, river_id ON access_points
     FOR EACH ROW EXECUTE FUNCTION auto_snap_access_point();
+
+-- ============================================
+-- GET RIVER GEOMETRY AS GEOJSON
+-- ============================================
+CREATE OR REPLACE FUNCTION get_river_geometry_json(p_slug TEXT)
+RETURNS JSONB AS $$
+DECLARE
+    v_geom GEOMETRY;
+BEGIN
+    SELECT geom INTO v_geom
+    FROM rivers
+    WHERE slug = p_slug;
+
+    IF v_geom IS NULL THEN
+        RETURN NULL;
+    END IF;
+
+    RETURN ST_AsGeoJSON(v_geom)::jsonb;
+END;
+$$ LANGUAGE plpgsql STABLE;
+
+-- ============================================
+-- CALCULATE LINE LENGTH FROM GEOJSON
+-- ============================================
+CREATE OR REPLACE FUNCTION calculate_line_length(p_geojson JSONB)
+RETURNS NUMERIC(6,2) AS $$
+DECLARE
+    v_geom GEOMETRY;
+    v_length_meters NUMERIC;
+    v_coords JSONB;
+BEGIN
+    -- Extract coordinates from GeoJSON
+    v_coords := p_geojson->'coordinates';
+    
+    IF v_coords IS NULL THEN
+        RETURN 0;
+    END IF;
+
+    -- Convert GeoJSON LineString to PostGIS geometry
+    v_geom := ST_SetSRID(
+        ST_GeomFromGeoJSON(p_geojson::text),
+        4326
+    );
+
+    -- Calculate length in meters using geography (more accurate for lat/lng)
+    v_length_meters := ST_Length(v_geom::geography);
+    
+    -- Convert to miles
+    RETURN (v_length_meters / 1609.34)::NUMERIC(6,2);
+END;
+$$ LANGUAGE plpgsql IMMUTABLE;

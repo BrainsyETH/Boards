@@ -1,0 +1,91 @@
+// src/app/api/admin/rivers/[id]/route.ts
+// PUT /api/admin/rivers/[id] - Update river geometry
+
+import { NextRequest, NextResponse } from 'next/server';
+import { createAdminClient } from '@/lib/supabase/admin';
+
+export const dynamic = 'force-dynamic';
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const body = await request.json();
+    const { geometry } = body;
+
+    if (!geometry || geometry.type !== 'LineString' || !Array.isArray(geometry.coordinates)) {
+      return NextResponse.json(
+        { error: 'Invalid geometry format' },
+        { status: 400 }
+      );
+    }
+
+    const supabase = createAdminClient();
+
+    // Calculate length and downstream point
+    const coordinates = geometry.coordinates;
+    if (coordinates.length < 2) {
+      return NextResponse.json(
+        { error: 'LineString must have at least 2 coordinates' },
+        { status: 400 }
+      );
+    }
+
+    // Calculate length using PostGIS
+    const { data: lengthData, error: lengthError } = await supabase.rpc('calculate_line_length', {
+      p_geojson: geometry,
+    });
+
+    let lengthMiles = 0;
+    if (lengthError) {
+      console.error('Error calculating length:', lengthError);
+      // Fallback: estimate from coordinate count (rough approximation)
+      lengthMiles = coordinates.length * 0.1; // Rough estimate
+    } else {
+      lengthMiles = lengthData || 0;
+    }
+    const downstreamPoint = {
+      type: 'Point',
+      coordinates: coordinates[coordinates.length - 1],
+    };
+
+    // Update river geometry
+    const { data, error } = await supabase
+      .from('rivers')
+      .update({
+        geom: geometry,
+        length_miles: lengthMiles,
+        downstream_point: downstreamPoint,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('id', id)
+      .select('id, name, slug, length_miles')
+      .single();
+
+    if (error) {
+      console.error('Error updating river:', error);
+      return NextResponse.json(
+        { error: 'Could not update river' },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      river: {
+        id: data.id,
+        name: data.name,
+        slug: data.slug,
+        lengthMiles: parseFloat(data.length_miles),
+        geometry,
+      },
+    });
+  } catch (error) {
+    console.error('Error in update river endpoint:', error);
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    );
+  }
+}
