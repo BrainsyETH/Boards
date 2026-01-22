@@ -7,6 +7,9 @@ import { getDriveTime } from '@/lib/mapbox/directions';
 import { calculateFloatTime, formatFloatTime, formatDistance, formatDriveTime } from '@/lib/calculations/floatTime';
 import type { PlanResponse, FloatPlan, AccessPointType, HazardType, HazardSeverity } from '@/types/api';
 
+// Force dynamic rendering (uses cookies and searchParams)
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;

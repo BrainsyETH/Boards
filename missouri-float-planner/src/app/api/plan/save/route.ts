@@ -5,6 +5,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import type { SavePlanRequest, SavePlanResponse } from '@/types/api';
 
+// Force dynamic rendering (uses cookies for Supabase)
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json() as SavePlanRequest;
