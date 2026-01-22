@@ -105,7 +105,7 @@ export default function PlanSummary({
       return planCacheRef.current[selectedVesselTypeId];
     }
     if (selectedVesselTypeId && selectedVesselTypeId !== plan?.vessel.id) {
-      return recalculatedPlan;
+      return recalculatedPlan ?? null;
     }
     return plan;
   };
