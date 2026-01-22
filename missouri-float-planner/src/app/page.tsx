@@ -8,9 +8,11 @@ import dynamic from 'next/dynamic';
 import RiverSelector from '@/components/ui/RiverSelector';
 import VesselSelector from '@/components/ui/VesselSelector';
 import PlanSummary from '@/components/plan/PlanSummary';
+import RiverOverviewPanel from '@/components/river/RiverOverviewPanel';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useRivers, useRiver } from '@/hooks/useRivers';
 import { useAccessPoints } from '@/hooks/useAccessPoints';
+import { useConditions } from '@/hooks/useConditions';
 import { useFloatPlan } from '@/hooks/useFloatPlan';
 import { useVesselTypes } from '@/hooks/useVesselTypes';
 import type { AccessPoint } from '@/types/api';
@@ -39,6 +41,7 @@ export default function Home() {
   const { data: rivers, isLoading: riversLoading, error: riversError } = useRivers();
   const { data: river } = useRiver(selectedRiverSlug || '');
   const { data: accessPoints } = useAccessPoints(selectedRiverSlug);
+  const { data: condition } = useConditions(selectedRiverId);
   const { data: vesselTypes } = useVesselTypes();
 
   // Set default vessel type when loaded
@@ -109,6 +112,14 @@ export default function Home() {
 
   // Clear selections
   const handleClearSelection = () => {
+    setSelectedPutIn(null);
+    setSelectedTakeOut(null);
+    setShowPlan(false);
+  };
+
+  const handleClearRiver = () => {
+    setSelectedRiverId(null);
+    setSelectedRiverSlug(null);
     setSelectedPutIn(null);
     setSelectedTakeOut(null);
     setShowPlan(false);
@@ -276,6 +287,17 @@ export default function Home() {
               isLoading={planLoading}
               onClose={() => setShowPlan(false)}
               onShare={handleShare}
+            />
+          </div>
+        )}
+
+        {!showPlan && selectedRiverId && river && (
+          <div className="absolute top-4 right-4 z-30">
+            <RiverOverviewPanel
+              river={river}
+              condition={condition || null}
+              accessPointCount={accessPoints?.length || 0}
+              onClear={handleClearRiver}
             />
           </div>
         )}
