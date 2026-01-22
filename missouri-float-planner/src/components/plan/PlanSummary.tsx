@@ -4,7 +4,7 @@
 // Themed float plan summary panel
 
 import { useState, useEffect } from 'react';
-import type { FloatPlan, ConditionCode, VesselType } from '@/types/api';
+import type { FloatPlan, ConditionCode } from '@/types/api';
 import { useVesselTypes } from '@/hooks/useVesselTypes';
 import { useFloatPlan } from '@/hooks/useFloatPlan';
 

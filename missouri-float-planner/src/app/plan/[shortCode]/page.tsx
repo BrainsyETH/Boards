@@ -51,10 +51,6 @@ export default function SharedPlanPage() {
     }
   }, [shortCode]);
 
-  const handlePlanYourOwn = () => {
-    router.push('/');
-  };
-
   const handleShare = async () => {
     try {
       await navigator.clipboard.writeText(window.location.href);
