@@ -3,7 +3,7 @@
 // src/components/plan/PlanSummary.tsx
 // Themed float plan summary panel
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import type { FloatPlan, ConditionCode } from '@/types/api';
 import { useVesselTypes } from '@/hooks/useVesselTypes';
 import { useFloatPlan } from '@/hooks/useFloatPlan';
@@ -25,6 +25,9 @@ const conditionStyles: Record<ConditionCode, { bg: string; text: string; icon: s
   unknown: { bg: 'bg-bluff-100', text: 'text-bluff-600', icon: '?' },
 };
 
+// Cache for storing pre-fetched plans by vessel type
+type PlanCache = Record<string, FloatPlan | null>;
+
 export default function PlanSummary({
   plan,
   isLoading,
@@ -33,21 +36,29 @@ export default function PlanSummary({
 }: PlanSummaryProps) {
   const { data: vesselTypes } = useVesselTypes();
   const [selectedVesselTypeId, setSelectedVesselTypeId] = useState<string | null>(null);
-  
+  const planCacheRef = useRef<PlanCache>({});
+
   // Find canoe and raft vessel types
   const canoeVessel = vesselTypes?.find(v => v.slug === 'canoe');
   const raftVessel = vesselTypes?.find(v => v.slug === 'raft');
-  
+
   // Set initial vessel type from plan or default to canoe
   useEffect(() => {
     if (plan && !selectedVesselTypeId) {
       setSelectedVesselTypeId(plan.vessel.id);
+      // Cache the initial plan
+      planCacheRef.current[plan.vessel.id] = plan;
     } else if (!plan && canoeVessel && !selectedVesselTypeId) {
       setSelectedVesselTypeId(canoeVessel.id);
     }
   }, [plan, canoeVessel, selectedVesselTypeId]);
 
-  // Recalculate plan with selected vessel type
+  // Pre-fetch params for the other vessel type (for caching)
+  const otherVesselId = selectedVesselTypeId === canoeVessel?.id
+    ? raftVessel?.id
+    : canoeVessel?.id;
+
+  // Params for current selected vessel
   const planParams = plan
     ? {
         riverId: plan.river.id,
@@ -57,12 +68,54 @@ export default function PlanSummary({
       }
     : null;
 
+  // Params for pre-fetching the other vessel type
+  const prefetchParams = plan && otherVesselId
+    ? {
+        riverId: plan.river.id,
+        startId: plan.putIn.id,
+        endId: plan.takeOut.id,
+        vesselTypeId: otherVesselId,
+      }
+    : null;
+
   const { data: recalculatedPlan, isLoading: recalculating } = useFloatPlan(planParams);
-  
-  // Use recalculated plan if vessel type changed, otherwise use original plan
-  const displayPlan = selectedVesselTypeId && selectedVesselTypeId !== plan?.vessel.id 
-    ? recalculatedPlan 
-    : plan;
+  const { data: prefetchedPlan } = useFloatPlan(prefetchParams);
+
+  // Update cache when plans are fetched
+  useEffect(() => {
+    if (recalculatedPlan && selectedVesselTypeId) {
+      planCacheRef.current[selectedVesselTypeId] = recalculatedPlan;
+    }
+  }, [recalculatedPlan, selectedVesselTypeId]);
+
+  useEffect(() => {
+    if (prefetchedPlan && otherVesselId) {
+      planCacheRef.current[otherVesselId] = prefetchedPlan;
+    }
+  }, [prefetchedPlan, otherVesselId]);
+
+  // Handle vessel toggle - use cached plan if available for instant switch
+  const handleVesselChange = useCallback((vesselId: string) => {
+    setSelectedVesselTypeId(vesselId);
+  }, []);
+
+  // Use cached plan if available, otherwise use recalculated
+  const getCachedOrRecalculatedPlan = (): FloatPlan | null => {
+    if (selectedVesselTypeId && planCacheRef.current[selectedVesselTypeId]) {
+      return planCacheRef.current[selectedVesselTypeId];
+    }
+    if (selectedVesselTypeId && selectedVesselTypeId !== plan?.vessel.id) {
+      return recalculatedPlan;
+    }
+    return plan;
+  };
+
+  const displayPlan = getCachedOrRecalculatedPlan();
+
+  // Check if put-in is downstream of take-out (upstream warning)
+  const isUpstream = displayPlan
+    ? displayPlan.putIn.riverMile < displayPlan.takeOut.riverMile
+    : false;
 
   if (isLoading) {
     return (
@@ -105,29 +158,59 @@ export default function PlanSummary({
 
       {/* Content */}
       <div className="p-5 space-y-4 max-h-[60vh] overflow-y-auto scrollbar-thin">
+        {/* Upstream Warning Pill */}
+        {isUpstream && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-red-500/20 border-2 border-red-500/40 rounded-xl">
+            <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+            </svg>
+            <span className="text-sm font-semibold text-red-400">Upstream Route</span>
+            <span className="text-xs text-red-300">Put-in is downstream of take-out</span>
+          </div>
+        )}
+
         {/* Put-in / Take-out */}
         <div className="space-y-3">
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-river-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-river-600">🚩</span>
+            <div className="w-8 h-8 rounded-full bg-river-forest/20 border-2 border-river-forest/40 flex items-center justify-center flex-shrink-0">
+              <svg className="w-4 h-4 text-river-forest" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Put-in</p>
-              <p className="font-semibold text-ozark-800">{displayPlan.putIn.name}</p>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayPlan.putIn.name + ' ' + displayPlan.river.name + ' Missouri')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-river-water hover:text-river-forest underline decoration-river-water/30 hover:decoration-river-forest transition-colors"
+              >
+                {displayPlan.putIn.name}
+              </a>
               <p className="text-sm text-bluff-500">Mile {displayPlan.putIn.riverMile.toFixed(1)}</p>
             </div>
           </div>
-          
+
           {/* Connector line */}
-          <div className="ml-4 border-l-2 border-dashed border-river-200 h-4"></div>
-          
+          <div className="ml-4 border-l-2 border-dashed border-river-water/30 h-4"></div>
+
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-full bg-sunset-100 flex items-center justify-center flex-shrink-0">
-              <span className="text-sunset-600">🏁</span>
+            <div className="w-8 h-8 rounded-full bg-sky-warm/20 border-2 border-sky-warm/40 flex items-center justify-center flex-shrink-0">
+              <svg className="w-4 h-4 text-sky-warm" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9" />
+              </svg>
             </div>
-            <div>
+            <div className="flex-1">
               <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Take-out</p>
-              <p className="font-semibold text-ozark-800">{displayPlan.takeOut.name}</p>
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(displayPlan.takeOut.name + ' ' + displayPlan.river.name + ' Missouri')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-sky-warm hover:text-sky-soft underline decoration-sky-warm/30 hover:decoration-sky-soft transition-colors"
+              >
+                {displayPlan.takeOut.name}
+              </a>
               <p className="text-sm text-bluff-500">Mile {displayPlan.takeOut.riverMile.toFixed(1)}</p>
             </div>
           </div>
@@ -136,36 +219,36 @@ export default function PlanSummary({
         {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-3">
           {/* Distance */}
-          <div className="bg-bluff-50 rounded-xl p-3">
-            <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Distance</p>
-            <p className="text-xl font-bold text-ozark-800">{displayPlan.distance.formatted}</p>
+          <div className="bg-white/10 rounded-xl p-4 border border-white/10">
+            <p className="text-xs font-medium text-river-gravel uppercase tracking-wide">Distance</p>
+            <p className="text-xl font-bold text-white">{displayPlan.distance.formatted}</p>
           </div>
 
           {/* Float Time */}
-          <div className="bg-river-50 rounded-xl p-3">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-medium text-river-600 uppercase tracking-wide">Float Time</p>
-              {/* Canoe/Raft Toggle */}
+          <div className="bg-river-water/10 rounded-xl p-4 border border-river-water/20">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs font-medium text-river-water uppercase tracking-wide">Float Time</p>
+              {/* Canoe/Raft Toggle - Improved padding */}
               {canoeVessel && raftVessel && (
-                <div className="flex items-center gap-1 bg-white/60 rounded-lg p-0.5">
+                <div className="flex items-center bg-river-deep/80 rounded-lg p-1 border border-white/10">
                   <button
-                    onClick={() => setSelectedVesselTypeId(canoeVessel.id)}
+                    onClick={() => handleVesselChange(canoeVessel.id)}
                     disabled={recalculating}
-                    className={`px-2 py-0.5 text-xs font-medium rounded transition-all ${
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                       selectedVesselTypeId === canoeVessel.id
-                        ? 'bg-river-500 text-white'
-                        : 'text-river-600 hover:text-river-700'
+                        ? 'bg-river-water text-white shadow-sm'
+                        : 'text-river-gravel hover:text-white hover:bg-white/10'
                     } ${recalculating ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     Canoe
                   </button>
                   <button
-                    onClick={() => setSelectedVesselTypeId(raftVessel.id)}
+                    onClick={() => handleVesselChange(raftVessel.id)}
                     disabled={recalculating}
-                    className={`px-2 py-0.5 text-xs font-medium rounded transition-all ${
+                    className={`px-3 py-1.5 text-xs font-semibold rounded-md transition-all ${
                       selectedVesselTypeId === raftVessel.id
-                        ? 'bg-river-500 text-white'
-                        : 'text-river-600 hover:text-river-700'
+                        ? 'bg-river-water text-white shadow-sm'
+                        : 'text-river-gravel hover:text-white hover:bg-white/10'
                     } ${recalculating ? 'opacity-50 cursor-not-allowed' : ''}`}
                   >
                     Raft
@@ -175,30 +258,30 @@ export default function PlanSummary({
             </div>
             {recalculating ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-river-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="text-sm text-river-600">Recalculating...</p>
+                <div className="w-4 h-4 border-2 border-river-water border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm text-river-water">Recalculating...</p>
               </div>
             ) : displayPlan.floatTime ? (
               <>
-                <p className="text-xl font-bold text-river-700">{displayPlan.floatTime.formatted}</p>
-                <p className="text-xs text-river-500">{displayPlan.floatTime.speedMph} mph</p>
+                <p className="text-xl font-bold text-river-water">{displayPlan.floatTime.formatted}</p>
+                <p className="text-xs text-river-gravel">{displayPlan.floatTime.speedMph} mph avg</p>
               </>
             ) : (
-              <p className="text-sm text-red-600 font-medium">Not safe</p>
+              <p className="text-sm text-red-400 font-medium">Not safe to float</p>
             )}
           </div>
         </div>
 
         {/* Drive Back */}
-        <div className="bg-bluff-50 rounded-xl p-3">
-          <div className="flex items-center gap-2">
-            <svg className="w-4 h-4 text-bluff-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-white/10 rounded-xl p-4 border border-white/10">
+          <div className="flex items-center gap-2 mb-1">
+            <svg className="w-4 h-4 text-river-gravel" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
             </svg>
-            <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Drive Back</p>
+            <p className="text-xs font-medium text-river-gravel uppercase tracking-wide">Drive Back</p>
           </div>
-          <p className="text-lg font-bold text-ozark-800">{displayPlan.driveBack.formatted}</p>
-          <p className="text-sm text-bluff-500">{displayPlan.driveBack.miles.toFixed(1)} miles</p>
+          <p className="text-lg font-bold text-white">{displayPlan.driveBack.formatted}</p>
+          <p className="text-sm text-river-gravel">{displayPlan.driveBack.miles.toFixed(1)} miles</p>
         </div>
 
         {/* Condition Badge */}
@@ -253,20 +336,22 @@ export default function PlanSummary({
         )}
 
         {/* Vessel */}
-        <div className="text-sm text-bluff-500 flex items-center gap-2">
-          <span>🛶</span>
-          <span>Estimated for {displayPlan.vessel.name}</span>
+        <div className="text-sm text-river-gravel flex items-center gap-2 px-1">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3l14 9-14 9V3z" />
+          </svg>
+          <span>Estimated for <span className="font-medium text-white">{displayPlan.vessel.name}</span></span>
         </div>
       </div>
 
       {/* Actions */}
-      <div className="border-t border-bluff-200 p-4 bg-bluff-50/50">
-        <div className="flex gap-2">
+      <div className="border-t border-white/10 p-4 bg-river-deep/50">
+        <div className="flex gap-3">
           <button onClick={onShare} className="btn-primary flex-1 flex items-center justify-center gap-2">
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
             </svg>
-            Share
+            Share Plan
           </button>
           <button onClick={onClose} className="btn-secondary px-4">
             Close
