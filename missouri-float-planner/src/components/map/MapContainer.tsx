@@ -22,11 +22,12 @@ export default function MapContainer({
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
+    // Use dark map style (CartoDB Dark Matter or similar)
     const mapStyleUrl =
       process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
-      'https://demotiles.maplibre.org/style.json';
+      'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
-    // Initialize map
+    // Initialize map with dark theme
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: mapStyleUrl,
@@ -46,6 +47,13 @@ export default function MapContainer({
       fitBoundsOptions: {
         padding: 50,
       },
+    });
+    
+    // Set map background to river-night
+    map.current.on('style.load', () => {
+      if (map.current) {
+        map.current.setPaintProperty('background', 'background-color', '#0f132f');
+      }
     });
 
     // Add navigation controls

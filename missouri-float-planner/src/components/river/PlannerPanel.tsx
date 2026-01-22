@@ -80,8 +80,8 @@ export default function PlannerPanel({
   };
 
   return (
-    <div className="glass-card rounded-2xl p-6">
-      <h2 className="text-2xl font-bold text-ozark-800 mb-4">Plan Your Float</h2>
+    <div className="glass-card-dark rounded-2xl p-6 border border-white/10">
+      <h2 className="text-2xl font-bold text-white mb-4">Plan Your Float</h2>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
@@ -91,7 +91,7 @@ export default function PlannerPanel({
         <div className="space-y-6">
           {/* Put-in Selector */}
           <div>
-            <label className="block text-sm font-semibold text-ozark-700 mb-2">
+            <label className="block text-sm font-semibold text-white mb-2">
               Put-in Point
             </label>
             <AccessPointSelector
@@ -104,7 +104,7 @@ export default function PlannerPanel({
 
           {/* Take-out Selector */}
           <div>
-            <label className="block text-sm font-semibold text-ozark-700 mb-2">
+            <label className="block text-sm font-semibold text-white mb-2">
               Take-out Point
             </label>
             <AccessPointSelector
@@ -119,7 +119,7 @@ export default function PlannerPanel({
           {/* Vessel Type Selector */}
           {vesselTypes && vesselTypes.length > 0 && (
             <div>
-              <label className="block text-sm font-semibold text-ozark-700 mb-2">
+              <label className="block text-sm font-semibold text-white mb-2">
                 Vessel Type
               </label>
               <VesselSelector
@@ -132,7 +132,7 @@ export default function PlannerPanel({
 
           {/* Plan Summary */}
           {showPlan && (
-            <div className="border-t border-bluff-200 pt-6">
+            <div className="border-t border-white/10 pt-6">
               <PlanSummary
                 plan={plan || null}
                 isLoading={planLoading}
@@ -148,8 +148,8 @@ export default function PlannerPanel({
 
           {/* Instructions */}
           {!selectedPutIn && (
-            <div className="bg-river-50 rounded-xl p-4 text-sm text-river-700">
-              <p className="font-medium mb-1">👆 Get Started</p>
+            <div className="glass-bg-soft rounded-xl p-4 text-sm text-river-gravel border border-white/10">
+              <p className="font-medium mb-1 text-white">👆 Get Started</p>
               <p>Select a put-in and take-out point above to calculate your float plan.</p>
             </div>
           )}

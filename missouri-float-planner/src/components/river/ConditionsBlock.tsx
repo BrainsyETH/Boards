@@ -18,10 +18,10 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
 
   if (isLoading && !condition) {
     return (
-      <div className="glass-card rounded-2xl p-6">
+      <div className="glass-card-dark rounded-2xl p-6 border border-white/10">
         <div className="flex items-center gap-3">
           <LoadingSpinner size="sm" />
-          <p className="text-sm text-bluff-500">Loading conditions...</p>
+          <p className="text-sm text-river-gravel">Loading conditions...</p>
         </div>
       </div>
     );
@@ -29,9 +29,9 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
 
   if (!displayCondition) {
     return (
-      <div className="glass-card rounded-2xl p-6">
-        <h3 className="text-xl font-bold text-ozark-800 mb-4">Conditions & Safety</h3>
-        <p className="text-sm text-bluff-500">Condition data not available at this time.</p>
+      <div className="glass-card-dark rounded-2xl p-6 border border-white/10">
+        <h3 className="text-xl font-bold text-white mb-4">Conditions & Safety</h3>
+        <p className="text-sm text-river-gravel">Condition data not available at this time.</p>
       </div>
     );
   }
@@ -51,8 +51,8 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
     'bg-bluff-100 text-bluff-600';
 
   return (
-    <div className="glass-card rounded-2xl p-6">
-      <h3 className="text-xl font-bold text-ozark-800 mb-4">Conditions & Safety</h3>
+    <div className="glass-card-dark rounded-2xl p-6 border border-white/10">
+      <h3 className="text-xl font-bold text-white mb-4">Conditions & Safety</h3>
 
       <div className="space-y-4">
         {/* Current Condition */}
@@ -89,23 +89,23 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
         </div>
 
         {/* Trend */}
-        <div className="bg-bluff-50 rounded-xl p-4">
+        <div className="glass-bg-soft rounded-xl p-4 border border-white/10">
           <div className="flex items-center gap-2">
             <span className="text-lg">{trend.icon}</span>
             <div>
-              <p className="text-xs text-bluff-600 mb-1">Trend</p>
-              <p className="font-semibold text-ozark-800">{trend.label}</p>
+              <p className="text-xs text-river-gravel mb-1">Trend</p>
+              <p className="font-semibold text-white">{trend.label}</p>
             </div>
           </div>
-          <p className="text-xs text-bluff-500 mt-2">
+          <p className="text-xs text-river-gravel mt-2">
             Check USGS website for detailed historical trends
           </p>
         </div>
 
         {/* Safety Notes */}
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-          <h4 className="font-semibold text-amber-800 mb-2">Safety Reminders</h4>
-          <ul className="text-sm text-amber-700 space-y-1">
+        <div className="glass-bg-soft border border-amber-500/30 rounded-xl p-4">
+          <h4 className="font-semibold text-amber-400 mb-2">Safety Reminders</h4>
+          <ul className="text-sm text-river-gravel space-y-1">
             <li>• Always wear a life jacket</li>
             <li>• Check weather conditions before floating</li>
             <li>• Inform someone of your float plan</li>
@@ -116,8 +116,8 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
 
         {/* Accuracy Warning */}
         {displayCondition.accuracyWarning && displayCondition.accuracyWarningReason && (
-          <div className="bg-orange-50 border border-orange-200 rounded-xl p-4">
-            <p className="text-sm text-orange-800">
+          <div className="glass-bg-soft border border-orange-500/30 rounded-xl p-4">
+            <p className="text-sm text-orange-400">
               <span className="font-semibold">⚠ Warning:</span> {displayCondition.accuracyWarningReason}
             </p>
           </div>

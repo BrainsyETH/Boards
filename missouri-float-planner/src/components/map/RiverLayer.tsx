@@ -70,14 +70,14 @@ export default function RiverLayer({
         },
       });
 
-      // Add glow layer first (underneath)
+      // Add glow layer first (underneath) - using river-water color
       if (!map.getLayer(glowLayerId)) {
         map.addLayer({
           id: glowLayerId,
           type: 'line',
           source: sourceId,
           paint: {
-            'line-color': '#14b8a6',
+            'line-color': '#39a0ca', // river-water
             'line-width': selected ? 12 : 8,
             'line-opacity': 0.2,
             'line-blur': 4,
@@ -85,14 +85,14 @@ export default function RiverLayer({
         });
       }
 
-      // Add main river layer
+      // Add main river layer - using river-water color
       if (!map.getLayer(layerId)) {
         map.addLayer({
           id: layerId,
           type: 'line',
           source: sourceId,
           paint: {
-            'line-color': selected ? '#0f766e' : '#14b8a6',
+            'line-color': '#39a0ca', // river-water
             'line-width': selected ? 4 : 2,
             'line-opacity': 0.9,
           },
@@ -104,9 +104,9 @@ export default function RiverLayer({
       }
     }
 
-    // Update layer styles if selection changed
+    // Update layer styles if selection changed - keep river-water color
     if (map.getLayer(layerId)) {
-      map.setPaintProperty(layerId, 'line-color', selected ? '#0f766e' : '#14b8a6');
+      map.setPaintProperty(layerId, 'line-color', '#39a0ca'); // river-water
       map.setPaintProperty(layerId, 'line-width', selected ? 4 : 2);
     }
     if (map.getLayer(glowLayerId)) {
@@ -148,14 +148,14 @@ export default function RiverLayer({
           });
         }
 
-        // Main route line
+        // Main route line - using sky-warm for route highlight
         if (!map.getLayer(routeLayerId)) {
           map.addLayer({
             id: routeLayerId,
             type: 'line',
             source: routeSourceId,
             paint: {
-              'line-color': '#14b8a6',
+              'line-color': '#f95d9b', // sky-warm
               'line-width': 6,
               'line-opacity': 1,
             },

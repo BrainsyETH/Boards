@@ -5,10 +5,12 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import { Waves } from 'lucide-react';
 import RiverSelector from '@/components/ui/RiverSelector';
 import VesselSelector from '@/components/ui/VesselSelector';
 import PlanSummary from '@/components/plan/PlanSummary';
 import ConditionsPanel from '@/components/ui/ConditionsPanel';
+import WeatherBug from '@/components/ui/WeatherBug';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useRivers, useRiver } from '@/hooks/useRivers';
 import { useAccessPoints } from '@/hooks/useAccessPoints';
@@ -144,32 +146,32 @@ export default function Home() {
   }
 
   return (
-    <div className="h-screen flex flex-col bg-ozark-900">
+    <div className="h-screen flex flex-col bg-river-night">
       {/* Header with controls */}
-      <header className="relative z-20 bg-gradient-to-b from-ozark-900 via-ozark-800 to-transparent pb-4">
+      <header className="relative z-20 bg-gradient-to-b from-river-night via-river-deep/50 to-transparent pb-4">
         <div className="max-w-7xl mx-auto px-4 pt-4">
           {/* Logo and title */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-river-500 to-river-700 
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-river-water to-river-forest 
                             flex items-center justify-center shadow-glow">
-                <span className="text-xl">🌊</span>
+                <Waves className="w-6 h-6 text-white" />
               </div>
               <div>
                 <h1 className="text-xl font-bold text-white">Missouri Float Planner</h1>
-                <p className="text-sm text-river-300">Plan your Ozark adventure</p>
+                <p className="text-sm text-river-gravel">Plan your Ozark adventure</p>
               </div>
             </div>
             
             {/* Quick instructions */}
             {selectedRiverId && !selectedPutIn && (
-              <div className="hidden md:block text-sm text-river-300 bg-ozark-700/50 px-4 py-2 rounded-lg">
-                👆 Click a marker to set your <span className="text-river-400 font-medium">put-in</span>
+              <div className="hidden md:block text-sm text-river-gravel glass-bg px-4 py-2 rounded-lg border border-white/10">
+                👆 Click a marker to set your <span className="text-river-water font-medium">put-in</span>
               </div>
             )}
             {selectedPutIn && !selectedTakeOut && (
-              <div className="hidden md:block text-sm text-river-300 bg-ozark-700/50 px-4 py-2 rounded-lg">
-                👆 Now click another marker for your <span className="text-sunset-400 font-medium">take-out</span>
+              <div className="hidden md:block text-sm text-river-gravel glass-bg px-4 py-2 rounded-lg border border-white/10">
+                👆 Now click another marker for your <span className="text-sky-warm font-medium">take-out</span>
               </div>
             )}
           </div>
@@ -200,9 +202,9 @@ export default function Home() {
             {(selectedPutIn || selectedTakeOut) && (
               <button
                 onClick={handleClearSelection}
-                className="px-4 py-2 text-sm text-river-300 hover:text-white 
-                         border border-river-700 hover:border-river-500 rounded-xl
-                         transition-colors"
+                className="px-4 py-2 text-sm text-river-gravel hover:text-white 
+                         border border-white/10 hover:border-river-water rounded-xl
+                         glass-bg-soft transition-colors"
               >
                 Clear Selection
               </button>
@@ -231,54 +233,62 @@ export default function Home() {
 
         {/* Map Container - takes remaining space */}
         <div className="flex-1 relative rounded-xl overflow-hidden shadow-2xl">
+          {/* Weather Bug - floating overlay */}
+          {selectedRiverId && selectedRiverSlug && (
+            <WeatherBug 
+              riverSlug={selectedRiverSlug} 
+              riverId={selectedRiverId}
+            />
+          )}
+          
           {riversLoading ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-ozark-900">
+            <div className="absolute inset-0 flex items-center justify-center bg-river-night">
               <div className="text-center">
                 <LoadingSpinner size="lg" />
-                <p className="mt-4 text-river-300">Loading rivers...</p>
+                <p className="mt-4 text-river-gravel">Loading rivers...</p>
               </div>
             </div>
           ) : !selectedRiverId ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-ozark-900">
+            <div className="absolute inset-0 flex items-center justify-center bg-river-night">
               {/* Hero background */}
               <div className="absolute inset-0 hero-gradient" />
               
               {/* Hero content */}
               <div className="relative z-10 text-center max-w-2xl px-4 animate-in">
                 <div className="mb-8">
-                  <span className="text-6xl">🛶</span>
+                  <Waves className="w-16 h-16 mx-auto text-river-water" />
                 </div>
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
                   Discover Missouri&apos;s <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-river-400 to-river-300">
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-river-water to-sky-warm">
                     Float Trips
                   </span>
                 </h2>
-                <p className="text-lg text-bluff-300 mb-8 max-w-lg mx-auto">
+                <p className="text-lg text-river-gravel mb-8 max-w-lg mx-auto">
                   Plan your perfect float on the Current River, Eleven Point, Meramec, 
                   and more. Real-time water conditions and shuttle times.
                 </p>
                 
                 {/* Feature pills */}
                 <div className="flex flex-wrap justify-center gap-3 mb-8">
-                  <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white">
-                    🌊 8 Rivers
+                  <span className="px-4 py-2 glass-bg border border-white/10 rounded-full text-sm text-white">
+                    8 Rivers
                   </span>
-                  <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white">
-                    📍 30+ Access Points
+                  <span className="px-4 py-2 glass-bg border border-white/10 rounded-full text-sm text-white">
+                    30+ Access Points
                   </span>
-                  <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white">
-                    ⏱️ Real-time Conditions
+                  <span className="px-4 py-2 glass-bg border border-white/10 rounded-full text-sm text-white">
+                    Real-time Conditions
                   </span>
                 </div>
 
-                <p className="text-river-400 animate-pulse">
+                <p className="text-river-water animate-pulse">
                   ↑ Select a river above to get started
                 </p>
               </div>
 
               {/* Decorative elements */}
-              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-ozark-900 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-river-night to-transparent" />
             </div>
           ) : (
             <MapContainer initialBounds={initialBounds}>
@@ -303,8 +313,8 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 bg-ozark-900 border-t border-ozark-700 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-bluff-500">
+      <footer className="relative z-10 bg-river-night border-t border-white/10 px-4 py-3">
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-river-gravel">
           <p>Missouri Float Planner • Water data from USGS</p>
           <p className="hidden md:block">Always check local conditions before floating</p>
         </div>

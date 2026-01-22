@@ -27,18 +27,18 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
 
   if (!riverId) {
     return (
-      <div className={`glass-card rounded-xl p-4 ${className}`}>
-        <p className="text-sm text-bluff-500">Select a river to see conditions</p>
+      <div className={`glass-card-dark rounded-xl p-4 border border-white/10 ${className}`}>
+        <p className="text-sm text-river-gravel">Select a river to see conditions</p>
       </div>
     );
   }
 
   if (isLoading) {
     return (
-      <div className={`glass-card rounded-xl p-4 ${className}`}>
+      <div className={`glass-card-dark rounded-xl p-4 border border-white/10 ${className}`}>
         <div className="flex items-center gap-3">
           <LoadingSpinner size="sm" />
-          <p className="text-sm text-bluff-500">Loading conditions...</p>
+          <p className="text-sm text-river-gravel">Loading conditions...</p>
         </div>
       </div>
     );
@@ -46,8 +46,8 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
 
   if (error || !condition) {
     return (
-      <div className={`glass-card rounded-xl p-4 ${className}`}>
-        <p className="text-sm text-red-600">Unable to load conditions</p>
+      <div className={`glass-card-dark rounded-xl p-4 border border-white/10 ${className}`}>
+        <p className="text-sm text-red-400">Unable to load conditions</p>
       </div>
     );
   }
@@ -55,10 +55,10 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
   const style = conditionStyles[condition.code];
 
   return (
-    <div className={`glass-card rounded-xl p-4 ${className}`}>
+    <div className={`glass-card-dark rounded-xl p-4 border border-white/10 ${className}`}>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-ozark-800">Current Conditions</h3>
-        <span className="text-xs text-bluff-500">
+        <h3 className="text-sm font-semibold text-white">Current Conditions</h3>
+        <span className="text-xs text-river-gravel">
           {condition.readingAgeHours !== null && condition.readingAgeHours < 24
             ? `${Math.round(condition.readingAgeHours)}h ago`
             : 'Updated'}

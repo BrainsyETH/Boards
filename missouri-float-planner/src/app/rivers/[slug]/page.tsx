@@ -11,6 +11,7 @@ import ConditionsBlock from '@/components/river/ConditionsBlock';
 import DifficultyExperience from '@/components/river/DifficultyExperience';
 import LogisticsSection from '@/components/river/LogisticsSection';
 import PointsOfInterest from '@/components/river/PointsOfInterest';
+import WeatherBug from '@/components/ui/WeatherBug';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useRiver } from '@/hooks/useRivers';
 import { useAccessPoints } from '@/hooks/useAccessPoints';
@@ -38,7 +39,7 @@ export default function RiverPage() {
 
   if (riverLoading) {
     return (
-      <div className="min-h-screen bg-ozark-900 flex items-center justify-center">
+      <div className="min-h-screen bg-river-night flex items-center justify-center">
         <LoadingSpinner size="lg" />
       </div>
     );
@@ -46,13 +47,13 @@ export default function RiverPage() {
 
   if (riverError || !river) {
     return (
-      <div className="min-h-screen bg-ozark-900 flex items-center justify-center">
+      <div className="min-h-screen bg-river-night flex items-center justify-center">
         <div className="text-center max-w-md px-4">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
             <span className="text-3xl">😕</span>
           </div>
           <h2 className="text-xl font-bold text-white mb-2">River Not Found</h2>
-          <p className="text-bluff-400">
+          <p className="text-river-gravel">
             The river you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
         </div>
@@ -61,7 +62,7 @@ export default function RiverPage() {
   }
 
   return (
-    <div className="min-h-screen bg-bluff-50">
+    <div className="min-h-screen bg-river-night">
       {/* River Header */}
       <RiverHeader 
         river={river} 
@@ -101,8 +102,11 @@ export default function RiverPage() {
 
           {/* Right Column - Map */}
           <div className="lg:col-span-1">
-            <div className="sticky top-4">
+            <div className="sticky top-4 relative">
               <div className="rounded-xl overflow-hidden shadow-2xl h-[600px]">
+                {/* Weather Bug overlay */}
+                <WeatherBug riverSlug={slug} riverId={river.id} />
+                
                 <MapContainer initialBounds={river.bounds}>
                   <RiverLayer
                     riverGeometry={river.geometry}
