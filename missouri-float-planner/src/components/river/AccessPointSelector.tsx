@@ -44,10 +44,16 @@ export default function AccessPointSelector({
     <div ref={dropdownRef} className="relative">
       {/* Trigger Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
         className="w-full px-4 py-3 bg-white border border-bluff-200 rounded-xl 
                    shadow-card hover:shadow-card-hover hover:border-river-400
-                   flex items-center justify-between gap-3 transition-all duration-200"
+                   flex items-center justify-between gap-3 transition-all duration-200
+                   focus:outline-none focus:ring-2 focus:ring-river-500 focus:ring-offset-2"
       >
         <div className="flex items-center gap-3 flex-1 text-left">
           {selectedPoint ? (
@@ -91,11 +97,15 @@ export default function AccessPointSelector({
               filteredPoints.map((point) => (
                 <button
                   key={point.id}
-                  onClick={() => {
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
                     onSelect(point.id);
                     setIsOpen(false);
                   }}
                   className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-river-50 transition-colors
+                             focus:outline-none focus:ring-2 focus:ring-river-500 focus:ring-inset
                              ${point.id === selectedId ? 'bg-river-50' : ''}`}
                 >
                   <span className="text-xl flex-shrink-0">

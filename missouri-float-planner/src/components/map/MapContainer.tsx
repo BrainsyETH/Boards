@@ -85,11 +85,11 @@ export default function MapContainer({
   }, [initialBounds]);
 
   return (
-    <div className="relative w-full h-full">
+    <div className="relative w-full h-full min-h-[400px]">
       <div 
         ref={mapContainer} 
         className="w-full h-full"
-        style={{ pointerEvents: 'auto' }}
+        style={{ pointerEvents: 'auto', minHeight: '400px' }}
       />
       {mapLoaded && map.current && (
         <MapProvider map={map.current}>{children}</MapProvider>

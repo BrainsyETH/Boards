@@ -90,8 +90,8 @@ export default function RiverLayer({
           geometry: smoothedGeometry,
           properties: {},
         });
-      } catch (error) {
-        console.warn('Error updating river source:', error);
+      } catch (err) {
+        console.warn('Error updating river source:', err);
       }
     } else {
       try {
@@ -136,8 +136,8 @@ export default function RiverLayer({
             },
           });
         }
-      } catch (error) {
-        console.warn('Error adding river source/layers:', error);
+      } catch (err) {
+        console.warn('Error adding river source/layers:', err);
       }
     }
 
@@ -150,8 +150,8 @@ export default function RiverLayer({
       if (hasLayer(glowLayerId)) {
         map.setPaintProperty(glowLayerId, 'line-width', selected ? 12 : 8);
       }
-    } catch (error) {
-      console.warn('Error updating layer styles:', error);
+    } catch (err) {
+      console.warn('Error updating layer styles:', err);
     }
 
     // Add route highlight if provided
@@ -165,8 +165,8 @@ export default function RiverLayer({
             geometry: smoothedRoute,
             properties: {},
           });
-        } catch (error) {
-          console.warn('Error updating route source:', error);
+        } catch (err) {
+          console.warn('Error updating route source:', err);
         }
       } else {
         try {
@@ -209,11 +209,11 @@ export default function RiverLayer({
                 'line-cap': 'round',
                 'line-join': 'round',
               },
-            });
-          }
-        } catch (error) {
-          console.warn('Error adding route source/layers:', error);
+          });
         }
+      } catch (err) {
+        console.warn('Error adding route source/layers:', err);
+      }
       }
     } else {
       // Remove route layers if no route
@@ -221,8 +221,8 @@ export default function RiverLayer({
         if (hasLayer(routeLayerId)) map.removeLayer(routeLayerId);
         if (hasLayer(routeGlowLayerId)) map.removeLayer(routeGlowLayerId);
         if (hasSource(routeSourceId)) map.removeSource(routeSourceId);
-      } catch (error) {
-        console.warn('Error removing route layers:', error);
+      } catch (err) {
+        console.warn('Error removing route layers:', err);
       }
     }
 
@@ -232,7 +232,7 @@ export default function RiverLayer({
         if (hasLayer(routeLayerId)) map.removeLayer(routeLayerId);
         if (hasLayer(routeGlowLayerId)) map.removeLayer(routeGlowLayerId);
         if (hasSource(routeSourceId)) map.removeSource(routeSourceId);
-      } catch (error) {
+      } catch {
         // Ignore cleanup errors
       }
     };

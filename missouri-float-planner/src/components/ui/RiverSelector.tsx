@@ -48,10 +48,16 @@ export default function RiverSelector({
     <div ref={dropdownRef} className={`relative ${className}`}>
       {/* Trigger Button */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
+        type="button"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsOpen(!isOpen);
+        }}
         className="w-full px-4 py-3 glass-card-dark border border-white/10 rounded-xl 
                    shadow-card hover:shadow-card-hover hover:border-river-water
-                   flex items-center justify-between gap-3 transition-all duration-200"
+                   flex items-center justify-between gap-3 transition-all duration-200
+                   focus:outline-none focus:ring-2 focus:ring-river-500 focus:ring-offset-2"
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-river-water to-river-forest 
@@ -90,18 +96,20 @@ export default function RiverSelector({
                         rounded-xl shadow-lg overflow-hidden animate-in">
           <div className="max-h-80 overflow-y-auto scrollbar-thin">
             {rivers.map((river) => (
-              <div
+              <button
                 key={river.id}
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onSelect(river.id);
+                  setIsOpen(false);
+                }}
                 className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-white/5 transition-colors relative
+                           focus:outline-none focus:ring-2 focus:ring-river-500 focus:ring-inset
                            ${river.id === selectedRiverId ? 'bg-white/5' : ''}`}
               >
-                <button
-                  onClick={() => {
-                    onSelect(river.id);
-                    setIsOpen(false);
-                  }}
-                  className="flex-1 text-left"
-                >
+                <div className="flex-1 text-left">
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-white">{river.name}</p>
                     {river.currentCondition && (
@@ -124,23 +132,27 @@ export default function RiverSelector({
                       {river.difficultyRating}
                     </span>
                   </div>
-                </button>
+                </div>
                 <div className="flex items-center gap-2">
                   {river.id === selectedRiverId && (
-                    <svg className="w-5 h-5 text-river-water" fill="currentColor" viewBox="0 0 20 20">
+                    <svg className="w-5 h-5 text-river-water flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                     </svg>
                   )}
                   <a
                     href={`/rivers/${river.slug}`}
-                    onClick={(e) => e.stopPropagation()}
-                    className="px-2 py-1 text-xs text-river-water hover:text-sky-warm hover:bg-white/5 rounded transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      window.location.href = `/rivers/${river.slug}`;
+                    }}
+                    className="px-2 py-1 text-xs text-river-water hover:text-sky-warm hover:bg-white/5 rounded transition-colors flex-shrink-0"
                     title="View river page"
                   >
                     View →
                   </a>
                 </div>
-              </div>
+              </button>
             ))}
           </div>
         </div>

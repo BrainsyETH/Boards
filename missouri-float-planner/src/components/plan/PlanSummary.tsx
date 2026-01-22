@@ -3,7 +3,10 @@
 // src/components/plan/PlanSummary.tsx
 // Themed float plan summary panel
 
-import type { FloatPlan, ConditionCode } from '@/types/api';
+import { useState, useEffect } from 'react';
+import type { FloatPlan, ConditionCode, VesselType } from '@/types/api';
+import { useVesselTypes } from '@/hooks/useVesselTypes';
+import { useFloatPlan } from '@/hooks/useFloatPlan';
 
 interface PlanSummaryProps {
   plan: FloatPlan | null;
@@ -28,6 +31,39 @@ export default function PlanSummary({
   onClose,
   onShare,
 }: PlanSummaryProps) {
+  const { data: vesselTypes } = useVesselTypes();
+  const [selectedVesselTypeId, setSelectedVesselTypeId] = useState<string | null>(null);
+  
+  // Find canoe and raft vessel types
+  const canoeVessel = vesselTypes?.find(v => v.slug === 'canoe');
+  const raftVessel = vesselTypes?.find(v => v.slug === 'raft');
+  
+  // Set initial vessel type from plan or default to canoe
+  useEffect(() => {
+    if (plan && !selectedVesselTypeId) {
+      setSelectedVesselTypeId(plan.vessel.id);
+    } else if (!plan && canoeVessel && !selectedVesselTypeId) {
+      setSelectedVesselTypeId(canoeVessel.id);
+    }
+  }, [plan, canoeVessel, selectedVesselTypeId]);
+
+  // Recalculate plan with selected vessel type
+  const planParams = plan
+    ? {
+        riverId: plan.river.id,
+        startId: plan.putIn.id,
+        endId: plan.takeOut.id,
+        vesselTypeId: selectedVesselTypeId || undefined,
+      }
+    : null;
+
+  const { data: recalculatedPlan, isLoading: recalculating } = useFloatPlan(planParams);
+  
+  // Use recalculated plan if vessel type changed, otherwise use original plan
+  const displayPlan = selectedVesselTypeId && selectedVesselTypeId !== plan?.vessel.id 
+    ? recalculatedPlan 
+    : plan;
+
   if (isLoading) {
     return (
       <div className="glass-card rounded-2xl p-6 w-80 animate-in">
@@ -42,9 +78,9 @@ export default function PlanSummary({
     );
   }
 
-  if (!plan) return null;
+  if (!displayPlan) return null;
 
-  const conditionStyle = conditionStyles[plan.condition.code];
+  const conditionStyle = conditionStyles[displayPlan.condition.code];
 
   return (
     <div className="glass-card rounded-2xl w-80 max-h-[85vh] overflow-hidden animate-slide-in-right">
@@ -53,7 +89,7 @@ export default function PlanSummary({
         <div className="flex justify-between items-start">
           <div>
             <h2 className="text-lg font-bold">Your Float Plan</h2>
-            <p className="text-river-300 text-sm mt-0.5">{plan.river.name}</p>
+            <p className="text-river-300 text-sm mt-0.5">{displayPlan.river.name}</p>
           </div>
           <button
             onClick={onClose}
@@ -77,8 +113,8 @@ export default function PlanSummary({
             </div>
             <div>
               <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Put-in</p>
-              <p className="font-semibold text-ozark-800">{plan.putIn.name}</p>
-              <p className="text-sm text-bluff-500">Mile {plan.putIn.riverMile.toFixed(1)}</p>
+              <p className="font-semibold text-ozark-800">{displayPlan.putIn.name}</p>
+              <p className="text-sm text-bluff-500">Mile {displayPlan.putIn.riverMile.toFixed(1)}</p>
             </div>
           </div>
           
@@ -91,8 +127,8 @@ export default function PlanSummary({
             </div>
             <div>
               <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Take-out</p>
-              <p className="font-semibold text-ozark-800">{plan.takeOut.name}</p>
-              <p className="text-sm text-bluff-500">Mile {plan.takeOut.riverMile.toFixed(1)}</p>
+              <p className="font-semibold text-ozark-800">{displayPlan.takeOut.name}</p>
+              <p className="text-sm text-bluff-500">Mile {displayPlan.takeOut.riverMile.toFixed(1)}</p>
             </div>
           </div>
         </div>
@@ -102,16 +138,50 @@ export default function PlanSummary({
           {/* Distance */}
           <div className="bg-bluff-50 rounded-xl p-3">
             <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Distance</p>
-            <p className="text-xl font-bold text-ozark-800">{plan.distance.formatted}</p>
+            <p className="text-xl font-bold text-ozark-800">{displayPlan.distance.formatted}</p>
           </div>
 
           {/* Float Time */}
           <div className="bg-river-50 rounded-xl p-3">
-            <p className="text-xs font-medium text-river-600 uppercase tracking-wide">Float Time</p>
-            {plan.floatTime ? (
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-medium text-river-600 uppercase tracking-wide">Float Time</p>
+              {/* Canoe/Raft Toggle */}
+              {canoeVessel && raftVessel && (
+                <div className="flex items-center gap-1 bg-white/60 rounded-lg p-0.5">
+                  <button
+                    onClick={() => setSelectedVesselTypeId(canoeVessel.id)}
+                    disabled={recalculating}
+                    className={`px-2 py-0.5 text-xs font-medium rounded transition-all ${
+                      selectedVesselTypeId === canoeVessel.id
+                        ? 'bg-river-500 text-white'
+                        : 'text-river-600 hover:text-river-700'
+                    } ${recalculating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    Canoe
+                  </button>
+                  <button
+                    onClick={() => setSelectedVesselTypeId(raftVessel.id)}
+                    disabled={recalculating}
+                    className={`px-2 py-0.5 text-xs font-medium rounded transition-all ${
+                      selectedVesselTypeId === raftVessel.id
+                        ? 'bg-river-500 text-white'
+                        : 'text-river-600 hover:text-river-700'
+                    } ${recalculating ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  >
+                    Raft
+                  </button>
+                </div>
+              )}
+            </div>
+            {recalculating ? (
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-4 border-2 border-river-500 border-t-transparent rounded-full animate-spin"></div>
+                <p className="text-sm text-river-600">Recalculating...</p>
+              </div>
+            ) : displayPlan.floatTime ? (
               <>
-                <p className="text-xl font-bold text-river-700">{plan.floatTime.formatted}</p>
-                <p className="text-xs text-river-500">{plan.floatTime.speedMph} mph</p>
+                <p className="text-xl font-bold text-river-700">{displayPlan.floatTime.formatted}</p>
+                <p className="text-xs text-river-500">{displayPlan.floatTime.speedMph} mph</p>
               </>
             ) : (
               <p className="text-sm text-red-600 font-medium">Not safe</p>
@@ -127,8 +197,8 @@ export default function PlanSummary({
             </svg>
             <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Drive Back</p>
           </div>
-          <p className="text-lg font-bold text-ozark-800">{plan.driveBack.formatted}</p>
-          <p className="text-sm text-bluff-500">{plan.driveBack.miles.toFixed(1)} miles</p>
+          <p className="text-lg font-bold text-ozark-800">{displayPlan.driveBack.formatted}</p>
+          <p className="text-sm text-bluff-500">{displayPlan.driveBack.miles.toFixed(1)} miles</p>
         </div>
 
         {/* Condition Badge */}
@@ -136,29 +206,29 @@ export default function PlanSummary({
           <div className="flex items-center gap-2">
             <span className="text-lg">{conditionStyle.icon}</span>
             <div>
-              <p className={`font-semibold ${conditionStyle.text}`}>{plan.condition.label}</p>
-              {plan.condition.gaugeHeightFt && (
+              <p className={`font-semibold ${conditionStyle.text}`}>{displayPlan.condition.label}</p>
+              {displayPlan.condition.gaugeHeightFt && (
                 <p className={`text-sm ${conditionStyle.text} opacity-75`}>
-                  Gauge: {plan.condition.gaugeHeightFt.toFixed(2)} ft
+                  Gauge: {displayPlan.condition.gaugeHeightFt.toFixed(2)} ft
                 </p>
               )}
             </div>
           </div>
-          {plan.condition.accuracyWarning && (
+          {displayPlan.condition.accuracyWarning && (
             <p className="text-xs mt-2 text-orange-600 bg-orange-50 rounded-lg px-2 py-1">
-              ⚠ {plan.condition.accuracyWarningReason}
+              ⚠ {displayPlan.condition.accuracyWarningReason}
             </p>
           )}
         </div>
 
         {/* Hazards */}
-        {plan.hazards.length > 0 && (
+        {displayPlan.hazards.length > 0 && (
           <div className="bg-amber-50 rounded-xl p-3">
             <p className="text-xs font-medium text-amber-600 uppercase tracking-wide mb-2">
               ⚠ Hazards on Route
             </p>
             <ul className="space-y-1">
-              {plan.hazards.map((hazard) => (
+              {displayPlan.hazards.map((hazard) => (
                 <li key={hazard.id} className="text-sm text-amber-800">
                   <span className="font-medium">{hazard.name}</span>
                   <span className="text-amber-600"> - Mile {hazard.riverMile.toFixed(1)}</span>
@@ -169,10 +239,10 @@ export default function PlanSummary({
         )}
 
         {/* Warnings */}
-        {plan.warnings.length > 0 && (
+        {displayPlan.warnings.length > 0 && (
           <div className="bg-red-50 border border-red-200 rounded-xl p-3">
             <ul className="space-y-1">
-              {plan.warnings.map((warning, idx) => (
+              {displayPlan.warnings.map((warning, idx) => (
                 <li key={idx} className="text-sm text-red-700 flex items-start gap-2">
                   <span className="text-red-500">•</span>
                   {warning}
@@ -185,7 +255,7 @@ export default function PlanSummary({
         {/* Vessel */}
         <div className="text-sm text-bluff-500 flex items-center gap-2">
           <span>🛶</span>
-          <span>Estimated for {plan.vessel.name}</span>
+          <span>Estimated for {displayPlan.vessel.name}</span>
         </div>
       </div>
 

@@ -44,10 +44,32 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
     );
   }
 
-  if (error || !condition) {
+  if (error) {
     return (
       <div className={`glass-card-dark rounded-xl p-4 border border-white/10 ${className}`}>
+        <h3 className="text-sm font-semibold text-white mb-2">River Conditions</h3>
         <p className="text-sm text-red-400">Unable to load conditions</p>
+      </div>
+    );
+  }
+
+  // Show unknown state if condition is null or code is unknown
+  if (!condition || condition.code === 'unknown') {
+    const style = conditionStyles['unknown'];
+    return (
+      <div className={`glass-card-dark rounded-xl p-4 border border-white/10 ${className}`}>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-semibold text-white">River Conditions</h3>
+        </div>
+        <div className={`rounded-lg p-3 ${style.bg}`}>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-lg">{style.icon}</span>
+            <p className={`font-semibold ${style.text}`}>Unknown Conditions</p>
+          </div>
+          <p className={`text-xs ${style.text} opacity-75`}>
+            Gauge data is not available for this river at this time. Please check USGS website for current conditions.
+          </p>
+        </div>
       </div>
     );
   }
@@ -57,7 +79,7 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
   return (
     <div className={`glass-card-dark rounded-xl p-4 border border-white/10 ${className}`}>
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-white">Current Conditions</h3>
+        <h3 className="text-sm font-semibold text-white">River Conditions</h3>
         <span className="text-xs text-river-gravel">
           {condition.readingAgeHours !== null && condition.readingAgeHours < 24
             ? `${Math.round(condition.readingAgeHours)}h ago`

@@ -85,9 +85,6 @@ export default function SharedPlanPage() {
           </div>
           <h1 className="text-2xl font-bold text-white mb-3">Plan Not Found</h1>
           <p className="text-bluff-400 mb-6">{error}</p>
-          <button onClick={handlePlanYourOwn} className="btn-primary">
-            Plan Your Own Trip
-          </button>
         </div>
       </div>
     );
@@ -104,7 +101,7 @@ export default function SharedPlanPage() {
       {/* Header */}
       <header className="relative z-20 bg-ozark-800 border-b border-ozark-700">
         <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-river-500 to-river-700 
                             flex items-center justify-center shadow-glow">
@@ -115,17 +112,14 @@ export default function SharedPlanPage() {
                 <p className="text-sm text-river-300">{plan.river.name}</p>
               </div>
             </div>
-            <button onClick={handlePlanYourOwn} className="btn-accent">
-              Plan Your Own Trip
-            </button>
           </div>
         </div>
       </header>
 
       {/* Map and Plan */}
-      <main className="flex-1 flex flex-col lg:flex-row">
+      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
         {/* Map */}
-        <div className="flex-1 relative">
+        <div className="flex-1 relative min-h-[400px] lg:min-h-0 order-2 lg:order-1">
           <MapContainer initialBounds={bounds}>
             <RiverLayer
               riverGeometry={plan.route.geometry}
@@ -140,7 +134,7 @@ export default function SharedPlanPage() {
         </div>
 
         {/* Plan Summary Sidebar */}
-        <div className="lg:w-96 bg-white lg:border-l border-bluff-200 overflow-y-auto">
+        <div className="w-full lg:w-96 bg-white lg:border-l border-bluff-200 overflow-y-auto order-1 lg:order-2">
           <div className="p-6">
             <PlanSummary
               plan={plan}

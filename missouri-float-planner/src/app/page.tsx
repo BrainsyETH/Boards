@@ -223,9 +223,9 @@ export default function Home() {
       </header>
 
       {/* Main content area - split layout */}
-      <main className="flex-1 flex gap-4 p-4 overflow-hidden">
+      <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
         {/* Left sidebar - Conditions and info */}
-        <aside className="w-80 flex-shrink-0 flex flex-col gap-4 overflow-y-auto scrollbar-thin">
+        <aside className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 overflow-y-auto scrollbar-thin order-2 lg:order-1">
           {/* Conditions Panel */}
           <ConditionsPanel riverId={selectedRiverId} />
           
@@ -241,7 +241,7 @@ export default function Home() {
         </aside>
 
         {/* Map Container - takes remaining space */}
-        <div className="flex-1 relative rounded-xl overflow-hidden shadow-2xl">
+        <div className="flex-1 relative rounded-xl overflow-hidden shadow-2xl min-h-[400px] lg:min-h-0 order-1 lg:order-2">
           {/* Weather Bug - floating overlay */}
           {selectedRiverId && selectedRiverSlug && (
             <WeatherBug 

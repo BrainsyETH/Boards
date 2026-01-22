@@ -73,7 +73,7 @@ export default function RiverPage() {
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
             {/* Planner Panel */}
             <PlannerPanel
               river={river}
@@ -101,9 +101,9 @@ export default function RiverPage() {
           </div>
 
           {/* Right Column - Map */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-1 order-1 lg:order-2">
             <div className="sticky top-4 relative">
-              <div className="rounded-xl overflow-hidden shadow-2xl h-[600px]">
+              <div className="rounded-xl overflow-hidden shadow-2xl h-[400px] sm:h-[500px] lg:h-[600px] w-full">
                 {/* Weather Bug overlay */}
                 <WeatherBug riverSlug={slug} riverId={river.id} />
                 

@@ -55,10 +55,10 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
       <h3 className="text-xl font-bold text-white mb-4">Conditions & Safety</h3>
 
       <div className="space-y-4">
-        {/* Current Condition */}
+        {/* River Condition */}
         <div className={`rounded-xl p-4 ${conditionColorClass}`}>
           <div className="flex items-center justify-between mb-2">
-            <h4 className="font-semibold">Current Condition</h4>
+            <h4 className="font-semibold">River Condition</h4>
             <span className="text-xs opacity-75">
               {displayCondition.readingAgeHours !== null && displayCondition.readingAgeHours < 24
                 ? `Updated ${Math.round(displayCondition.readingAgeHours)}h ago`

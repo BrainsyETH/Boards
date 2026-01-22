@@ -69,11 +69,18 @@ export default function VesselSelector({
         return (
           <button
             key={vessel.id}
-            onClick={() => onSelect(vessel.id)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onSelect(vessel.id);
+            }}
+            type="button"
             title={vessel.description}
+            aria-pressed={isSelected}
             className={`
               group flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 
               transition-all duration-200 ease-out
+              focus:outline-none focus:ring-2 focus:ring-river-500 focus:ring-offset-2
               ${
                 isSelected
                   ? 'border-river-500 bg-river-50 text-river-700 shadow-glow'
@@ -83,7 +90,7 @@ export default function VesselSelector({
           >
             <VesselIcon
               type={vessel.slug}
-              className={`w-6 h-6 transition-colors ${
+              className={`w-6 h-6 transition-colors flex-shrink-0 ${
                 isSelected ? 'text-river-600' : 'text-bluff-400 group-hover:text-river-500'
               }`}
             />
