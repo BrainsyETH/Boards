@@ -52,8 +52,20 @@ export default function MapContainer({
     // Set map background to river-night
     map.current.on('style.load', () => {
       if (map.current) {
-        map.current.setPaintProperty('background', 'background-color', '#0f132f');
+        try {
+          map.current.setPaintProperty('background', 'background-color', '#0f132f');
+        } catch (error) {
+          // Background layer might not exist in all styles
+          console.warn('Could not set background color:', error);
+        }
       }
+    });
+
+    // Handle missing images (suppress warnings for style images)
+    map.current.on('styleimagemissing', (e: maplibregl.MapStyleImageMissingEvent) => {
+      // Suppress warnings for missing style images (like us-interstate_6)
+      // These are typically from the map style and don't affect functionality
+      console.debug('Map style image missing:', e.id);
     });
 
     // Add navigation controls

@@ -41,7 +41,18 @@ export default function RiverLayer({
   const map = useMap();
 
   useEffect(() => {
-    if (!riverGeometry) return;
+    if (!riverGeometry || !map) return;
+
+    // Ensure map is loaded before proceeding
+    if (!map.loaded()) {
+      const handleLoad = () => {
+        // Map loaded, effect will re-run
+      };
+      map.once('load', handleLoad);
+      return () => {
+        map.off('load', handleLoad);
+      };
+    }
 
     const sourceId = 'river-source';
     const layerId = 'river-layer';
@@ -50,114 +61,74 @@ export default function RiverLayer({
     const routeLayerId = 'route-layer';
     const routeGlowLayerId = 'route-glow-layer';
 
+    // Helper to safely check if source exists
+    const hasSource = (id: string): boolean => {
+      try {
+        return map.getSource(id) !== undefined;
+      } catch {
+        return false;
+      }
+    };
+
+    // Helper to safely check if layer exists
+    const hasLayer = (id: string): boolean => {
+      try {
+        return map.getLayer(id) !== undefined;
+      } catch {
+        return false;
+      }
+    };
+
     // Smooth the river geometry
     const smoothedGeometry = smoothLineString(riverGeometry);
 
     // Add or update river source
-    if (map.getSource(sourceId)) {
-      (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData({
-        type: 'Feature',
-        geometry: smoothedGeometry,
-        properties: {},
-      });
-    } else {
-      map.addSource(sourceId, {
-        type: 'geojson',
-        data: {
+    if (hasSource(sourceId)) {
+      try {
+        (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData({
           type: 'Feature',
           geometry: smoothedGeometry,
           properties: {},
-        },
-      });
-
-      // Add glow layer first (underneath) - using river-water color
-      if (!map.getLayer(glowLayerId)) {
-        map.addLayer({
-          id: glowLayerId,
-          type: 'line',
-          source: sourceId,
-          paint: {
-            'line-color': '#39a0ca', // river-water
-            'line-width': selected ? 12 : 8,
-            'line-opacity': 0.2,
-            'line-blur': 4,
-          },
         });
+      } catch (error) {
+        console.warn('Error updating river source:', error);
       }
-
-      // Add main river layer - using river-water color
-      if (!map.getLayer(layerId)) {
-        map.addLayer({
-          id: layerId,
-          type: 'line',
-          source: sourceId,
-          paint: {
-            'line-color': '#39a0ca', // river-water
-            'line-width': selected ? 4 : 2,
-            'line-opacity': 0.9,
-          },
-          layout: {
-            'line-cap': 'round',
-            'line-join': 'round',
-          },
-        });
-      }
-    }
-
-    // Update layer styles if selection changed - keep river-water color
-    if (map.getLayer(layerId)) {
-      map.setPaintProperty(layerId, 'line-color', '#39a0ca'); // river-water
-      map.setPaintProperty(layerId, 'line-width', selected ? 4 : 2);
-    }
-    if (map.getLayer(glowLayerId)) {
-      map.setPaintProperty(glowLayerId, 'line-width', selected ? 12 : 8);
-    }
-
-    // Add route highlight if provided
-    if (routeGeometry) {
-      const smoothedRoute = smoothLineString(routeGeometry);
-      
-      if (map.getSource(routeSourceId)) {
-        (map.getSource(routeSourceId) as maplibregl.GeoJSONSource).setData({
-          type: 'Feature',
-          geometry: smoothedRoute,
-          properties: {},
-        });
-      } else {
-        map.addSource(routeSourceId, {
+    } else {
+      try {
+        map.addSource(sourceId, {
           type: 'geojson',
           data: {
             type: 'Feature',
-            geometry: smoothedRoute,
+            geometry: smoothedGeometry,
             properties: {},
           },
         });
 
-        // Route glow
-        if (!map.getLayer(routeGlowLayerId)) {
+        // Add glow layer first (underneath) - using river-water color
+        if (!hasLayer(glowLayerId)) {
           map.addLayer({
-            id: routeGlowLayerId,
+            id: glowLayerId,
             type: 'line',
-            source: routeSourceId,
+            source: sourceId,
             paint: {
-              'line-color': '#f472b6',
-              'line-width': 16,
-              'line-opacity': 0.3,
-              'line-blur': 6,
+              'line-color': '#39a0ca', // river-water
+              'line-width': selected ? 12 : 8,
+              'line-opacity': 0.2,
+              'line-blur': 4,
             },
           });
         }
 
-        // Main route line - using sky-warm for route highlight
-        if (!map.getLayer(routeLayerId)) {
+        // Add main river layer - using river-water color
+        if (!hasLayer(layerId)) {
           map.addLayer({
-            id: routeLayerId,
+            id: layerId,
             type: 'line',
-            source: routeSourceId,
+            source: sourceId,
             paint: {
-              'line-color': '#f95d9b', // sky-warm
-              'line-width': 6,
-              'line-opacity': 1,
+              'line-color': '#39a0ca', // river-water
+              'line-width': selected ? 4 : 2,
+              'line-opacity': 0.9,
             },
             layout: {
               'line-cap': 'round',
@@ -165,16 +136,105 @@ export default function RiverLayer({
             },
           });
         }
+      } catch (error) {
+        console.warn('Error adding river source/layers:', error);
+      }
+    }
+
+    // Update layer styles if selection changed - keep river-water color
+    try {
+      if (hasLayer(layerId)) {
+        map.setPaintProperty(layerId, 'line-color', '#39a0ca'); // river-water
+        map.setPaintProperty(layerId, 'line-width', selected ? 4 : 2);
+      }
+      if (hasLayer(glowLayerId)) {
+        map.setPaintProperty(glowLayerId, 'line-width', selected ? 12 : 8);
+      }
+    } catch (error) {
+      console.warn('Error updating layer styles:', error);
+    }
+
+    // Add route highlight if provided
+    if (routeGeometry) {
+      const smoothedRoute = smoothLineString(routeGeometry);
+      
+      if (hasSource(routeSourceId)) {
+        try {
+          (map.getSource(routeSourceId) as maplibregl.GeoJSONSource).setData({
+            type: 'Feature',
+            geometry: smoothedRoute,
+            properties: {},
+          });
+        } catch (error) {
+          console.warn('Error updating route source:', error);
+        }
+      } else {
+        try {
+          map.addSource(routeSourceId, {
+            type: 'geojson',
+            data: {
+              type: 'Feature',
+              geometry: smoothedRoute,
+              properties: {},
+            },
+          });
+
+          // Route glow
+          if (!hasLayer(routeGlowLayerId)) {
+            map.addLayer({
+              id: routeGlowLayerId,
+              type: 'line',
+              source: routeSourceId,
+              paint: {
+                'line-color': '#f472b6',
+                'line-width': 16,
+                'line-opacity': 0.3,
+                'line-blur': 6,
+              },
+            });
+          }
+
+          // Main route line - using sky-warm for route highlight
+          if (!hasLayer(routeLayerId)) {
+            map.addLayer({
+              id: routeLayerId,
+              type: 'line',
+              source: routeSourceId,
+              paint: {
+                'line-color': '#f95d9b', // sky-warm
+                'line-width': 6,
+                'line-opacity': 1,
+              },
+              layout: {
+                'line-cap': 'round',
+                'line-join': 'round',
+              },
+            });
+          }
+        } catch (error) {
+          console.warn('Error adding route source/layers:', error);
+        }
       }
     } else {
       // Remove route layers if no route
-      if (map.getLayer(routeLayerId)) map.removeLayer(routeLayerId);
-      if (map.getLayer(routeGlowLayerId)) map.removeLayer(routeGlowLayerId);
-      if (map.getSource(routeSourceId)) map.removeSource(routeSourceId);
+      try {
+        if (hasLayer(routeLayerId)) map.removeLayer(routeLayerId);
+        if (hasLayer(routeGlowLayerId)) map.removeLayer(routeGlowLayerId);
+        if (hasSource(routeSourceId)) map.removeSource(routeSourceId);
+      } catch (error) {
+        console.warn('Error removing route layers:', error);
+      }
     }
 
     return () => {
-      // Cleanup handled by parent
+      // Cleanup route layers on unmount
+      try {
+        if (hasLayer(routeLayerId)) map.removeLayer(routeLayerId);
+        if (hasLayer(routeGlowLayerId)) map.removeLayer(routeGlowLayerId);
+        if (hasSource(routeSourceId)) map.removeSource(routeSourceId);
+      } catch (error) {
+        // Ignore cleanup errors
+      }
     };
   }, [map, riverGeometry, selected, routeGeometry]);
 
