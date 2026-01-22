@@ -4,7 +4,10 @@
 // Themed access point markers on the map
 
 import { useEffect, useRef } from 'react';
+import React from 'react';
 import maplibregl from 'maplibre-gl';
+import { MapPin, Flag, FlagOff, type LucideIcon } from 'lucide-react';
+import { createRoot, Root } from 'react-dom/client';
 import { useMap } from './MapContainer';
 import type { AccessPoint } from '@/types/api';
 
@@ -24,45 +27,50 @@ export default function AccessPointMarkers({
   const map = useMap();
   const markersRef = useRef<maplibregl.Marker[]>([]);
   const popupsRef = useRef<maplibregl.Popup[]>([]);
+  const rootsRef = useRef<Root[]>([]);
 
   useEffect(() => {
-    // Clear existing markers and popups
+    // Clear existing markers, popups, and React roots
     markersRef.current.forEach((marker) => marker.remove());
     popupsRef.current.forEach((popup) => popup.remove());
+    rootsRef.current.forEach((root) => root.unmount());
     markersRef.current = [];
     popupsRef.current = [];
+    rootsRef.current = [];
+
+    if (!map || !accessPoints.length) return;
 
     // Create markers for each access point
     accessPoints.forEach((point) => {
       const isPutIn = point.id === selectedPutIn;
       const isTakeOut = point.id === selectedTakeOut;
 
-      // Determine marker style based on state
-      let bgColor = '#10b981'; // Default green for public
+      // Determine marker style based on state - using new color palette
+      let bgColor = '#c7b8a6'; // river-gravel for neutral markers
       let borderColor = '#ffffff';
-      let icon = '';
+      let iconType: 'putin' | 'takeout' | 'neutral' = 'neutral';
       let scale = 1;
       let zIndex = 1;
 
-      if (!point.isPublic) {
-        bgColor = '#f59e0b'; // Amber for private
-      }
-
       if (isPutIn) {
-        bgColor = '#14b8a6'; // River teal
+        bgColor = '#478559'; // river-forest (green) for put-in
         borderColor = '#ffffff';
-        icon = '🚩';
+        iconType = 'putin';
         scale = 1.2;
         zIndex = 10;
       } else if (isTakeOut) {
-        bgColor = '#f472b6'; // Sunset coral
+        bgColor = '#f95d9b'; // sky-warm (pink) for take-out
         borderColor = '#ffffff';
-        icon = '🏁';
+        iconType = 'takeout';
         scale = 1.2;
         zIndex = 10;
+      } else {
+        // Neutral marker - slightly different color for public/private
+        bgColor = point.isPublic ? '#c7b8a6' : '#a8a29e'; // river-gravel variants
+        iconType = 'neutral';
       }
 
-      // Create custom marker element
+      // Create custom marker element with React icon
       const el = document.createElement('div');
       el.className = 'access-point-marker';
       el.style.cssText = `
@@ -76,58 +84,68 @@ export default function AccessPointMarkers({
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: ${14 * scale}px;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         z-index: ${zIndex};
+        pointer-events: auto;
+        position: relative;
       `;
       
-      if (icon) {
-        el.textContent = icon;
+      // Render lucide icon using React
+      const iconSize = 16 * scale;
+      let IconComponent: LucideIcon;
+      
+      if (iconType === 'putin') {
+        IconComponent = Flag;
+      } else if (iconType === 'takeout') {
+        IconComponent = FlagOff;
       } else {
-        // Inner dot for regular markers
-        const innerDot = document.createElement('div');
-        innerDot.style.cssText = `
-          width: 8px;
-          height: 8px;
-          background: white;
-          border-radius: 50%;
-          opacity: 0.9;
-        `;
-        el.appendChild(innerDot);
+        IconComponent = MapPin;
       }
+      
+      // Create React root and render icon
+      const root = createRoot(el);
+      root.render(
+        React.createElement(IconComponent, { size: iconSize, color: 'white', strokeWidth: 2.5 })
+      );
+      rootsRef.current.push(root);
 
-      // Hover effect
+      // Hover effect with new color glow
       el.addEventListener('mouseenter', () => {
         el.style.transform = 'scale(1.15)';
-        el.style.boxShadow = '0 6px 20px rgba(0,0,0,0.4), 0 0 20px rgba(20,184,166,0.3)';
+        const glowColor = isPutIn 
+          ? 'rgba(71, 133, 89, 0.4)' // river-forest
+          : isTakeOut 
+          ? 'rgba(249, 93, 155, 0.4)' // sky-warm
+          : 'rgba(57, 160, 202, 0.3)'; // river-water
+        el.style.boxShadow = `0 6px 20px rgba(0,0,0,0.4), 0 0 20px ${glowColor}`;
       });
       el.addEventListener('mouseleave', () => {
         el.style.transform = 'scale(1)';
         el.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3), 0 0 0 2px rgba(255,255,255,0.1)';
       });
 
-      // Create popup
+      // Create popup with glassmorphism styling
       const popupContent = `
-        <div style="padding: 12px; min-width: 180px;">
-          <h3 style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px; color: #1a1a2e;">
+        <div style="padding: 12px; min-width: 180px; background: rgba(22, 23, 72, 0.9); backdrop-filter: blur(12px); border-radius: 8px;">
+          <h3 style="margin: 0 0 4px 0; font-weight: 600; font-size: 14px; color: #ffffff;">
             ${point.name}
           </h3>
-          <p style="margin: 0 0 8px 0; font-size: 12px; color: #78716c;">
+          <p style="margin: 0 0 8px 0; font-size: 12px; color: #c7b8a6;">
             Mile ${point.riverMile.toFixed(1)} • ${point.type.replace('_', ' ')}
           </p>
           ${point.isPublic 
-            ? '<span style="display: inline-block; padding: 2px 8px; background: #d1fae5; color: #065f46; border-radius: 999px; font-size: 11px;">Public Access</span>'
-            : '<span style="display: inline-block; padding: 2px 8px; background: #fef3c7; color: #92400e; border-radius: 999px; font-size: 11px;">Private</span>'
+            ? '<span style="display: inline-block; padding: 2px 8px; background: rgba(71, 133, 89, 0.3); color: #478559; border-radius: 999px; font-size: 11px;">Public Access</span>'
+            : '<span style="display: inline-block; padding: 2px 8px; background: rgba(199, 184, 166, 0.3); color: #c7b8a6; border-radius: 999px; font-size: 11px;">Private</span>'
           }
           ${point.feeRequired 
-            ? '<span style="display: inline-block; margin-left: 4px; padding: 2px 8px; background: #fce7f3; color: #9d174d; border-radius: 999px; font-size: 11px;">Fee Required</span>'
+            ? '<span style="display: inline-block; margin-left: 4px; padding: 2px 8px; background: rgba(249, 93, 155, 0.3); color: #f95d9b; border-radius: 999px; font-size: 11px;">Fee Required</span>'
             : ''
           }
           ${point.description 
-            ? `<p style="margin: 8px 0 0 0; font-size: 12px; color: #57534e;">${point.description}</p>`
+            ? `<p style="margin: 8px 0 0 0; font-size: 12px; color: #c7b8a6;">${point.description}</p>`
             : ''
           }
-          <p style="margin: 8px 0 0 0; font-size: 11px; color: #14b8a6; font-weight: 500;">
+          <p style="margin: 8px 0 0 0; font-size: 11px; color: #39a0ca; font-weight: 500;">
             Click to select as ${selectedPutIn ? 'take-out' : 'put-in'}
           </p>
         </div>
@@ -148,7 +166,7 @@ export default function AccessPointMarkers({
         popup.remove();
       });
 
-      // Create marker
+      // Create marker with click handler
       const marker = new maplibregl.Marker({
         element: el,
         anchor: 'center',
@@ -156,12 +174,23 @@ export default function AccessPointMarkers({
         .setLngLat([point.coordinates.lng, point.coordinates.lat])
         .addTo(map);
 
-      // Add click handler
-      el.addEventListener('click', (e) => {
+      // Add click handler - use both methods for reliability
+      const handleClick = (e: MouseEvent) => {
         e.stopPropagation();
+        e.preventDefault();
+        console.log('Marker clicked:', point.name);
         onMarkerClick?.(point);
         popup.remove();
-      });
+      };
+
+      // Add to element
+      el.addEventListener('click', handleClick);
+      
+      // Also add to marker element (same element, but ensures it works)
+      const markerEl = marker.getElement();
+      if (markerEl !== el) {
+        markerEl.addEventListener('click', handleClick);
+      }
 
       markersRef.current.push(marker);
       popupsRef.current.push(popup);
@@ -171,8 +200,10 @@ export default function AccessPointMarkers({
     return () => {
       markersRef.current.forEach((marker) => marker.remove());
       popupsRef.current.forEach((popup) => popup.remove());
+      rootsRef.current.forEach((root) => root.unmount());
       markersRef.current = [];
       popupsRef.current = [];
+      rootsRef.current = [];
     };
   }, [map, accessPoints, onMarkerClick, selectedPutIn, selectedTakeOut]);
 

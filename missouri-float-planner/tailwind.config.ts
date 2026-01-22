@@ -9,8 +9,21 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        // Ozark Float Planner Color Palette
-        // Deep navy/purple baseline
+        // Missouri Float Planner - Atmospheric Utility Color Palette
+        // Baselines (Backgrounds)
+        'river-deep': '#161748', // Primary UI cards/sections
+        'river-night': '#0f132f', // Global background/Map background
+        
+        // Accents (Highlights/Actions)
+        'sky-warm': '#f95d9b', // Primary Call-to-Action, sunset vibes
+        'sky-soft': '#f7a1c4', // Secondary gradients, hover states
+        
+        // Functional Colors
+        'river-water': '#39a0ca', // River polylines, active states
+        'river-forest': '#478559', // "Put-in" markers (Start)
+        'river-gravel': '#c7b8a6', // Text, secondary icons, gravel bars
+        
+        // Legacy colors (kept for backward compatibility during migration)
         ozark: {
           900: '#1a1a2e',
           800: '#16213e',
@@ -18,7 +31,6 @@ const config: Config = {
           600: '#2d4a7c',
           500: '#3d5a80',
         },
-        // Teal/blue river water
         river: {
           900: '#134e4a',
           800: '#115e59',
@@ -29,7 +41,6 @@ const config: Config = {
           300: '#99f6e4',
           200: '#ccfbf1',
         },
-        // Muted Ozark greens
         forest: {
           900: '#1a2e1a',
           800: '#22543d',
@@ -38,7 +49,6 @@ const config: Config = {
           500: '#48bb78',
           400: '#68d391',
         },
-        // Warm coral/pink accents
         sunset: {
           900: '#9d174d',
           800: '#be185d',
@@ -48,7 +58,6 @@ const config: Config = {
           400: '#f9a8d4',
           300: '#fbcfe8',
         },
-        // Warm golden highlights
         golden: {
           900: '#92400e',
           800: '#b45309',
@@ -57,7 +66,6 @@ const config: Config = {
           500: '#fbbf24',
           400: '#fcd34d',
         },
-        // Limestone bluff grays
         bluff: {
           900: '#1c1917',
           800: '#292524',

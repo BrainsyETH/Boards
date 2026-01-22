@@ -7,7 +7,16 @@
    ========================================= */
 
 :root {
-  /* Core colors */
+  /* New Atmospheric Utility Color Palette */
+  --color-river-deep: #161748;
+  --color-river-night: #0f132f;
+  --color-sky-warm: #f95d9b;
+  --color-sky-soft: #f7a1c4;
+  --color-river-water: #39a0ca;
+  --color-river-forest: #478559;
+  --color-river-gravel: #c7b8a6;
+  
+  /* Legacy colors (for backward compatibility) */
   --color-ozark-900: #1a1a2e;
   --color-ozark-800: #16213e;
   --color-ozark-700: #1f3460;
@@ -38,25 +47,25 @@
   --color-bluff-100: #f5f5f4;
   
   /* Semantic colors */
-  --background: #f5f5f4;
-  --foreground: #1a1a2e;
-  --card-bg: #ffffff;
-  --card-border: #e7e5e4;
+  --background: #0f132f; /* river-night */
+  --foreground: #c7b8a6; /* river-gravel */
+  --card-bg: rgba(22, 23, 72, 0.8); /* river-deep with opacity */
+  --card-border: rgba(255, 255, 255, 0.1);
   
   /* Shadows */
-  --shadow-glow: 0 0 20px rgba(45, 212, 191, 0.3);
-  --shadow-glow-sunset: 0 0 20px rgba(244, 114, 182, 0.3);
-  --shadow-card: 0 4px 6px -1px rgba(26, 26, 46, 0.1), 0 2px 4px -2px rgba(26, 26, 46, 0.1);
-  --shadow-card-hover: 0 10px 15px -3px rgba(26, 26, 46, 0.15), 0 4px 6px -4px rgba(26, 26, 46, 0.1);
+  --shadow-glow: 0 0 20px rgba(57, 160, 202, 0.3); /* river-water */
+  --shadow-glow-sunset: 0 0 20px rgba(249, 93, 155, 0.3); /* sky-warm */
+  --shadow-card: 0 4px 6px -1px rgba(15, 19, 47, 0.3), 0 2px 4px -2px rgba(15, 19, 47, 0.2);
+  --shadow-card-hover: 0 10px 15px -3px rgba(15, 19, 47, 0.4), 0 4px 6px -4px rgba(15, 19, 47, 0.3);
 }
 
-/* Dark mode support */
+/* Dark mode support - using river-night as default */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #1a1a2e;
-    --foreground: #f5f5f4;
-    --card-bg: #16213e;
-    --card-border: #2d4a7c;
+    --background: #0f132f; /* river-night */
+    --foreground: #c7b8a6; /* river-gravel */
+    --card-bg: rgba(22, 23, 72, 0.8); /* river-deep with opacity */
+    --card-border: rgba(255, 255, 255, 0.1);
   }
 }
 
@@ -84,19 +93,34 @@ h1, h2, h3, h4, h5, h6 {
    Component Styles
    ========================================= */
 
-/* Glass card effect */
+/* Glass card effect - Enhanced glassmorphism */
 .glass-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(22, 23, 72, 0.8); /* river-deep with opacity */
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: var(--shadow-card);
 }
 
 .glass-card-dark {
-  background: rgba(22, 33, 62, 0.9);
-  backdrop-filter: blur(12px);
+  background: rgba(22, 23, 72, 0.9); /* river-deep with higher opacity */
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: var(--shadow-card);
+}
+
+/* Additional glassmorphism utilities */
+.glass-bg {
+  background: rgba(22, 23, 72, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glass-bg-soft {
+  background: rgba(22, 23, 72, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Button styles */

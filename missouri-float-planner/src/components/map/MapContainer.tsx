@@ -22,11 +22,12 @@ export default function MapContainer({
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
+    // Use dark map style (CartoDB Dark Matter or similar)
     const mapStyleUrl =
       process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
-      'https://demotiles.maplibre.org/style.json';
+      'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json';
 
-    // Initialize map
+    // Initialize map with dark theme
     map.current = new maplibregl.Map({
       container: mapContainer.current,
       style: mapStyleUrl,
@@ -47,6 +48,25 @@ export default function MapContainer({
         padding: 50,
       },
     });
+    
+    // Set map background to river-night
+    map.current.on('style.load', () => {
+      if (map.current) {
+        try {
+          map.current.setPaintProperty('background', 'background-color', '#0f132f');
+        } catch (error) {
+          // Background layer might not exist in all styles
+          console.warn('Could not set background color:', error);
+        }
+      }
+    });
+
+    // Handle missing images (suppress warnings for style images)
+    map.current.on('styleimagemissing', (e: maplibregl.MapStyleImageMissingEvent) => {
+      // Suppress warnings for missing style images (like us-interstate_6)
+      // These are typically from the map style and don't affect functionality
+      console.debug('Map style image missing:', e.id);
+    });
 
     // Add navigation controls
     map.current.addControl(new maplibregl.NavigationControl(), 'top-right');
@@ -66,7 +86,11 @@ export default function MapContainer({
 
   return (
     <div className="relative w-full h-full">
-      <div ref={mapContainer} className="w-full h-full" />
+      <div 
+        ref={mapContainer} 
+        className="w-full h-full"
+        style={{ pointerEvents: 'auto' }}
+      />
       {mapLoaded && map.current && (
         <MapProvider map={map.current}>{children}</MapProvider>
       )}
