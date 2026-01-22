@@ -3,7 +3,7 @@
 // src/components/river/PlannerPanel.tsx
 // Primary planning interaction panel
 
-import { useState, useCallback } from 'react';
+import { useState } from 'react';
 import dynamic from 'next/dynamic';
 import VesselSelector from '@/components/ui/VesselSelector';
 import PlanSummary from '@/components/plan/PlanSummary';

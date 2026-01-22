@@ -7,7 +7,6 @@ import { useQuery } from '@tanstack/react-query';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 interface PointsOfInterestProps {
-  riverId: string;
   riverSlug: string;
 }
 
@@ -20,7 +19,7 @@ interface POI {
   coordinates: { lng: number; lat: number } | null;
 }
 
-export default function PointsOfInterest({ riverId, riverSlug }: PointsOfInterestProps) {
+export default function PointsOfInterest({ riverSlug }: PointsOfInterestProps) {
   // For MVP, we'll use hazards as POIs (can be expanded later with dedicated POI table)
   const { data: hazards, isLoading } = useQuery({
     queryKey: ['hazards', riverSlug],

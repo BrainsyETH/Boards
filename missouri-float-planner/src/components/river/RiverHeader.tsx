@@ -5,7 +5,6 @@
 
 import { useRouter } from 'next/navigation';
 import type { RiverWithDetails, RiverCondition } from '@/types/api';
-import { getConditionLabel, getConditionColorClass } from '@/lib/calculations/conditions';
 
 interface RiverHeaderProps {
   river: RiverWithDetails;
@@ -36,8 +35,6 @@ export default function RiverHeader({ river, condition }: RiverHeaderProps) {
   };
 
   const navigability = getNavigabilityStatus();
-  const conditionLabel = condition ? getConditionLabel(condition.code) : 'Unknown';
-  const conditionColor = condition ? getConditionColorClass(condition.code) : 'bg-bluff-400';
 
   return (
     <div className="bg-gradient-to-br from-ozark-900 via-ozark-800 to-ozark-900 text-white">

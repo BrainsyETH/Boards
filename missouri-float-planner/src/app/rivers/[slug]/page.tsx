@@ -53,7 +53,7 @@ export default function RiverPage() {
           </div>
           <h2 className="text-xl font-bold text-white mb-2">River Not Found</h2>
           <p className="text-bluff-400">
-            The river you're looking for doesn't exist or has been removed.
+            The river you&apos;re looking for doesn&apos;t exist or has been removed.
           </p>
         </div>
       </div>
@@ -96,7 +96,7 @@ export default function RiverPage() {
             />
 
             {/* Points of Interest */}
-            <PointsOfInterest riverId={river.id} riverSlug={slug} />
+            <PointsOfInterest riverSlug={slug} />
           </div>
 
           {/* Right Column - Map */}
