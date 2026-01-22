@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getDriveTime } from '@/lib/mapbox/directions';
 import { calculateFloatTime, formatFloatTime, formatDistance, formatDriveTime } from '@/lib/calculations/floatTime';
-import type { PlanResponse, FloatPlan } from '@/types/api';
+import type { PlanResponse, FloatPlan, AccessPointType, HazardType, HazardSeverity } from '@/types/api';
 
 export async function GET(request: NextRequest) {
   try {
@@ -91,7 +91,8 @@ export async function GET(request: NextRequest) {
     }
 
     // Get float segment using database function
-    const { data: segment, error: segmentError } = await supabase.rpc(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: segment, error: segmentError } = await (supabase.rpc as any)(
       'get_float_segment',
       {
         p_start_access_id: startId,
@@ -110,7 +111,8 @@ export async function GET(request: NextRequest) {
     const distanceMiles = parseFloat(segmentData.distance_miles);
 
     // Get river condition
-    const { data: conditionData } = await supabase.rpc('get_river_condition', {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: conditionData } = await (supabase.rpc as any)('get_river_condition', {
       p_river_id: riverId,
     });
 
@@ -241,7 +243,7 @@ export async function GET(request: NextRequest) {
         name: putIn.name,
         slug: putIn.slug,
         riverMile: parseFloat(segmentData.start_river_mile),
-        type: putIn.type as any,
+        type: putIn.type as AccessPointType,
         isPublic: putIn.is_public,
         ownership: putIn.ownership,
         description: putIn.description,
@@ -260,7 +262,7 @@ export async function GET(request: NextRequest) {
         name: takeOut.name,
         slug: takeOut.slug,
         riverMile: parseFloat(segmentData.end_river_mile),
-        type: takeOut.type as any,
+        type: takeOut.type as AccessPointType,
         isPublic: takeOut.is_public,
         ownership: takeOut.ownership,
         description: takeOut.description,
@@ -313,12 +315,12 @@ export async function GET(request: NextRequest) {
         id: h.id,
         riverId: h.river_id,
         name: h.name,
-        type: h.type as any,
+        type: h.type as HazardType,
         riverMile: parseFloat(h.river_mile_downstream),
         description: h.description,
-        severity: h.severity as any,
+        severity: h.severity as HazardSeverity,
         portageRequired: h.portage_required,
-        portageSide: h.portage_side as any,
+        portageSide: h.portage_side as 'left' | 'right' | 'either' | null,
         seasonalNotes: h.seasonal_notes,
         coordinates: {
           lng: h.location?.coordinates?.[0] || 0,

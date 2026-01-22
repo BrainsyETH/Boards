@@ -6,22 +6,13 @@
 import { useEffect, useRef, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import type { AccessPoint } from '@/types/api';
-import type { Coordinates } from '@/types/geo';
-
 interface MapContainerProps {
   initialBounds?: [number, number, number, number]; // [minLng, minLat, maxLng, maxLat]
-  onAccessPointClick?: (point: AccessPoint) => void;
-  selectedPutIn?: string | null;
-  selectedTakeOut?: string | null;
   children?: React.ReactNode;
 }
 
 export default function MapContainer({
   initialBounds,
-  onAccessPointClick,
-  selectedPutIn,
-  selectedTakeOut,
   children,
 }: MapContainerProps) {
   const mapContainer = useRef<HTMLDivElement>(null);

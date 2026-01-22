@@ -38,7 +38,7 @@ export function calculateCenter(geometry: GeoJSON.LineString): Coordinates {
 /**
  * Converts PostGIS geometry to GeoJSON
  */
-export function postgisToGeoJSON(geom: any): GeoJSON.Geometry {
+export function postgisToGeoJSON(geom: unknown): GeoJSON.Geometry {
   // PostGIS returns geometry as GeoJSON already when using ST_AsGeoJSON
   // This is a type-safe wrapper
   return geom as GeoJSON.Geometry;

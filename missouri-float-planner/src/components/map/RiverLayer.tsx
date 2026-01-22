@@ -1,10 +1,9 @@
 'use client';
 
 // src/components/map/RiverLayer.tsx
-// Displays river lines on the map
+// Themed river line rendering
 
 import { useEffect } from 'react';
-import maplibregl from 'maplibre-gl';
 import { useMap } from './MapContainer';
 import type { GeoJSON } from 'geojson';
 
@@ -26,8 +25,10 @@ export default function RiverLayer({
 
     const sourceId = 'river-source';
     const layerId = 'river-layer';
+    const glowLayerId = 'river-glow-layer';
     const routeSourceId = 'route-source';
     const routeLayerId = 'route-layer';
+    const routeGlowLayerId = 'route-glow-layer';
 
     // Add or update river source
     if (map.getSource(sourceId)) {
@@ -46,25 +47,47 @@ export default function RiverLayer({
         },
       });
 
-      // Add river layer
+      // Add glow layer first (underneath)
+      if (!map.getLayer(glowLayerId)) {
+        map.addLayer({
+          id: glowLayerId,
+          type: 'line',
+          source: sourceId,
+          paint: {
+            'line-color': '#14b8a6',
+            'line-width': selected ? 12 : 8,
+            'line-opacity': 0.2,
+            'line-blur': 4,
+          },
+        });
+      }
+
+      // Add main river layer
       if (!map.getLayer(layerId)) {
         map.addLayer({
           id: layerId,
           type: 'line',
           source: sourceId,
           paint: {
-            'line-color': selected ? '#1e40af' : '#60a5fa',
+            'line-color': selected ? '#0f766e' : '#14b8a6',
             'line-width': selected ? 4 : 2,
-            'line-opacity': 0.8,
+            'line-opacity': 0.9,
+          },
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
           },
         });
       }
     }
 
-    // Update layer style if selection changed
+    // Update layer styles if selection changed
     if (map.getLayer(layerId)) {
-      map.setPaintProperty(layerId, 'line-color', selected ? '#1e40af' : '#60a5fa');
+      map.setPaintProperty(layerId, 'line-color', selected ? '#0f766e' : '#14b8a6');
       map.setPaintProperty(layerId, 'line-width', selected ? 4 : 2);
+    }
+    if (map.getLayer(glowLayerId)) {
+      map.setPaintProperty(glowLayerId, 'line-width', selected ? 12 : 8);
     }
 
     // Add route highlight if provided
@@ -85,33 +108,48 @@ export default function RiverLayer({
           },
         });
 
+        // Route glow
+        if (!map.getLayer(routeGlowLayerId)) {
+          map.addLayer({
+            id: routeGlowLayerId,
+            type: 'line',
+            source: routeSourceId,
+            paint: {
+              'line-color': '#f472b6',
+              'line-width': 16,
+              'line-opacity': 0.3,
+              'line-blur': 6,
+            },
+          });
+        }
+
+        // Main route line
         if (!map.getLayer(routeLayerId)) {
           map.addLayer({
             id: routeLayerId,
             type: 'line',
             source: routeSourceId,
             paint: {
-              'line-color': '#3b82f6',
+              'line-color': '#14b8a6',
               'line-width': 6,
-              'line-opacity': 0.9,
-              'line-dasharray': [2, 2],
+              'line-opacity': 1,
+            },
+            layout: {
+              'line-cap': 'round',
+              'line-join': 'round',
             },
           });
         }
       }
     } else {
-      // Remove route layer if no route
-      if (map.getLayer(routeLayerId)) {
-        map.removeLayer(routeLayerId);
-      }
-      if (map.getSource(routeSourceId)) {
-        map.removeSource(routeSourceId);
-      }
+      // Remove route layers if no route
+      if (map.getLayer(routeLayerId)) map.removeLayer(routeLayerId);
+      if (map.getLayer(routeGlowLayerId)) map.removeLayer(routeGlowLayerId);
+      if (map.getSource(routeSourceId)) map.removeSource(routeSourceId);
     }
 
-    // Cleanup
     return () => {
-      // Don't remove sources/layers on unmount - let parent handle cleanup
+      // Cleanup handled by parent
     };
   }, [map, riverGeometry, selected, routeGeometry]);
 

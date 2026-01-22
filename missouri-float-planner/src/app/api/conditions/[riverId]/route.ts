@@ -14,7 +14,8 @@ export async function GET(
     const supabase = await createClient();
 
     // Call the database function to get river condition
-    const { data, error } = await supabase.rpc('get_river_condition', {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase.rpc as any)('get_river_condition', {
       p_river_id: riverId,
     });
 

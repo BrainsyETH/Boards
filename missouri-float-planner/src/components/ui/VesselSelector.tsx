@@ -1,7 +1,7 @@
 'use client';
 
 // src/components/ui/VesselSelector.tsx
-// Component for selecting vessel type
+// Themed vessel type selector with icons
 
 import type { VesselType } from '@/types/api';
 
@@ -12,11 +12,48 @@ interface VesselSelectorProps {
   className?: string;
 }
 
-const vesselIcons: Record<string, string> = {
-  raft: '🛶',
-  canoe: '🛶',
-  kayak: '🛶',
-  tube: '🛟',
+// Custom SVG icons for each vessel type
+const VesselIcon = ({ type, className = '' }: { type: string; className?: string }) => {
+  switch (type) {
+    case 'kayak':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M2 12c0 0 4-6 10-6s10 6 10 6-4 6-10 6-10-6-10-6z" />
+          <path d="M12 6v12" />
+          <circle cx="12" cy="10" r="1.5" fill="currentColor" />
+        </svg>
+      );
+    case 'canoe':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M2 14c0 0 4-8 10-8s10 8 10 8-4 4-10 4-10-4-10-4z" />
+          <path d="M7 10v4" />
+          <path d="M17 10v4" />
+        </svg>
+      );
+    case 'raft':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <rect x="3" y="8" width="18" height="8" rx="4" />
+          <path d="M7 8v8" />
+          <path d="M12 8v8" />
+          <path d="M17 8v8" />
+        </svg>
+      );
+    case 'tube':
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <circle cx="12" cy="12" r="8" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      );
+    default:
+      return (
+        <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+          <path d="M2 12c0 0 4-6 10-6s10 6 10 6-4 6-10 6-10-6-10-6z" />
+        </svg>
+      );
+  }
 };
 
 export default function VesselSelector({
@@ -33,18 +70,23 @@ export default function VesselSelector({
           <button
             key={vessel.id}
             onClick={() => onSelect(vessel.id)}
+            title={vessel.description}
             className={`
-              flex items-center gap-2 px-4 py-2 rounded-lg border-2 transition-all
+              group flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 
+              transition-all duration-200 ease-out
               ${
                 isSelected
-                  ? 'border-blue-500 bg-blue-50 text-blue-700'
-                  : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                  ? 'border-river-500 bg-river-50 text-river-700 shadow-glow'
+                  : 'border-bluff-200 bg-white/80 text-bluff-600 hover:border-river-300 hover:bg-river-50/50'
               }
             `}
           >
-            <span className="text-xl">
-              {vesselIcons[vessel.icon] || '🛶'}
-            </span>
+            <VesselIcon
+              type={vessel.slug}
+              className={`w-6 h-6 transition-colors ${
+                isSelected ? 'text-river-600' : 'text-bluff-400 group-hover:text-river-500'
+              }`}
+            />
             <span className="font-medium">{vessel.name}</span>
           </button>
         );

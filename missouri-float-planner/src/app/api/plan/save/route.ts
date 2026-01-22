@@ -35,7 +35,8 @@ export async function POST(request: NextRequest) {
     const { plan } = await planResponse.json();
 
     // Generate unique short code
-    const { data: shortCodeData } = await supabase.rpc('generate_short_code', {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: shortCodeData } = await (supabase.rpc as any)('generate_short_code', {
       length: 8,
     });
 
@@ -56,7 +57,8 @@ export async function POST(request: NextRequest) {
       }
 
       // Generate new code
-      const { data: newCode } = await supabase.rpc('generate_short_code', {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: newCode } = await (supabase.rpc as any)('generate_short_code', {
         length: 8,
       });
       shortCode = newCode;

@@ -1,10 +1,10 @@
 'use client';
 
 // src/components/ui/RiverSelector.tsx
-// Dropdown component for selecting a river
+// Themed dropdown component for selecting a river
 
-import { useState, useEffect } from 'react';
-import type { RiverListItem } from '@/types/api';
+import { useState, useRef, useEffect } from 'react';
+import type { RiverListItem, ConditionCode } from '@/types/api';
 
 interface RiverSelectorProps {
   rivers: RiverListItem[];
@@ -13,38 +13,121 @@ interface RiverSelectorProps {
   className?: string;
 }
 
+const conditionColors: Record<ConditionCode, string> = {
+  optimal: 'bg-emerald-500',
+  low: 'bg-amber-500',
+  very_low: 'bg-orange-500',
+  high: 'bg-orange-500',
+  too_low: 'bg-red-500',
+  dangerous: 'bg-red-600',
+  unknown: 'bg-bluff-400',
+};
+
 export default function RiverSelector({
   rivers,
   selectedRiverId,
   onSelect,
   className = '',
 }: RiverSelectorProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const selectedRiver = rivers.find((r) => r.id === selectedRiverId);
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <div className={`relative ${className}`}>
-      <select
-        value={selectedRiverId || ''}
-        onChange={(e) => onSelect(e.target.value)}
-        className="w-full px-4 py-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none cursor-pointer"
+    <div ref={dropdownRef} className={`relative ${className}`}>
+      {/* Trigger Button */}
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-4 py-3 bg-white/90 backdrop-blur-md border border-bluff-200 rounded-xl 
+                   shadow-card hover:shadow-card-hover hover:border-river-400
+                   flex items-center justify-between gap-3 transition-all duration-200"
       >
-        <option value="">Select a river...</option>
-        {rivers.map((river) => (
-          <option key={river.id} value={river.id}>
-            {river.name}
-            {river.currentCondition && (
-              <span className="text-gray-500">
-                {' '}
-                - {river.currentCondition.label}
-              </span>
+        <div className="flex items-center gap-3">
+          <span className="text-2xl">🌊</span>
+          <div className="text-left">
+            {selectedRiver ? (
+              <>
+                <p className="font-medium text-ozark-800">{selectedRiver.name}</p>
+                <p className="text-sm text-bluff-500">
+                  {selectedRiver.lengthMiles.toFixed(1)} miles • {selectedRiver.accessPointCount} access points
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="font-medium text-ozark-800">Select a River</p>
+                <p className="text-sm text-bluff-500">Choose your floating adventure</p>
+              </>
             )}
-          </option>
-        ))}
-      </select>
-      {selectedRiver && selectedRiver.currentCondition && (
-        <div className="mt-2 text-sm text-gray-600">
-          <span className="font-medium">Current Condition:</span>{' '}
-          {selectedRiver.currentCondition.label}
+          </div>
+        </div>
+        <svg
+          className={`w-5 h-5 text-bluff-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* Dropdown Menu */}
+      {isOpen && (
+        <div className="absolute z-50 w-full mt-2 bg-white/95 backdrop-blur-md border border-bluff-200 
+                        rounded-xl shadow-lg overflow-hidden animate-in">
+          <div className="max-h-80 overflow-y-auto scrollbar-thin">
+            {rivers.map((river) => (
+              <button
+                key={river.id}
+                onClick={() => {
+                  onSelect(river.id);
+                  setIsOpen(false);
+                }}
+                className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-river-50 transition-colors
+                           ${river.id === selectedRiverId ? 'bg-river-50' : ''}`}
+              >
+                <div className="flex-1 text-left">
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium text-ozark-800">{river.name}</p>
+                    {river.currentCondition && (
+                      <span
+                        className={`w-2 h-2 rounded-full ${conditionColors[river.currentCondition.code]}`}
+                        title={river.currentCondition.label}
+                      />
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 mt-0.5">
+                    <span className="text-sm text-bluff-500">
+                      {river.lengthMiles.toFixed(1)} mi
+                    </span>
+                    <span className="text-bluff-300">•</span>
+                    <span className="text-sm text-bluff-500">
+                      {river.region}
+                    </span>
+                    <span className="text-bluff-300">•</span>
+                    <span className="text-sm text-bluff-500">
+                      {river.difficultyRating}
+                    </span>
+                  </div>
+                </div>
+                {river.id === selectedRiverId && (
+                  <svg className="w-5 h-5 text-river-600" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                  </svg>
+                )}
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -30,18 +30,21 @@ export async function POST(request: NextRequest) {
     const supabase = createAdminClient();
 
     // Get all active gauge stations
-    const { data: stations, error: stationsError } = await supabase
+    const { data: stationsData, error: stationsError } = await supabase
       .from('gauge_stations')
       .select('id, usgs_site_id')
       .eq('active', true);
 
-    if (stationsError || !stations) {
+    if (stationsError || !stationsData) {
       console.error('Error fetching gauge stations:', stationsError);
       return NextResponse.json(
         { error: 'Could not fetch gauge stations' },
         { status: 500 }
       );
     }
+
+    // Type assertion for stations
+    const stations = stationsData as Array<{ id: string; usgs_site_id: string }>;
 
     if (stations.length === 0) {
       return NextResponse.json({
