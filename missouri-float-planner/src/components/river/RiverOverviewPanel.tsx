@@ -45,7 +45,9 @@ export default function RiverOverviewPanel({
     };
   }, [isOpen]);
 
-  if (!isOpen || !river) return null;
+  if (!isOpen || !river) {
+    return null;
+  }
 
   return (
     <>
