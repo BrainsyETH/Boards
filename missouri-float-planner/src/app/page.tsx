@@ -10,7 +10,6 @@ import VesselSelector from '@/components/ui/VesselSelector';
 import PlanSummary from '@/components/plan/PlanSummary';
 import ConditionsPanel from '@/components/ui/ConditionsPanel';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
-import ErrorMessage from '@/components/ui/ErrorMessage';
 import { useRivers, useRiver } from '@/hooks/useRivers';
 import { useAccessPoints } from '@/hooks/useAccessPoints';
 import { useFloatPlan } from '@/hooks/useFloatPlan';
@@ -125,10 +124,21 @@ export default function Home() {
   if (riversError) {
     return (
       <div className="h-screen flex items-center justify-center bg-ozark-900">
-        <ErrorMessage
-          title="Failed to Load Rivers"
-          message="Unable to connect to the server. Please check your connection and try again."
-        />
+        <div className="text-center max-w-md px-4">
+          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 flex items-center justify-center">
+            <span className="text-3xl">😕</span>
+          </div>
+          <h2 className="text-xl font-bold text-white mb-2">Failed to Load Rivers</h2>
+          <p className="text-bluff-400 mb-6">
+            Unable to connect to the server. Please check your connection and try again.
+          </p>
+          <button
+            onClick={() => window.location.reload()}
+            className="btn-primary"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
