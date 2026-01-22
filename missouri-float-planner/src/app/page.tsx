@@ -19,6 +19,20 @@ import { useFloatPlan } from '@/hooks/useFloatPlan';
 import { useVesselTypes } from '@/hooks/useVesselTypes';
 import type { AccessPoint } from '@/types/api';
 
+// Hook to detect desktop viewport
+function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = useState(false);
+
+  useEffect(() => {
+    const checkDesktop = () => setIsDesktop(window.innerWidth >= 1024);
+    checkDesktop();
+    window.addEventListener('resize', checkDesktop);
+    return () => window.removeEventListener('resize', checkDesktop);
+  }, []);
+
+  return isDesktop;
+}
+
 // Dynamic import for map (client-side only)
 const MapContainer = dynamic(() => import('@/components/map/MapContainer'), {
   ssr: false,
@@ -39,6 +53,9 @@ export default function Home() {
   const [selectedVesselTypeId, setSelectedVesselTypeId] = useState<string | null>(null);
   const [showPlan, setShowPlan] = useState(false);
   const [showRiverModal, setShowRiverModal] = useState(false);
+
+  // Detect desktop viewport
+  const isDesktop = useIsDesktop();
 
   // Fetch data
   const { data: rivers, isLoading: riversLoading, error: riversError } = useRivers();
@@ -229,121 +246,139 @@ export default function Home() {
           )}
         </aside>
 
-        {/* Map Container - takes remaining space */}
-        <div className="flex-1 relative rounded-xl overflow-hidden shadow-2xl min-h-[400px] lg:min-h-0 order-1 lg:order-2">
-          {/* Weather Bug - floating overlay */}
-          {selectedRiverId && selectedRiverSlug && (
-            <WeatherBug 
-              riverSlug={selectedRiverSlug} 
-              riverId={selectedRiverId}
+        {/* Map Container with integrated bottom panel for desktop */}
+        <div className="flex-1 flex flex-col rounded-xl overflow-hidden shadow-2xl min-h-[400px] lg:min-h-0 order-1 lg:order-2">
+          {/* Map area - shrinks when panel is open on desktop */}
+          <div className={`relative flex-1 transition-all duration-300 ${
+            isDesktop && showRiverModal ? 'flex-[2]' : 'flex-1'
+          }`}>
+            {/* Weather Bug - floating overlay */}
+            {selectedRiverId && selectedRiverSlug && (
+              <WeatherBug
+                riverSlug={selectedRiverSlug}
+                riverId={selectedRiverId}
+              />
+            )}
+
+            {riversLoading ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-river-night">
+                <div className="text-center">
+                  <LoadingSpinner size="lg" />
+                  <p className="mt-4 text-river-gravel">Loading rivers...</p>
+                </div>
+              </div>
+            ) : !selectedRiverId ? (
+              <div className="absolute inset-0 flex items-center justify-center bg-river-night">
+                {/* Hero background */}
+                <div className="absolute inset-0 hero-gradient" />
+
+                {/* Hero content */}
+                <div className="relative z-10 text-center max-w-2xl px-4 animate-in">
+                  <div className="mb-8">
+                    <Waves className="w-16 h-16 mx-auto text-river-water" />
+                  </div>
+                  <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                    Discover Missouri&apos;s <br />
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-river-water to-sky-warm">
+                      Float Trips
+                    </span>
+                  </h2>
+                  <p className="text-lg text-river-gravel mb-8 max-w-lg mx-auto">
+                    Plan your perfect float on the Current River, Eleven Point, Meramec,
+                    and more. Real-time water conditions and shuttle times.
+                  </p>
+
+                  {/* Feature pills */}
+                  <div className="flex flex-wrap justify-center gap-3 mb-8">
+                    <span className="px-4 py-2 glass-bg border border-white/10 rounded-full text-sm text-white">
+                      8 Rivers
+                    </span>
+                    <span className="px-4 py-2 glass-bg border border-white/10 rounded-full text-sm text-white">
+                      30+ Access Points
+                    </span>
+                    <span className="px-4 py-2 glass-bg border border-white/10 rounded-full text-sm text-white">
+                      Real-time Conditions
+                    </span>
+                  </div>
+
+                  <p className="text-river-water animate-pulse">
+                    ↑ Select a river above to get started
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <>
+                {/* Toggle button for river modal */}
+                {selectedRiverId && river && !showRiverModal && (
+                  <button
+                    onClick={() => setShowRiverModal(true)}
+                    className="absolute bottom-4 left-4 z-30 bg-river-deep hover:bg-river-deep/90 text-white px-4 py-2 rounded-xl shadow-lg border-2 border-white/15 transition-colors"
+                    aria-label="Show river details"
+                  >
+                    <div className="flex items-center gap-2">
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span className="font-medium">River Info</span>
+                    </div>
+                  </button>
+                )}
+
+                {/* Mobile bottom sheet indicator */}
+                {selectedPutIn && !selectedTakeOut && (
+                  <div className="absolute bottom-4 left-4 right-4 md:hidden z-20">
+                    <div className="bg-river-deep border-2 border-white/15 rounded-xl p-4 text-center">
+                      <p className="text-river-gravel">
+                        Tap another marker for your <span className="text-sky-warm font-medium">take-out</span>
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                <MapContainer initialBounds={initialBounds}>
+                  {river && (
+                    <RiverLayer
+                      riverGeometry={river.geometry}
+                      selected={true}
+                      routeGeometry={plan?.route.geometry}
+                    />
+                  )}
+                  {accessPoints && (
+                    <AccessPointMarkers
+                      accessPoints={accessPoints}
+                      onMarkerClick={handleAccessPointClick}
+                      selectedPutIn={selectedPutIn}
+                      selectedTakeOut={selectedTakeOut}
+                    />
+                  )}
+                </MapContainer>
+              </>
+            )}
+          </div>
+
+          {/* Desktop: Inline river panel under map */}
+          {isDesktop && selectedRiverId && river && (
+            <RiverOverviewPanel
+              river={river}
+              condition={condition || null}
+              accessPointCount={accessPoints?.length || 0}
+              isOpen={showRiverModal}
+              onClose={handleCloseRiverModal}
+              isDesktop={true}
             />
-          )}
-          
-          {riversLoading ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-river-night">
-              <div className="text-center">
-                <LoadingSpinner size="lg" />
-                <p className="mt-4 text-river-gravel">Loading rivers...</p>
-              </div>
-            </div>
-          ) : !selectedRiverId ? (
-            <div className="absolute inset-0 flex items-center justify-center bg-river-night">
-              {/* Hero background */}
-              <div className="absolute inset-0 hero-gradient" />
-              
-              {/* Hero content */}
-              <div className="relative z-10 text-center max-w-2xl px-4 animate-in">
-                <div className="mb-8">
-                  <Waves className="w-16 h-16 mx-auto text-river-water" />
-                </div>
-                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                  Discover Missouri&apos;s <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-river-water to-sky-warm">
-                    Float Trips
-                  </span>
-                </h2>
-                <p className="text-lg text-river-gravel mb-8 max-w-lg mx-auto">
-                  Plan your perfect float on the Current River, Eleven Point, Meramec, 
-                  and more. Real-time water conditions and shuttle times.
-                </p>
-                
-                {/* Feature pills */}
-                <div className="flex flex-wrap justify-center gap-3 mb-8">
-                  <span className="px-4 py-2 glass-bg border border-white/10 rounded-full text-sm text-white">
-                    8 Rivers
-                  </span>
-                  <span className="px-4 py-2 glass-bg border border-white/10 rounded-full text-sm text-white">
-                    30+ Access Points
-                  </span>
-                  <span className="px-4 py-2 glass-bg border border-white/10 rounded-full text-sm text-white">
-                    Real-time Conditions
-                  </span>
-                </div>
-
-                <p className="text-river-water animate-pulse">
-                  ↑ Select a river above to get started
-                </p>
-              </div>
-            </div>
-          ) : (
-            <>
-              {/* Toggle button for river modal */}
-              {selectedRiverId && river && !showRiverModal && (
-                <button
-                  onClick={() => setShowRiverModal(true)}
-                  className="absolute bottom-4 left-4 z-30 bg-river-deep/90 hover:bg-river-deep text-white px-4 py-2 rounded-xl shadow-lg border border-white/10 backdrop-blur-sm transition-colors"
-                  aria-label="Show river details"
-                >
-                  <div className="flex items-center gap-2">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span className="font-medium">River Info</span>
-                  </div>
-                </button>
-              )}
-
-              {/* Mobile bottom sheet indicator */}
-              {selectedPutIn && !selectedTakeOut && (
-                <div className="absolute bottom-4 left-4 right-4 md:hidden z-20">
-                  <div className="bg-ozark-800/95 backdrop-blur-md rounded-xl p-4 text-center">
-                    <p className="text-river-300">
-                      👆 Tap another marker for your <span className="text-sunset-400 font-medium">take-out</span>
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              <MapContainer initialBounds={initialBounds}>
-                {river && (
-                  <RiverLayer
-                    riverGeometry={river.geometry}
-                    selected={true}
-                    routeGeometry={plan?.route.geometry}
-                  />
-                )}
-                {accessPoints && (
-                  <AccessPointMarkers
-                    accessPoints={accessPoints}
-                    onMarkerClick={handleAccessPointClick}
-                    selectedPutIn={selectedPutIn}
-                    selectedTakeOut={selectedTakeOut}
-                  />
-                )}
-              </MapContainer>
-            </>
           )}
         </div>
       </main>
 
-      {/* River Bottom Sheet - Outside map container */}
-      {selectedRiverId && river && (
+      {/* Mobile: River Bottom Sheet - Outside map container */}
+      {!isDesktop && selectedRiverId && river && (
         <RiverOverviewPanel
           river={river}
           condition={condition || null}
           accessPointCount={accessPoints?.length || 0}
           isOpen={showRiverModal}
           onClose={handleCloseRiverModal}
+          isDesktop={false}
         />
       )}
 

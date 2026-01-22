@@ -12,14 +12,14 @@ interface ConditionsPanelProps {
   className?: string;
 }
 
-const conditionStyles: Record<ConditionCode, { bg: string; text: string; icon: string; label: string }> = {
-  optimal: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: '✓', label: 'Optimal' },
-  low: { bg: 'bg-amber-100', text: 'text-amber-700', icon: '↓', label: 'Low' },
-  very_low: { bg: 'bg-orange-100', text: 'text-orange-700', icon: '⚠', label: 'Very Low' },
-  high: { bg: 'bg-orange-100', text: 'text-orange-700', icon: '↑', label: 'High' },
-  too_low: { bg: 'bg-red-100', text: 'text-red-700', icon: '✕', label: 'Too Low' },
-  dangerous: { bg: 'bg-red-200', text: 'text-red-800', icon: '⚠', label: 'Dangerous' },
-  unknown: { bg: 'bg-bluff-100', text: 'text-bluff-600', icon: '?', label: 'Unknown' },
+const conditionStyles: Record<ConditionCode, { bg: string; border: string; text: string; icon: string; label: string }> = {
+  optimal: { bg: 'bg-river-forest/20', border: 'border-river-forest/40', text: 'text-emerald-400', icon: '✓', label: 'Optimal' },
+  low: { bg: 'bg-amber-500/15', border: 'border-amber-500/30', text: 'text-amber-400', icon: '↓', label: 'Low' },
+  very_low: { bg: 'bg-orange-500/15', border: 'border-orange-500/30', text: 'text-orange-400', icon: '⚠', label: 'Very Low' },
+  high: { bg: 'bg-orange-500/15', border: 'border-orange-500/30', text: 'text-orange-400', icon: '↑', label: 'High' },
+  too_low: { bg: 'bg-red-500/15', border: 'border-red-500/30', text: 'text-red-400', icon: '✕', label: 'Too Low' },
+  dangerous: { bg: 'bg-red-500/20', border: 'border-red-500/40', text: 'text-red-400', icon: '⚠', label: 'Dangerous' },
+  unknown: { bg: 'bg-white/5', border: 'border-white/10', text: 'text-river-gravel', icon: '?', label: 'Unknown' },
 };
 
 export default function ConditionsPanel({ riverId, className = '' }: ConditionsPanelProps) {
@@ -61,7 +61,7 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-semibold text-white">River Conditions</h3>
         </div>
-        <div className={`rounded-lg p-3 ${style.bg}`}>
+        <div className={`rounded-xl p-3 border ${style.bg} ${style.border}`}>
           <div className="flex items-center gap-2 mb-2">
             <span className="text-lg">{style.icon}</span>
             <p className={`font-semibold ${style.text}`}>Unknown Conditions</p>
@@ -87,30 +87,30 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
         </span>
       </div>
 
-      <div className={`rounded-lg p-3 ${style.bg}`}>
-        <div className="flex items-center gap-2 mb-2">
+      <div className={`rounded-xl p-4 border ${style.bg} ${style.border}`}>
+        <div className="flex items-center gap-2 mb-3">
           <span className="text-lg">{style.icon}</span>
           <p className={`font-semibold ${style.text}`}>{condition.label}</p>
         </div>
 
         {condition.gaugeHeightFt !== null && (
-          <div className="space-y-1">
+          <div className="space-y-2">
             <div className="flex justify-between items-center">
-              <span className={`text-xs ${style.text} opacity-75`}>Gauge Height</span>
+              <span className="text-xs text-river-gravel">Gauge Height</span>
               <span className={`text-sm font-bold ${style.text}`}>
                 {condition.gaugeHeightFt.toFixed(2)} ft
               </span>
             </div>
             {condition.dischargeCfs !== null && (
               <div className="flex justify-between items-center">
-                <span className={`text-xs ${style.text} opacity-75`}>Discharge</span>
+                <span className="text-xs text-river-gravel">Discharge</span>
                 <span className={`text-sm font-bold ${style.text}`}>
                   {condition.dischargeCfs.toLocaleString()} cfs
                 </span>
               </div>
             )}
             {condition.gaugeName && (
-              <p className={`text-xs ${style.text} opacity-60 mt-1`}>
+              <p className="text-xs text-river-gravel/60 mt-2 pt-2 border-t border-white/5">
                 {condition.gaugeName}
               </p>
             )}
@@ -118,7 +118,7 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
         )}
 
         {condition.accuracyWarning && condition.accuracyWarningReason && (
-          <div className="mt-2 pt-2 border-t border-current border-opacity-20">
+          <div className="mt-3 pt-2 border-t border-white/10">
             <p className={`text-xs ${style.text} opacity-80`}>
               ⚠ {condition.accuracyWarningReason}
             </p>

@@ -3,68 +3,69 @@
 @tailwind utilities;
 
 /* =========================================
-   Missouri Float Planner - Ozark Theme
+   Missouri Float Planner - Nature-Inspired Theme
+   Clean, modern design with organic feel
    ========================================= */
 
 :root {
-  /* New Atmospheric Utility Color Palette */
-  --color-river-deep: #161748;
-  --color-river-night: #0f132f;
-  --color-sky-warm: #f95d9b;
-  --color-sky-soft: #f7a1c4;
-  --color-river-water: #39a0ca;
-  --color-river-forest: #478559;
-  --color-river-gravel: #c7b8a6;
-  
-  /* Legacy colors (for backward compatibility) */
+  /* Primary Palette - Nature-Inspired */
+  --color-river-deep: #161748;      /* Purple baseline - UI cards */
+  --color-river-night: #0f132f;     /* Deep background */
+  --color-sky-warm: #f95d9b;        /* Pink highlight - CTAs */
+  --color-sky-soft: #f7a1c4;        /* Soft pink - hover states */
+  --color-river-water: #39a0ca;     /* Blue water - active states */
+  --color-river-forest: #478559;    /* Green treeline - put-in markers */
+  --color-river-gravel: #c7b8a6;    /* Gravel tan - text, secondary */
+
+  /* Legacy colors (backward compatibility) */
   --color-ozark-900: #1a1a2e;
   --color-ozark-800: #16213e;
   --color-ozark-700: #1f3460;
   --color-ozark-600: #2d4a7c;
   --color-ozark-500: #3d5a80;
-  
+
   --color-river-700: #0f766e;
   --color-river-600: #14b8a6;
   --color-river-500: #2dd4bf;
   --color-river-400: #5eead4;
   --color-river-300: #99f6e4;
   --color-river-200: #ccfbf1;
-  
+
   --color-forest-700: #276749;
   --color-forest-600: #38a169;
-  
+
   --color-sunset-600: #ec4899;
   --color-sunset-500: #f472b6;
   --color-sunset-400: #f9a8d4;
-  
+
   --color-golden-600: #f59e0b;
   --color-golden-500: #fbbf24;
-  
+
   --color-bluff-500: #78716c;
   --color-bluff-400: #a8a29e;
   --color-bluff-300: #d6d3d1;
   --color-bluff-200: #e7e5e4;
   --color-bluff-100: #f5f5f4;
-  
-  /* Semantic colors */
-  --background: #0f132f; /* river-night */
-  --foreground: #c7b8a6; /* river-gravel */
-  --card-bg: #161748; /* river-deep - solid */
+
+  /* Semantic colors - Flat design */
+  --background: #0f132f;
+  --foreground: #c7b8a6;
+  --card-bg: #161748;
   --card-border: rgba(255, 255, 255, 0.15);
-  
-  /* Shadows - Flat, bold */
-  --shadow-glow: 0 4px 12px rgba(57, 160, 202, 0.25); /* river-water */
-  --shadow-glow-sunset: 0 4px 12px rgba(249, 93, 155, 0.25); /* sky-warm */
-  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.25);
-  --shadow-card-hover: 0 6px 16px rgba(0, 0, 0, 0.3);
+
+  /* Shadows - Subtle, no blur-heavy effects */
+  --shadow-glow: 0 4px 12px rgba(57, 160, 202, 0.2);
+  --shadow-glow-sunset: 0 4px 12px rgba(249, 93, 155, 0.2);
+  --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.2);
+  --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-/* Dark mode support - using river-night as default */
+/* Dark mode - consistent with default */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0f132f; /* river-night */
-    --foreground: #c7b8a6; /* river-gravel */
-    --card-bg: rgba(22, 23, 72, 0.8); /* river-deep with opacity */
+    --background: #0f132f;
+    --foreground: #c7b8a6;
+    --card-bg: #161748;
     --card-border: rgba(255, 255, 255, 0.1);
   }
 }
@@ -90,52 +91,59 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* =========================================
-   Component Styles - Nature-Inspired
+   Component Styles - Nature-Inspired Flat Design
    ========================================= */
 
-/* Flat card styles - no glassmorphism */
+/* Card styles - Clean, flat with subtle borders */
 .glass-card {
-  background: var(--color-river-deep); /* Solid color */
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  background: var(--color-river-deep);
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  box-shadow: var(--shadow-card);
+  border-radius: 1rem;
 }
 
 .glass-card-dark {
-  background: var(--color-river-deep); /* Solid color */
-  border: 2px solid rgba(255, 255, 255, 0.15);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  background: var(--color-river-deep);
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-card);
+  border-radius: 1rem;
 }
 
-/* Flat background utilities */
+/* Background utilities - No blur effects */
 .glass-bg {
   background: var(--color-river-deep);
   border: 2px solid rgba(255, 255, 255, 0.1);
 }
 
 .glass-bg-soft {
-  background: var(--color-river-deep);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(22, 23, 72, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* Button styles - Flat, bold, nature-inspired */
+/* Button styles - Modern, rounded, high contrast */
 .btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: 0.75rem 1.5rem;
-  background: var(--color-river-water); /* Solid color */
+  background: var(--color-river-water);
   color: white;
   font-weight: 600;
   border-radius: 0.75rem;
-  border: 2px solid var(--color-river-water);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: all 0.2s ease-out;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.15s ease-out;
 }
 
 .btn-primary:hover {
-  background: var(--color-river-forest);
-  border-color: var(--color-river-forest);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  background: #2d8ab3;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(57, 160, 202, 0.25);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 .btn-secondary {
@@ -143,18 +151,18 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   padding: 0.75rem 1.5rem;
-  background: white;
-  border: 2px solid var(--color-bluff-400);
-  color: var(--color-river-deep);
+  background: transparent;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  color: var(--color-river-gravel);
   font-weight: 600;
   border-radius: 0.75rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease-out;
+  transition: all 0.15s ease-out;
 }
 
 .btn-secondary:hover {
-  border-color: var(--color-river-water);
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: white;
 }
 
 .btn-accent {
@@ -162,74 +170,102 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: center;
   padding: 0.75rem 1.5rem;
-  background: var(--color-sky-warm); /* Solid pink */
+  background: var(--color-sky-warm);
   color: white;
   font-weight: 600;
   border-radius: 0.75rem;
-  border: 2px solid var(--color-sky-warm);
-  box-shadow: 0 4px 8px rgba(249, 93, 155, 0.3);
-  transition: all 0.2s ease-out;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 4px rgba(249, 93, 155, 0.2);
+  transition: all 0.15s ease-out;
 }
 
 .btn-accent:hover {
-  background: #e04d8a;
-  border-color: #e04d8a;
-  box-shadow: 0 6px 12px rgba(249, 93, 155, 0.4);
+  background: #e8508c;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(249, 93, 155, 0.3);
 }
 
-/* Condition badges */
+.btn-accent:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* Condition badges - Clean, flat with subtle borders */
 .badge-optimal {
-  background: #d1fae5;
-  color: #065f46;
-  border: 1px solid #6ee7b7;
+  background: rgba(71, 133, 89, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(71, 133, 89, 0.4);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-weight: 500;
 }
 
 .badge-low {
-  background: #fef3c7;
-  color: #92400e;
-  border: 1px solid #fcd34d;
+  background: rgba(251, 191, 36, 0.15);
+  color: #fcd34d;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-weight: 500;
 }
 
 .badge-high {
-  background: #ffedd5;
-  color: #9a3412;
-  border: 1px solid #fdba74;
+  background: rgba(251, 146, 60, 0.15);
+  color: #fdba74;
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-weight: 500;
 }
 
 .badge-danger {
-  background: #fee2e2;
-  color: #991b1b;
-  border: 1px solid #fca5a5;
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-weight: 500;
 }
 
 .badge-unknown {
-  background: #f3f4f6;
-  color: #374151;
-  border: 1px solid #d1d5db;
+  background: rgba(199, 184, 166, 0.1);
+  color: var(--color-river-gravel);
+  border: 1px solid rgba(199, 184, 166, 0.2);
+  border-radius: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  font-weight: 500;
 }
 
-/* Map styling - Flat design */
+/* Map popup styling - Clean, modern */
 .maplibregl-popup-content {
   border-radius: 0.75rem !important;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
   padding: 0 !important;
   overflow: hidden !important;
   background: var(--color-river-deep) !important;
-  border: 2px solid rgba(255, 255, 255, 0.15) !important;
+  border: 2px solid rgba(255, 255, 255, 0.12) !important;
 }
 
 .maplibregl-popup-close-button {
-  color: var(--color-ozark-600) !important;
-  font-size: 1.125rem !important;
-  width: 1.5rem !important;
-  height: 1.5rem !important;
+  color: var(--color-river-gravel) !important;
+  font-size: 1.25rem !important;
+  width: 2rem !important;
+  height: 2rem !important;
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  border-radius: 0.25rem !important;
+  transition: all 0.15s ease !important;
 }
 
 .maplibregl-popup-close-button:hover {
-  color: var(--color-ozark-900) !important;
+  color: white !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Map popup tip/arrow */
+.maplibregl-popup-tip {
+  border-top-color: var(--color-river-deep) !important;
 }
 
 /* Animations */
@@ -288,13 +324,15 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-bluff-500);
 }
 
-/* Hero overlay - Simplified */
+/* Hero overlay - Clean gradient */
 .hero-gradient {
-  background: var(--color-river-night);
-  opacity: 0.95;
+  background: linear-gradient(
+    180deg,
+    var(--color-river-night) 0%,
+    rgba(22, 23, 72, 0.95) 50%,
+    var(--color-river-night) 100%
+  );
 }
-
-/* River shimmer effect - Removed for flat design */
 
 /* Focus styles */
 *:focus-visible {
@@ -308,19 +346,43 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--color-ozark-900);
 }
 
-/* Utility shadows */
+/* Utility shadows - Subtle, organic */
 .shadow-glow {
-  box-shadow: var(--shadow-glow);
+  box-shadow: 0 0 16px rgba(57, 160, 202, 0.15);
 }
 
 .shadow-glow-sunset {
-  box-shadow: var(--shadow-glow-sunset);
+  box-shadow: 0 0 16px rgba(249, 93, 155, 0.15);
 }
 
 .shadow-card {
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .shadow-card-hover {
-  box-shadow: var(--shadow-card-hover);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Additional utility classes for nature theme */
+.text-gradient-water {
+  background: linear-gradient(135deg, var(--color-river-water) 0%, var(--color-river-forest) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-sunset {
+  background: linear-gradient(135deg, var(--color-sky-warm) 0%, var(--color-river-water) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Organic rounded corners utility */
+.rounded-organic {
+  border-radius: 1rem;
+}
+
+.rounded-organic-lg {
+  border-radius: 1.5rem;
 }

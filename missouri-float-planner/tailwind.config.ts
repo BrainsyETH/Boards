@@ -86,9 +86,10 @@ const config: Config = {
       },
       backgroundImage: {
         'gradient-ozark': 'linear-gradient(180deg, var(--tw-gradient-stops))',
-        'gradient-sunset': 'linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f766e 70%, #f472b6 100%)',
-        'gradient-river': 'linear-gradient(180deg, #14b8a6 0%, #0f766e 50%, #115e59 100%)',
-        'gradient-hero': 'linear-gradient(180deg, #fbcfe8 0%, #fcd34d 15%, #5eead4 40%, #0f766e 70%, #16213e 90%, #1a1a2e 100%)',
+        'gradient-sunset': 'linear-gradient(135deg, #161748 0%, #0f132f 50%, #161748 100%)',
+        'gradient-river': 'linear-gradient(180deg, #39a0ca 0%, #478559 100%)',
+        'gradient-hero': 'linear-gradient(180deg, #0f132f 0%, #161748 50%, #0f132f 100%)',
+        'gradient-card': 'linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%)',
       },
       animation: {
         'float': 'float 6s ease-in-out infinite',
