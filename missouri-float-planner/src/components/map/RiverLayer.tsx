@@ -1,16 +1,36 @@
 'use client';
 
 // src/components/map/RiverLayer.tsx
-// Themed river line rendering
+// Themed river line rendering with smoothing
 
 import { useEffect } from 'react';
 import { useMap } from './MapContainer';
+import * as turf from '@turf/turf';
 import type { GeoJSON } from 'geojson';
 
 interface RiverLayerProps {
   riverGeometry?: GeoJSON.LineString;
   selected?: boolean;
   routeGeometry?: GeoJSON.LineString;
+}
+
+// Smooth a line string using bezier spline
+function smoothLineString(geometry: GeoJSON.LineString): GeoJSON.LineString {
+  if (!geometry.coordinates || geometry.coordinates.length < 2) {
+    return geometry;
+  }
+
+  // Convert to Turf LineString
+  const line = turf.lineString(geometry.coordinates);
+  
+  // Simplify the line slightly to reduce points, then smooth
+  // This helps with performance and makes curves smoother
+  const simplified = turf.simplify(line, { tolerance: 0.0001, highQuality: true });
+  
+  // Use bezier spline for smooth curves
+  const smoothed = turf.bezierSpline(simplified, { resolution: 10000, sharpness: 0.85 });
+  
+  return smoothed.geometry;
 }
 
 export default function RiverLayer({
@@ -30,11 +50,14 @@ export default function RiverLayer({
     const routeLayerId = 'route-layer';
     const routeGlowLayerId = 'route-glow-layer';
 
+    // Smooth the river geometry
+    const smoothedGeometry = smoothLineString(riverGeometry);
+
     // Add or update river source
     if (map.getSource(sourceId)) {
       (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData({
         type: 'Feature',
-        geometry: riverGeometry,
+        geometry: smoothedGeometry,
         properties: {},
       });
     } else {
@@ -42,7 +65,7 @@ export default function RiverLayer({
         type: 'geojson',
         data: {
           type: 'Feature',
-          geometry: riverGeometry,
+          geometry: smoothedGeometry,
           properties: {},
         },
       });
@@ -92,10 +115,12 @@ export default function RiverLayer({
 
     // Add route highlight if provided
     if (routeGeometry) {
+      const smoothedRoute = smoothLineString(routeGeometry);
+      
       if (map.getSource(routeSourceId)) {
         (map.getSource(routeSourceId) as maplibregl.GeoJSONSource).setData({
           type: 'Feature',
-          geometry: routeGeometry,
+          geometry: smoothedRoute,
           properties: {},
         });
       } else {
@@ -103,7 +128,7 @@ export default function RiverLayer({
           type: 'geojson',
           data: {
             type: 'Feature',
-            geometry: routeGeometry,
+            geometry: smoothedRoute,
             properties: {},
           },
         });

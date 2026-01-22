@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic';
 import RiverSelector from '@/components/ui/RiverSelector';
 import VesselSelector from '@/components/ui/VesselSelector';
 import PlanSummary from '@/components/plan/PlanSummary';
+import ConditionsPanel from '@/components/ui/ConditionsPanel';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useRivers, useRiver } from '@/hooks/useRivers';
 import { useAccessPoints } from '@/hooks/useAccessPoints';
@@ -74,6 +75,7 @@ export default function Home() {
 
   // Handle access point click
   const handleAccessPointClick = useCallback((point: AccessPoint) => {
+    console.log('Access point clicked:', point.name);
     if (!selectedPutIn) {
       setSelectedPutIn(point.id);
     } else if (!selectedTakeOut) {
@@ -119,7 +121,7 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col bg-ozark-900">
       {/* Header with controls */}
-      <header className="relative z-20 bg-gradient-to-b from-ozark-900 via-ozark-800 to-transparent pb-8">
+      <header className="relative z-20 bg-gradient-to-b from-ozark-900 via-ozark-800 to-transparent pb-4">
         <div className="max-w-7xl mx-auto px-4 pt-4">
           {/* Logo and title */}
           <div className="flex items-center justify-between mb-4">
@@ -184,112 +186,108 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Map Container */}
-      <main className="flex-1 relative -mt-4">
-        {riversLoading ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-ozark-900">
-            <div className="text-center">
-              <LoadingSpinner size="lg" />
-              <p className="mt-4 text-river-300">Loading rivers...</p>
-            </div>
-          </div>
-        ) : riversError ? (
-          <div className="absolute inset-0 flex items-center justify-center bg-ozark-900">
-            <div className="text-center max-w-md px-4">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 
-                            flex items-center justify-center">
-                <span className="text-3xl">😕</span>
-              </div>
-              <h2 className="text-xl font-bold text-white mb-2">Connection Error</h2>
-              <p className="text-bluff-400">
-                Could not load river data. Please check your connection and try again.
-              </p>
-            </div>
-          </div>
-        ) : !selectedRiverId ? (
-          <div className="absolute inset-0 flex items-center justify-center">
-            {/* Hero background */}
-            <div className="absolute inset-0 hero-gradient" />
-            
-            {/* Hero content */}
-            <div className="relative z-10 text-center max-w-2xl px-4 animate-in">
-              <div className="mb-8">
-                <span className="text-6xl">🛶</span>
-              </div>
-              <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-                Discover Missouri&apos;s <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-river-400 to-river-300">
-                  Float Trips
-                </span>
-              </h2>
-              <p className="text-lg text-bluff-300 mb-8 max-w-lg mx-auto">
-                Plan your perfect float on the Current River, Eleven Point, Meramec, 
-                and more. Real-time water conditions and shuttle times.
-              </p>
-              
-              {/* Feature pills */}
-              <div className="flex flex-wrap justify-center gap-3 mb-8">
-                <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white">
-                  🌊 8 Rivers
-                </span>
-                <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white">
-                  📍 30+ Access Points
-                </span>
-                <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white">
-                  ⏱️ Real-time Conditions
-                </span>
-              </div>
-
-              <p className="text-river-400 animate-pulse">
-                ↑ Select a river above to get started
-              </p>
-            </div>
-
-            {/* Decorative elements */}
-            <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-ozark-900 to-transparent" />
-          </div>
-        ) : (
-          <MapContainer initialBounds={initialBounds}>
-            {river && (
-              <RiverLayer
-                riverGeometry={river.geometry}
-                selected={true}
-                routeGeometry={plan?.route.geometry}
-              />
-            )}
-            {accessPoints && (
-              <AccessPointMarkers
-                accessPoints={accessPoints}
-                onMarkerClick={handleAccessPointClick}
-                selectedPutIn={selectedPutIn}
-                selectedTakeOut={selectedTakeOut}
-              />
-            )}
-          </MapContainer>
-        )}
-
-        {/* Plan Summary Panel */}
-        {showPlan && (
-          <div className="absolute top-4 right-4 z-30">
+      {/* Main content area - split layout */}
+      <main className="flex-1 flex gap-4 p-4 overflow-hidden">
+        {/* Left sidebar - Conditions and info */}
+        <aside className="w-80 flex-shrink-0 flex flex-col gap-4 overflow-y-auto scrollbar-thin">
+          {/* Conditions Panel */}
+          <ConditionsPanel riverId={selectedRiverId} />
+          
+          {/* Plan Summary (when available) */}
+          {showPlan && (
             <PlanSummary
               plan={plan || null}
               isLoading={planLoading}
               onClose={() => setShowPlan(false)}
               onShare={handleShare}
             />
-          </div>
-        )}
+          )}
+        </aside>
 
-        {/* Mobile bottom sheet indicator */}
-        {selectedPutIn && !selectedTakeOut && (
-          <div className="absolute bottom-4 left-4 right-4 md:hidden z-20">
-            <div className="bg-ozark-800/95 backdrop-blur-md rounded-xl p-4 text-center">
-              <p className="text-river-300">
-                👆 Tap another marker for your <span className="text-sunset-400 font-medium">take-out</span>
-              </p>
+        {/* Map Container - takes remaining space */}
+        <div className="flex-1 relative rounded-xl overflow-hidden shadow-2xl">
+          {riversLoading ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-ozark-900">
+              <div className="text-center">
+                <LoadingSpinner size="lg" />
+                <p className="mt-4 text-river-300">Loading rivers...</p>
+              </div>
             </div>
-          </div>
-        )}
+          ) : riversError ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-ozark-900">
+              <div className="text-center max-w-md px-4">
+                <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-red-500/20 
+                              flex items-center justify-center">
+                  <span className="text-3xl">😕</span>
+                </div>
+                <h2 className="text-xl font-bold text-white mb-2">Connection Error</h2>
+                <p className="text-bluff-400">
+                  Could not load river data. Please check your connection and try again.
+                </p>
+              </div>
+            </div>
+          ) : !selectedRiverId ? (
+            <div className="absolute inset-0 flex items-center justify-center bg-ozark-900">
+              {/* Hero background */}
+              <div className="absolute inset-0 hero-gradient" />
+              
+              {/* Hero content */}
+              <div className="relative z-10 text-center max-w-2xl px-4 animate-in">
+                <div className="mb-8">
+                  <span className="text-6xl">🛶</span>
+                </div>
+                <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+                  Discover Missouri&apos;s <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-river-400 to-river-300">
+                    Float Trips
+                  </span>
+                </h2>
+                <p className="text-lg text-bluff-300 mb-8 max-w-lg mx-auto">
+                  Plan your perfect float on the Current River, Eleven Point, Meramec, 
+                  and more. Real-time water conditions and shuttle times.
+                </p>
+                
+                {/* Feature pills */}
+                <div className="flex flex-wrap justify-center gap-3 mb-8">
+                  <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white">
+                    🌊 8 Rivers
+                  </span>
+                  <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white">
+                    📍 30+ Access Points
+                  </span>
+                  <span className="px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full text-sm text-white">
+                    ⏱️ Real-time Conditions
+                  </span>
+                </div>
+
+                <p className="text-river-400 animate-pulse">
+                  ↑ Select a river above to get started
+                </p>
+              </div>
+
+              {/* Decorative elements */}
+              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-ozark-900 to-transparent" />
+            </div>
+          ) : (
+            <MapContainer initialBounds={initialBounds}>
+              {river && (
+                <RiverLayer
+                  riverGeometry={river.geometry}
+                  selected={true}
+                  routeGeometry={plan?.route.geometry}
+                />
+              )}
+              {accessPoints && (
+                <AccessPointMarkers
+                  accessPoints={accessPoints}
+                  onMarkerClick={handleAccessPointClick}
+                  selectedPutIn={selectedPutIn}
+                  selectedTakeOut={selectedTakeOut}
+                />
+              )}
+            </MapContainer>
+          )}
+        </div>
       </main>
 
       {/* Footer */}

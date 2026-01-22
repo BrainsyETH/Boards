@@ -32,6 +32,8 @@ export default function AccessPointMarkers({
     markersRef.current = [];
     popupsRef.current = [];
 
+    if (!map || !accessPoints.length) return;
+
     // Create markers for each access point
     accessPoints.forEach((point) => {
       const isPutIn = point.id === selectedPutIn;
@@ -79,6 +81,8 @@ export default function AccessPointMarkers({
         font-size: ${14 * scale}px;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
         z-index: ${zIndex};
+        pointer-events: auto;
+        position: relative;
       `;
       
       if (icon) {
@@ -148,7 +152,7 @@ export default function AccessPointMarkers({
         popup.remove();
       });
 
-      // Create marker
+      // Create marker with click handler
       const marker = new maplibregl.Marker({
         element: el,
         anchor: 'center',
@@ -156,12 +160,23 @@ export default function AccessPointMarkers({
         .setLngLat([point.coordinates.lng, point.coordinates.lat])
         .addTo(map);
 
-      // Add click handler
-      el.addEventListener('click', (e) => {
+      // Add click handler - use both methods for reliability
+      const handleClick = (e: MouseEvent) => {
         e.stopPropagation();
+        e.preventDefault();
+        console.log('Marker clicked:', point.name);
         onMarkerClick?.(point);
         popup.remove();
-      });
+      };
+
+      // Add to element
+      el.addEventListener('click', handleClick);
+      
+      // Also add to marker element (same element, but ensures it works)
+      const markerEl = marker.getElement();
+      if (markerEl !== el) {
+        markerEl.addEventListener('click', handleClick);
+      }
 
       markersRef.current.push(marker);
       popupsRef.current.push(popup);

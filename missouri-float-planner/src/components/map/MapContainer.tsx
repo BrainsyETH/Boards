@@ -66,7 +66,11 @@ export default function MapContainer({
 
   return (
     <div className="relative w-full h-full">
-      <div ref={mapContainer} className="w-full h-full" />
+      <div 
+        ref={mapContainer} 
+        className="w-full h-full"
+        style={{ pointerEvents: 'auto' }}
+      />
       {mapLoaded && map.current && (
         <MapProvider map={map.current}>{children}</MapProvider>
       )}
