@@ -6,7 +6,7 @@
 import { useEffect, useRef } from 'react';
 import React from 'react';
 import maplibregl from 'maplibre-gl';
-import { MapPin, Flag, FlagOff } from 'lucide-react';
+import { MapPin, Flag, FlagOff, type LucideIcon } from 'lucide-react';
 import { createRoot, Root } from 'react-dom/client';
 import { useMap } from './MapContainer';
 import type { AccessPoint } from '@/types/api';
@@ -92,7 +92,7 @@ export default function AccessPointMarkers({
       
       // Render lucide icon using React
       const iconSize = 16 * scale;
-      let IconComponent: React.ComponentType<{ size?: number; color?: string; strokeWidth?: number }>;
+      let IconComponent: LucideIcon;
       
       if (iconType === 'putin') {
         IconComponent = Flag;
