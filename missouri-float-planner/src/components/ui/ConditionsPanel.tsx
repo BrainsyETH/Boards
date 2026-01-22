@@ -26,6 +26,7 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
   const { data, isLoading, error } = useConditions(riverId);
   const condition = data?.condition ?? null;
   const diagnostic = data?.diagnostic ?? null;
+  const gauges = data?.gauges ?? [];
 
   if (!riverId) {
     return (
@@ -73,6 +74,26 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
               ? diagnostic
               : 'Gauge data is not available for this river at this time. Please check USGS website for current conditions.'}
           </p>
+          {gauges.length > 0 && (
+            <div className="mt-3 space-y-2 text-xs text-river-gravel/80">
+              <p className="font-semibold text-river-gravel">Gauges for this river</p>
+              <ul className="space-y-1">
+                {gauges.map((gauge) => (
+                  <li key={gauge.id} className="flex items-center justify-between gap-2">
+                    <span>
+                      {gauge.name || gauge.usgsSiteId || 'Unknown gauge'}
+                      {gauge.isPrimary ? ' (primary)' : ''}
+                    </span>
+                    <span>
+                      {gauge.gaugeHeightFt !== null
+                        ? `${gauge.gaugeHeightFt.toFixed(2)} ft`
+                        : 'No reading'}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
     );
@@ -118,6 +139,27 @@ export default function ConditionsPanel({ riverId, className = '' }: ConditionsP
                 {condition.gaugeName}
               </p>
             )}
+          </div>
+        )}
+
+        {gauges.length > 0 && (
+          <div className="mt-3 pt-2 border-t border-white/10 text-xs text-river-gravel/80">
+            <p className="font-semibold text-river-gravel mb-2">Gauges for this river</p>
+            <ul className="space-y-1">
+              {gauges.map((gauge) => (
+                <li key={gauge.id} className="flex items-center justify-between gap-2">
+                  <span>
+                    {gauge.name || gauge.usgsSiteId || 'Unknown gauge'}
+                    {gauge.isPrimary ? ' (primary)' : ''}
+                  </span>
+                  <span>
+                    {gauge.gaugeHeightFt !== null
+                      ? `${gauge.gaugeHeightFt.toFixed(2)} ft`
+                      : 'No reading'}
+                  </span>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
