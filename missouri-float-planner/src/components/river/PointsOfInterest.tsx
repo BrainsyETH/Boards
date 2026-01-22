@@ -1,0 +1,81 @@
+'use client';
+
+// src/components/river/PointsOfInterest.tsx
+// Curated points of interest along the river
+
+import { useQuery } from '@tanstack/react-query';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
+
+interface PointsOfInterestProps {
+  riverId: string;
+  riverSlug: string;
+}
+
+interface POI {
+  id: string;
+  name: string;
+  type: string;
+  description: string | null;
+  riverMile: number;
+  coordinates: { lng: number; lat: number } | null;
+}
+
+export default function PointsOfInterest({ riverId, riverSlug }: PointsOfInterestProps) {
+  // For MVP, we'll use hazards as POIs (can be expanded later with dedicated POI table)
+  const { data: hazards, isLoading } = useQuery({
+    queryKey: ['hazards', riverSlug],
+    queryFn: async () => {
+      const response = await fetch(`/api/rivers/${riverSlug}/hazards`);
+      if (!response.ok) return [];
+      
+      const data = await response.json();
+      return (data.hazards || []) as POI[];
+    },
+    enabled: !!riverSlug,
+  });
+
+  // For MVP, show a placeholder - POIs can be added as a separate feature
+  const pois: POI[] = hazards || [];
+
+  if (isLoading) {
+    return (
+      <div className="glass-card rounded-2xl p-6">
+        <div className="flex items-center gap-3">
+          <LoadingSpinner size="sm" />
+          <p className="text-sm text-bluff-500">Loading points of interest...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="glass-card rounded-2xl p-6">
+      <h3 className="text-xl font-bold text-ozark-800 mb-4">Points of Interest</h3>
+
+      {pois.length > 0 ? (
+        <div className="space-y-3">
+          {pois.map((poi) => (
+            <div key={poi.id} className="bg-bluff-50 rounded-xl p-4">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <p className="font-semibold text-ozark-800">{poi.name}</p>
+                  <p className="text-sm text-bluff-500 capitalize">{poi.type}</p>
+                </div>
+                <span className="text-xs text-bluff-500">Mile {poi.riverMile.toFixed(1)}</span>
+              </div>
+              {poi.description && (
+                <p className="text-sm text-bluff-600 mt-2">{poi.description}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-bluff-50 rounded-xl p-6 text-center">
+          <p className="text-sm text-bluff-500">
+            Points of interest will be added soon. Check back for springs, bluffs, caves, and other landmarks!
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

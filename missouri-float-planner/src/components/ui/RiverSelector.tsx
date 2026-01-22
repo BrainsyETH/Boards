@@ -87,16 +87,18 @@ export default function RiverSelector({
                         rounded-xl shadow-lg overflow-hidden animate-in">
           <div className="max-h-80 overflow-y-auto scrollbar-thin">
             {rivers.map((river) => (
-              <button
+              <div
                 key={river.id}
-                onClick={() => {
-                  onSelect(river.id);
-                  setIsOpen(false);
-                }}
-                className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-river-50 transition-colors
+                className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-river-50 transition-colors relative
                            ${river.id === selectedRiverId ? 'bg-river-50' : ''}`}
               >
-                <div className="flex-1 text-left">
+                <button
+                  onClick={() => {
+                    onSelect(river.id);
+                    setIsOpen(false);
+                  }}
+                  className="flex-1 text-left"
+                >
                   <div className="flex items-center gap-2">
                     <p className="font-medium text-ozark-800">{river.name}</p>
                     {river.currentCondition && (
@@ -119,13 +121,23 @@ export default function RiverSelector({
                       {river.difficultyRating}
                     </span>
                   </div>
+                </button>
+                <div className="flex items-center gap-2">
+                  {river.id === selectedRiverId && (
+                    <svg className="w-5 h-5 text-river-600" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                    </svg>
+                  )}
+                  <a
+                    href={`/rivers/${river.slug}`}
+                    onClick={(e) => e.stopPropagation()}
+                    className="px-2 py-1 text-xs text-river-600 hover:text-river-700 hover:bg-river-100 rounded transition-colors"
+                    title="View river page"
+                  >
+                    View →
+                  </a>
                 </div>
-                {river.id === selectedRiverId && (
-                  <svg className="w-5 h-5 text-river-600" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                  </svg>
-                )}
-              </button>
+              </div>
             ))}
           </div>
         </div>
