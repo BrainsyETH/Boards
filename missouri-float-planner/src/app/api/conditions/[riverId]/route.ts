@@ -79,9 +79,14 @@ export async function GET(
 
     const condition = data[0];
 
+    let diagnostic: string | undefined;
+
     // Validate condition data
     if (!condition.condition_code || condition.condition_code === 'unknown') {
       console.warn('[Conditions API] Condition code is unknown for river:', riverId);
+      if (condition.gauge_height_ft === null) {
+        diagnostic = 'Gauge reading is missing for the primary station. Check gauge_readings and cron updates.';
+      }
     }
 
     const response: ConditionResponse = {
@@ -98,6 +103,7 @@ export async function GET(
         gaugeUsgsId: condition.gauge_usgs_id,
       },
       available: true,
+      diagnostic,
     };
 
     return NextResponse.json(response);
