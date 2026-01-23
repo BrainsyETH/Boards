@@ -1,83 +1,82 @@
--- Link gauge stations to rivers in bulk using spatial proximity.
--- Adjust the threshold_miles value before running.
--- Requires PostGIS (used by existing schema).
+-- scripts/link-gauges-to-rivers.sql
+-- Automatically link gauge stations to nearby rivers based on proximity
+-- Run after importing gauge stations and rivers
 
--- ============================================
--- CONFIG
--- ============================================
--- Distance threshold (miles) to consider a gauge "related" to a river.
--- Update as needed (e.g., 15, 25, 50).
--- Replace the value in the CTE below.
+-- Distance threshold in meters (15 miles = 15 * 1609.34 meters)
+-- Adjust based on your needs:
+--   5 miles (~8km) = tight, only very close gauges
+--   10 miles (~16km) = moderate, good balance
+--   15 miles (~24km) = loose, catches more gauges but less accurate
+--   20+ miles = very loose, may link unrelated gauges
 
--- ============================================
--- LINK ALL GAUGES WITHIN THRESHOLD
--- ============================================
-WITH candidates AS (
-  SELECT
-    r.id AS river_id,
-    gs.id AS gauge_station_id,
-    ST_Distance(r.geom::geography, gs.location::geography) / 1609.34 AS distance_miles
-  FROM rivers r
-  JOIN gauge_stations gs ON gs.active = TRUE
-  WHERE ST_DWithin(
-    r.geom::geography,
-    gs.location::geography,
-    15 * 1609.34
-  )
-)
-INSERT INTO river_gauges (
-  river_id,
-  gauge_station_id,
-  distance_from_section_miles,
-  is_primary,
-  accuracy_warning_threshold_miles
-)
+DO $$
+DECLARE
+    distance_miles CONSTANT numeric := 10; -- ADJUST THIS VALUE
+    distance_meters CONSTANT numeric := distance_miles * 1609.34;
+    links_created integer := 0;
+BEGIN
+    -- Clear existing auto-generated links (keep manual ones by checking for specific IDs if needed)
+    -- DELETE FROM river_gauges WHERE is_auto_linked = true;
+
+    -- Insert new links for gauges within threshold distance of river geometry
+    INSERT INTO river_gauges (
+        river_id,
+        gauge_station_id,
+        distance_from_section_miles,
+        is_primary,
+        accuracy_warning_threshold_miles,
+        threshold_unit
+    )
+    SELECT DISTINCT ON (g.id, r.id)
+        r.id as river_id,
+        g.id as gauge_station_id,
+        -- Calculate distance in miles
+        ROUND((ST_Distance(
+            g.location::geography,
+            r.geom::geography
+        ) / 1609.34)::numeric, 1) as distance_from_section_miles,
+        -- Mark as primary if it's the closest gauge to this river
+        ROW_NUMBER() OVER (
+            PARTITION BY r.id
+            ORDER BY ST_Distance(g.location::geography, r.geom::geography)
+        ) = 1 as is_primary,
+        -- Set warning threshold based on distance
+        CASE
+            WHEN ST_Distance(g.location::geography, r.geom::geography) < 5 * 1609.34 THEN 5
+            WHEN ST_Distance(g.location::geography, r.geom::geography) < 10 * 1609.34 THEN 10
+            ELSE 15
+        END as accuracy_warning_threshold_miles,
+        'miles' as threshold_unit
+    FROM gauge_stations g
+    CROSS JOIN rivers r
+    WHERE
+        g.active = true
+        AND ST_DWithin(
+            g.location::geography,
+            r.geom::geography,
+            distance_meters
+        )
+        -- Don't create duplicate links
+        AND NOT EXISTS (
+            SELECT 1 FROM river_gauges rg
+            WHERE rg.river_id = r.id
+            AND rg.gauge_station_id = g.id
+        )
+    ORDER BY g.id, r.id, ST_Distance(g.location::geography, r.geom::geography);
+
+    GET DIAGNOSTICS links_created = ROW_COUNT;
+    RAISE NOTICE 'Created % gauge-river links within % mile radius', links_created, distance_miles;
+END $$;
+
+-- View results
 SELECT
-  river_id,
-  gauge_station_id,
-  distance_miles,
-  FALSE,
-  15.0
-FROM candidates
-ON CONFLICT (river_id, gauge_station_id)
-DO UPDATE SET
-  distance_from_section_miles = EXCLUDED.distance_from_section_miles;
-
--- ============================================
--- SET PRIMARY GAUGE PER RIVER (NEAREST)
--- ============================================
-WITH ranked AS (
-  SELECT
-    r.id AS river_id,
-    gs.id AS gauge_station_id,
-    ROW_NUMBER() OVER (
-      PARTITION BY r.id
-      ORDER BY ST_Distance(r.geom::geography, gs.location::geography)
-    ) AS rn
-  FROM rivers r
-  JOIN gauge_stations gs ON gs.active = TRUE
-  WHERE ST_DWithin(
-    r.geom::geography,
-    gs.location::geography,
-    15 * 1609.34
-  )
-)
-UPDATE river_gauges rg
-SET is_primary = (ranked.rn = 1)
-FROM ranked
-WHERE rg.river_id = ranked.river_id
-  AND rg.gauge_station_id = ranked.gauge_station_id;
-
--- ============================================
--- OPTIONAL: REVIEW RESULTS
--- ============================================
--- SELECT
---   r.name AS river_name,
---   gs.name AS gauge_name,
---   gs.usgs_site_id,
---   rg.distance_from_section_miles,
---   rg.is_primary
--- FROM river_gauges rg
--- JOIN rivers r ON r.id = rg.river_id
--- JOIN gauge_stations gs ON gs.id = rg.gauge_station_id
--- ORDER BY r.name, rg.is_primary DESC, rg.distance_from_section_miles ASC;
+    r.name as river_name,
+    g.name as gauge_name,
+    g.usgs_site_id,
+    rg.distance_from_section_miles,
+    rg.is_primary,
+    rg.accuracy_warning_threshold_miles
+FROM river_gauges rg
+JOIN rivers r ON r.id = rg.river_id
+JOIN gauge_stations g ON g.id = rg.gauge_station_id
+ORDER BY r.name, rg.distance_from_section_miles;
