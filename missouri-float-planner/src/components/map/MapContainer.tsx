@@ -11,21 +11,30 @@ import { Layers } from 'lucide-react';
 
 // Available map styles (all free, no API key required)
 const MAP_STYLES = {
+  voyager: {
+    name: 'Standard',
+    url: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
+    dark: false,
+  },
+  positron: {
+    name: 'Light',
+    url: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
+    dark: false,
+  },
+  liberty: {
+    name: 'Natural',
+    url: 'https://tiles.openfreemap.org/styles/liberty',
+    dark: false,
+  },
+  bright: {
+    name: 'Bright',
+    url: 'https://tiles.openfreemap.org/styles/bright',
+    dark: false,
+  },
   dark: {
     name: 'Dark',
     url: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
-  },
-  light: {
-    name: 'Light',
-    url: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-  },
-  voyager: {
-    name: 'Streets',
-    url: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
-  },
-  liberty: {
-    name: 'Terrain',
-    url: 'https://maputnik.github.io/osm-liberty/style.json',
+    dark: true,
   },
 } as const;
 
@@ -62,7 +71,7 @@ export default function MapContainer({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [weatherEnabled, setWeatherEnabled] = useState(showWeatherOverlay);
   const [radarTimestamp, setRadarTimestamp] = useState<string | null>(null);
-  const [mapStyle, setMapStyle] = useState<MapStyleKey>('dark');
+  const [mapStyle, setMapStyle] = useState<MapStyleKey>('voyager');
   const [showStylePicker, setShowStylePicker] = useState(false);
   const radarSourceId = 'rainviewer-radar';
   const radarLayerId = 'rainviewer-radar-layer';
@@ -86,9 +95,9 @@ export default function MapContainer({
     const styleUrl = MAP_STYLES[styleKey].url;
     map.current.setStyle(styleUrl);
 
-    // Re-apply background color after style loads
+    // Re-apply background color after style loads (only for dark styles)
     map.current.once('style.load', () => {
-      if (styleKey === 'dark') {
+      if (MAP_STYLES[styleKey].dark) {
         try {
           map.current?.setPaintProperty('background', 'background-color', '#0f132f');
         } catch {
@@ -209,9 +218,9 @@ export default function MapContainer({
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Get saved style or use dark as default
+    // Get saved style or use voyager (Standard) as default
     const savedStyle = localStorage.getItem('mapStyle') as MapStyleKey | null;
-    const initialStyle = savedStyle && MAP_STYLES[savedStyle] ? savedStyle : 'dark';
+    const initialStyle = savedStyle && MAP_STYLES[savedStyle] ? savedStyle : 'voyager';
     const mapStyleUrl = process.env.NEXT_PUBLIC_MAP_STYLE_URL || MAP_STYLES[initialStyle].url;
 
     // Initialize map
@@ -236,9 +245,9 @@ export default function MapContainer({
       },
     });
     
-    // Set map background to river-night
+    // Set map background to river-night only for dark styles
     map.current.on('style.load', () => {
-      if (map.current) {
+      if (map.current && MAP_STYLES[initialStyle].dark) {
         try {
           map.current.setPaintProperty('background', 'background-color', '#0f132f');
         } catch (error) {
