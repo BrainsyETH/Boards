@@ -101,7 +101,7 @@ export default function MapContainer({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [weatherEnabled, setWeatherEnabled] = useState(showWeatherOverlay);
   const [radarTimestamp, setRadarTimestamp] = useState<string | null>(null);
-  const [mapStyle, setMapStyle] = useState<MapStyleKey>('voyager');
+  const [mapStyle, setMapStyle] = useState<MapStyleKey>('liberty');
   const [showStylePicker, setShowStylePicker] = useState(false);
   const radarSourceId = 'rainviewer-radar';
   const radarLayerId = 'rainviewer-radar-layer';
@@ -249,9 +249,9 @@ export default function MapContainer({
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Get saved style or use voyager (Standard) as default
+    // Get saved style or use liberty (Natural) as default
     const savedStyle = localStorage.getItem('mapStyle') as MapStyleKey | null;
-    const initialStyle = savedStyle && MAP_STYLES[savedStyle] ? savedStyle : 'voyager';
+    const initialStyle = savedStyle && MAP_STYLES[savedStyle] ? savedStyle : 'liberty';
     // Use custom style object for satellite, URL for others
     const mapStyleUrl = process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
       (initialStyle === 'satellite' ? SATELLITE_STYLE : MAP_STYLES[initialStyle].url);

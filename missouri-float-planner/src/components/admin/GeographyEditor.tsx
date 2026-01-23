@@ -4,7 +4,7 @@
 // Main geography editor component with improved state management
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, MousePointer2, X, Save, Trash2 } from 'lucide-react';
+import { Plus, MousePointer2, X, Save, Trash2, ExternalLink, MapPin, Navigation } from 'lucide-react';
 import AccessPointEditor from './AccessPointEditor';
 import RiverLineEditor from './RiverLineEditor';
 import CreateAccessPointModal from './CreateAccessPointModal';
@@ -63,6 +63,31 @@ export default function GeographyEditor() {
   const [editingDetails, setEditingDetails] = useState<Partial<AccessPoint> | null>(null);
   const [savingDetails, setSavingDetails] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
+  const [showTypeFilter, setShowTypeFilter] = useState(false);
+
+  // Available access point types
+  const ACCESS_POINT_TYPES = [
+    { value: 'boat_ramp', label: 'Boat Ramp' },
+    { value: 'gravel_bar', label: 'Gravel Bar' },
+    { value: 'campground', label: 'Campground' },
+    { value: 'bridge', label: 'Bridge' },
+    { value: 'access', label: 'Access' },
+    { value: 'park', label: 'Park' },
+  ];
+
+  // Toggle type selection
+  const toggleTypeFilter = (type: string) => {
+    setSelectedTypes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(type)) {
+        newSet.delete(type);
+      } else {
+        newSet.add(type);
+      }
+      return newSet;
+    });
+  };
 
   const loadData = useCallback(async (showRefreshing = false) => {
     try {
@@ -277,9 +302,17 @@ export default function GeographyEditor() {
     );
   }
 
-  const filteredAccessPoints = editState.selectedRiverId
-    ? accessPoints.filter((ap) => ap.riverId === editState.selectedRiverId)
-    : accessPoints;
+  const filteredAccessPoints = accessPoints.filter((ap) => {
+    // Filter by river if selected
+    if (editState.selectedRiverId && ap.riverId !== editState.selectedRiverId) {
+      return false;
+    }
+    // Filter by type if any types are selected
+    if (selectedTypes.size > 0 && !selectedTypes.has(ap.type)) {
+      return false;
+    }
+    return true;
+  });
 
   const filteredRivers = editState.selectedRiverId
     ? rivers.filter((r) => r.id === editState.selectedRiverId)
@@ -351,6 +384,60 @@ export default function GeographyEditor() {
               ))}
             </select>
           </div>
+
+          {/* Type Filter - Multi-select */}
+          {editState.mode === 'access-points' && (
+            <div>
+              <label className="block text-sm font-medium text-bluff-700 mb-2">
+                Filter by Type
+              </label>
+              <button
+                onClick={() => setShowTypeFilter(!showTypeFilter)}
+                className="w-full px-3 py-2 border border-bluff-300 rounded-lg text-sm text-left bg-white hover:bg-bluff-50 flex items-center justify-between"
+              >
+                <span className="text-bluff-700">
+                  {selectedTypes.size === 0
+                    ? 'All Types'
+                    : `${selectedTypes.size} type${selectedTypes.size > 1 ? 's' : ''} selected`}
+                </span>
+                <span className="text-bluff-400">{showTypeFilter ? '▲' : '▼'}</span>
+              </button>
+              {showTypeFilter && (
+                <div className="mt-2 border border-bluff-200 rounded-lg p-2 bg-white shadow-sm">
+                  <div className="flex justify-between items-center mb-2 pb-2 border-b border-bluff-100">
+                    <button
+                      onClick={() => setSelectedTypes(new Set(ACCESS_POINT_TYPES.map(t => t.value)))}
+                      className="text-xs text-river-600 hover:text-river-700"
+                    >
+                      Select All
+                    </button>
+                    <button
+                      onClick={() => setSelectedTypes(new Set())}
+                      className="text-xs text-bluff-500 hover:text-bluff-700"
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-1">
+                    {ACCESS_POINT_TYPES.map((type) => (
+                      <label
+                        key={type.value}
+                        className="flex items-center gap-2 cursor-pointer hover:bg-bluff-50 p-1 rounded"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedTypes.has(type.value)}
+                          onChange={() => toggleTypeFilter(type.value)}
+                          className="w-3.5 h-3.5 text-river-500 rounded focus:ring-river-500"
+                        />
+                        <span className="text-xs text-bluff-700">{type.label}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div className="text-xs text-bluff-500">
             {editState.mode === 'access-points' && (
@@ -576,6 +663,37 @@ export default function GeographyEditor() {
                 placeholder="Additional details about this access point..."
                 className="w-full px-3 py-2 border border-bluff-300 rounded-lg text-sm focus:ring-2 focus:ring-river-500 focus:border-river-500 resize-none"
               />
+            </div>
+
+            {/* Google Maps Links */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+              <label className="block text-sm font-medium text-blue-800 mb-2 flex items-center gap-2">
+                <MapPin size={14} />
+                Google Maps Links
+              </label>
+              <div className="space-y-2">
+                <a
+                  href={`https://www.google.com/maps/search/?api=1&query=${selectedAccessPoint.coordinates.orig.lat},${selectedAccessPoint.coordinates.orig.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  <ExternalLink size={14} />
+                  View on Google Maps
+                </a>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${selectedAccessPoint.coordinates.orig.lat},${selectedAccessPoint.coordinates.orig.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-blue-600 hover:text-blue-800 hover:underline"
+                >
+                  <Navigation size={14} />
+                  Get Driving Directions
+                </a>
+              </div>
+              <p className="text-xs text-blue-600 mt-2">
+                Links update automatically when location changes
+              </p>
             </div>
 
             {/* Approval Status */}
