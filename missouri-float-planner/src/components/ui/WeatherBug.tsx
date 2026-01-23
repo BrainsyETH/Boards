@@ -64,9 +64,6 @@ export default function WeatherBug({ riverSlug, riverId, className = '' }: Weath
 
   const riverStatus = getRiverConditionStatus(condition?.code || null);
 
-  // Don't show if no API key is configured (weather will be null but not loading)
-  const showWeatherSection = weatherLoading || weather || hasWeatherError;
-
   return (
     <div
       className={`absolute top-4 right-4 z-30 glass-card-dark rounded-xl p-4 

@@ -31,7 +31,8 @@ const MapContainer = dynamic(() => import('@/components/map/MapContainer'), {
     </div>
   ),
 });
-const RiverLayer = dynamic(() => import('@/components/map/RiverLayer'), { ssr: false });
+// RiverLayer removed - geometry quality needs improvement before displaying
+// const RiverLayer = dynamic(() => import('@/components/map/RiverLayer'), { ssr: false });
 const RouteLayer = dynamic(() => import('@/components/map/RouteLayer'), { ssr: false });
 const AccessPointMarkers = dynamic(() => import('@/components/map/AccessPointMarkers'), { ssr: false });
 
