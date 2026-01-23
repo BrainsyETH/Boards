@@ -106,10 +106,17 @@ export default function MapContainer({
   const radarSourceId = 'rainviewer-radar';
   const radarLayerId = 'rainviewer-radar-layer';
 
-  // Load saved style preference
+  // Load saved style preference - one-time migration to 'liberty' (Natural) as default
   useEffect(() => {
+    const migrated = localStorage.getItem('mapStyleMigrated');
     const saved = localStorage.getItem('mapStyle') as MapStyleKey | null;
-    if (saved && MAP_STYLES[saved]) {
+
+    // One-time migration: reset to 'liberty' if not already migrated
+    if (!migrated) {
+      localStorage.setItem('mapStyleMigrated', '1');
+      localStorage.setItem('mapStyle', 'liberty');
+      setMapStyle('liberty');
+    } else if (saved && MAP_STYLES[saved]) {
       setMapStyle(saved);
     }
   }, []);
