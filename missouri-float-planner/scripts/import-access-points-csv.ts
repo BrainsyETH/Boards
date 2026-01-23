@@ -58,7 +58,7 @@ function parseCSV(content: string): CSVRow[] {
     headers.forEach((header, index) => {
       row[header] = values[index] || '';
     });
-    rows.push(row as CSVRow);
+    rows.push(row as unknown as CSVRow);
   }
 
   return rows;
