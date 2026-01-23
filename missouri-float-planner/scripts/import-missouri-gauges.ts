@@ -27,7 +27,34 @@
  *       active = excluded.active;
  */
 
+import { readFileSync, existsSync } from 'fs';
+import { join } from 'path';
 import { createAdminClient } from '../src/lib/supabase/admin';
+
+// Load environment variables from .env.local if it exists
+// Use process.cwd() to get the project root directory
+const projectRoot = process.cwd();
+const envPath = join(projectRoot, '.env.local');
+
+if (existsSync(envPath)) {
+  try {
+    const envFile = readFileSync(envPath, 'utf-8');
+    envFile.split('\n').forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const [key, ...valueParts] = trimmed.split('=');
+        if (key && valueParts.length > 0) {
+          const value = valueParts.join('=').trim().replace(/^["']|["']$/g, '');
+          if (!process.env[key]) {
+            process.env[key] = value;
+          }
+        }
+      }
+    });
+  } catch (error) {
+    console.warn('Warning: Could not load .env.local file');
+  }
+}
 
 interface USGSRDBRow {
   site_no: string;
