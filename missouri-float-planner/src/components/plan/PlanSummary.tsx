@@ -196,20 +196,7 @@ export default function PlanSummary({
             </div>
             <div className="flex-1">
               <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Put-in</p>
-              <div className="flex items-center gap-2">
-                <p className="font-semibold text-ozark-800">{displayPlan.putIn.name}</p>
-                <a
-                  href={`https://www.google.com/maps/dir/${displayPlan.takeOut.coordinates.lat},${displayPlan.takeOut.coordinates.lng}/${displayPlan.putIn.coordinates.lat},${displayPlan.putIn.coordinates.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-river-600 hover:text-river-700 transition-colors"
-                  title="Get directions to put-in"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                </a>
-              </div>
+              <p className="font-semibold text-ozark-800">{displayPlan.putIn.name}</p>
               <p className="text-sm text-bluff-500">Mile {displayPlan.putIn.riverMile.toFixed(1)}</p>
             </div>
           </div>
@@ -225,23 +212,52 @@ export default function PlanSummary({
             </div>
             <div className="flex-1">
               <p className="text-xs font-medium text-bluff-500 uppercase tracking-wide">Take-out</p>
-              <div className="flex items-center gap-2">
-                <p className="font-semibold text-ozark-800">{displayPlan.takeOut.name}</p>
-                <a
-                  href={`https://www.google.com/maps/dir/${displayPlan.putIn.coordinates.lat},${displayPlan.putIn.coordinates.lng}/${displayPlan.takeOut.coordinates.lat},${displayPlan.takeOut.coordinates.lng}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-river-600 hover:text-river-700 transition-colors"
-                  title="Get directions to take-out"
-                >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
-                  </svg>
-                </a>
-              </div>
+              <p className="font-semibold text-ozark-800">{displayPlan.takeOut.name}</p>
               <p className="text-sm text-bluff-500">Mile {displayPlan.takeOut.riverMile.toFixed(1)}</p>
             </div>
           </div>
+        </div>
+
+        {/* Google Maps Navigation Section */}
+        <div className="bg-blue-50 border border-blue-200 rounded-xl p-3">
+          <p className="text-xs font-medium text-blue-700 uppercase tracking-wide mb-2 flex items-center gap-1">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            Google Maps
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${displayPlan.putIn.coordinates.lat},${displayPlan.putIn.coordinates.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-blue-200 rounded-lg text-sm text-blue-700 hover:bg-blue-100 transition-colors"
+            >
+              <span className="w-2 h-2 rounded-full bg-river-forest"></span>
+              Put-in
+            </a>
+            <a
+              href={`https://www.google.com/maps/search/?api=1&query=${displayPlan.takeOut.coordinates.lat},${displayPlan.takeOut.coordinates.lng}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-2 px-3 py-2 bg-white border border-blue-200 rounded-lg text-sm text-blue-700 hover:bg-blue-100 transition-colors"
+            >
+              <span className="w-2 h-2 rounded-full bg-sky-warm"></span>
+              Take-out
+            </a>
+          </div>
+          <a
+            href={`https://www.google.com/maps/dir/${displayPlan.takeOut.coordinates.lat},${displayPlan.takeOut.coordinates.lng}/${displayPlan.putIn.coordinates.lat},${displayPlan.putIn.coordinates.lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 w-full mt-2 px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            Shuttle Directions (Take-out → Put-in)
+          </a>
         </div>
 
         {/* Stats Grid */}
