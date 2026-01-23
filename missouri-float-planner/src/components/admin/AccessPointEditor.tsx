@@ -13,10 +13,18 @@ import React from 'react';
 interface AccessPoint {
   id: string;
   name: string;
+  slug: string;
+  riverId: string;
   riverName?: string;
   riverMile: number | null;
   type: string;
+  isPublic: boolean;
+  ownership: string | null;
+  description: string | null;
+  feeRequired?: boolean;
   approved: boolean;
+  hasInvalidCoords?: boolean;
+  hasMissingCoords?: boolean;
   coordinates: {
     orig: { lng: number; lat: number };
     snap: { lng: number; lat: number } | null;
@@ -30,6 +38,8 @@ interface AccessPointEditorProps {
   addMode?: boolean;
   onMapClick?: (coords: { lng: number; lat: number }) => void;
   onApprovalChange?: (id: string, approved: boolean) => Promise<void>;
+  onSelectAccessPoint?: (point: AccessPoint | null) => void;
+  selectedAccessPointId?: string;
 }
 
 export default function AccessPointEditor({
@@ -39,6 +49,8 @@ export default function AccessPointEditor({
   addMode = false,
   onMapClick,
   onApprovalChange,
+  onSelectAccessPoint,
+  selectedAccessPointId,
 }: AccessPointEditorProps) {
   const map = useMap();
   const markersRef = useRef<maplibregl.Marker[]>([]);
@@ -198,29 +210,37 @@ export default function AccessPointEditor({
       const hasError = errorIds.has(point.id);
       const isApproving = approvingIds.has(point.id);
       const isApproved = point.approved;
+      const isSelected = selectedAccessPointId === point.id;
 
-      // Color coding: approved = blue, unapproved = orange/amber, error = red
+      // Color coding: selected = purple, approved = blue, unapproved = orange/amber, error = red
       const getMarkerColor = () => {
         if (hasError) return 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)';
         if (isSaving || isApproving) return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+        if (isSelected) return 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)'; // Purple for selected
         if (!isApproved) return 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)'; // Orange for unapproved
         return 'linear-gradient(135deg, #39a0ca 0%, #2d7fa0 100%)'; // Blue for approved
       };
 
+      const markerSize = isSelected ? '40px' : hasMoved ? '36px' : '32px';
+      const markerBorder = isSelected ? '4px solid #8b5cf6' : `3px solid ${isApproved ? '#ffffff' : '#fef3c7'}`;
+      const markerShadow = isSelected
+        ? '0 0 0 3px rgba(139, 92, 246, 0.4), 0 6px 20px rgba(139, 92, 246, 0.5)'
+        : hasMoved
+          ? '0 6px 20px rgba(57, 160, 202, 0.6)'
+          : '0 4px 12px rgba(0,0,0,0.3)';
+
       el.style.cssText = `
         background: ${getMarkerColor()};
-        width: ${hasMoved ? '36px' : '32px'};
-        height: ${hasMoved ? '36px' : '32px'};
+        width: ${markerSize};
+        height: ${markerSize};
         border-radius: 50%;
-        border: 3px solid ${isApproved ? '#ffffff' : '#fef3c7'};
-        box-shadow: ${hasMoved
-          ? '0 6px 20px rgba(57, 160, 202, 0.6)'
-          : '0 4px 12px rgba(0,0,0,0.3)'};
+        border: ${markerBorder};
+        box-shadow: ${markerShadow};
         cursor: move;
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: ${hasMoved ? '1000' : '100'};
+        z-index: ${isSelected ? '2000' : hasMoved ? '1000' : '100'};
         transition: all 0.2s ease;
       `;
 
@@ -376,10 +396,17 @@ export default function AccessPointEditor({
         }
       });
 
-      // Show popup on click - reuse single popup instance
+      // Click handler - call selection callback to open detail panel
       el.addEventListener('click', (e) => {
         e.stopPropagation();
 
+        // If we have a selection callback, use the detail panel instead of popup
+        if (onSelectAccessPoint) {
+          onSelectAccessPoint(point);
+          return;
+        }
+
+        // Fallback: Show popup on click if no selection callback
         // Remove existing popup and clean up any pending close handler
         if (popupRef.current) {
           popupRef.current.remove();
@@ -496,14 +523,13 @@ export default function AccessPointEditor({
       markersRef.current.forEach((marker) => marker.remove());
       originalMarkersRef.current.forEach((marker) => marker.remove());
       rootsRef.current.forEach((root) => root.unmount());
-      linesRef.current.forEach((source) => {
+      lineSourceIdsRef.current.forEach((sourceId) => {
         try {
-          const sourceId = source.id;
+          const layerId = `ap-line-layer-${sourceId.replace('ap-line-', '')}`;
+          if (map.getLayer(layerId)) {
+            map.removeLayer(layerId);
+          }
           if (map.getSource(sourceId)) {
-            const layerId = `ap-line-layer-${sourceId.replace('ap-line-', '')}`;
-            if (map.getLayer(layerId)) {
-              map.removeLayer(layerId);
-            }
             map.removeSource(sourceId);
           }
         } catch {}
@@ -520,9 +546,9 @@ export default function AccessPointEditor({
       markersRef.current = [];
       originalMarkersRef.current = [];
       rootsRef.current = [];
-      linesRef.current = [];
+      lineSourceIdsRef.current = [];
     };
-  }, [map, accessPoints, pendingUpdates, savingIds, errorIds, onUpdate, onRefresh]);
+  }, [map, accessPoints, pendingUpdates, savingIds, errorIds, onUpdate, onRefresh, onSelectAccessPoint, selectedAccessPointId]);
 
   return null;
 }
