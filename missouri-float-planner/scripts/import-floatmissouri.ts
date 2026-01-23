@@ -263,7 +263,6 @@ async function main() {
       }
 
       const coords = pointData[0];
-      const locationOrig = `SRID=4326;POINT(${coords.lng} ${coords.lat})`;
 
       const accessPointData = {
         river_id: dbRiverId,
@@ -273,7 +272,10 @@ async function main() {
         is_public: isPublic,
         description: marker.description,
         river_mile_downstream: marker.mile,
-        location_orig: locationOrig,
+        location_orig: {
+          type: 'Point',
+          coordinates: [coords.lng, coords.lat],
+        },
         approved: false, // Requires manual review
       };
 
@@ -327,7 +329,10 @@ async function main() {
       let location = null;
       if (!pointError && pointData && pointData.length > 0) {
         const coords = pointData[0];
-        location = `SRID=4326;POINT(${coords.lng} ${coords.lat})`;
+        location = {
+          type: 'Point',
+          coordinates: [coords.lng, coords.lat],
+        };
       }
 
       const hazardData = {
