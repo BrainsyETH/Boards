@@ -31,12 +31,42 @@ const MAP_STYLES = {
     url: 'https://tiles.openfreemap.org/styles/bright',
     dark: false,
   },
+  satellite: {
+    name: 'Satellite',
+    url: '', // Custom style object used instead
+    dark: true,
+  },
   dark: {
     name: 'Dark',
     url: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
     dark: true,
   },
 } as const;
+
+// Custom satellite style using ESRI World Imagery (free, no API key)
+const SATELLITE_STYLE: maplibregl.StyleSpecification = {
+  version: 8,
+  sources: {
+    'esri-satellite': {
+      type: 'raster',
+      tiles: [
+        'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+      ],
+      tileSize: 256,
+      attribution: '&copy; Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN',
+      maxzoom: 19,
+    },
+  },
+  layers: [
+    {
+      id: 'esri-satellite-layer',
+      type: 'raster',
+      source: 'esri-satellite',
+      minzoom: 0,
+      maxzoom: 22,
+    },
+  ],
+};
 
 type MapStyleKey = keyof typeof MAP_STYLES;
 
@@ -71,7 +101,7 @@ export default function MapContainer({
   const [mapLoaded, setMapLoaded] = useState(false);
   const [weatherEnabled, setWeatherEnabled] = useState(showWeatherOverlay);
   const [radarTimestamp, setRadarTimestamp] = useState<string | null>(null);
-  const [mapStyle, setMapStyle] = useState<MapStyleKey>('voyager');
+  const [mapStyle, setMapStyle] = useState<MapStyleKey>('liberty');
   const [showStylePicker, setShowStylePicker] = useState(false);
   const radarSourceId = 'rainviewer-radar';
   const radarLayerId = 'rainviewer-radar-layer';
@@ -92,8 +122,9 @@ export default function MapContainer({
     localStorage.setItem('mapStyle', styleKey);
     setShowStylePicker(false);
 
-    const styleUrl = MAP_STYLES[styleKey].url;
-    map.current.setStyle(styleUrl);
+    // Use custom style object for satellite, URL for others
+    const style = styleKey === 'satellite' ? SATELLITE_STYLE : MAP_STYLES[styleKey].url;
+    map.current.setStyle(style);
 
     // Re-apply background color after style loads (only for dark styles)
     map.current.once('style.load', () => {
@@ -218,10 +249,12 @@ export default function MapContainer({
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
-    // Get saved style or use voyager (Standard) as default
+    // Get saved style or use liberty (Natural) as default
     const savedStyle = localStorage.getItem('mapStyle') as MapStyleKey | null;
-    const initialStyle = savedStyle && MAP_STYLES[savedStyle] ? savedStyle : 'voyager';
-    const mapStyleUrl = process.env.NEXT_PUBLIC_MAP_STYLE_URL || MAP_STYLES[initialStyle].url;
+    const initialStyle = savedStyle && MAP_STYLES[savedStyle] ? savedStyle : 'liberty';
+    // Use custom style object for satellite, URL for others
+    const mapStyleUrl = process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
+      (initialStyle === 'satellite' ? SATELLITE_STYLE : MAP_STYLES[initialStyle].url);
 
     // Initialize map
     map.current = new maplibregl.Map({
