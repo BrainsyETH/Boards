@@ -123,7 +123,7 @@ export default function AccessPointSelector({
             ) : (
               visiblePoints.map((point) => {
                 const isUpstream =
-                  warnUpstream && referenceMile !== null && point.riverMile > referenceMile;
+                  warnUpstream && referenceMile !== null && point.riverMile < referenceMile;
 
                 return (
                 <button

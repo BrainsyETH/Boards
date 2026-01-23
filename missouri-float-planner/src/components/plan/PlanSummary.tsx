@@ -127,10 +127,9 @@ export default function PlanSummary({
   const displayPlan = recalculatedPlan ?? plan;
 
   // Check if put-in is downstream of take-out (upstream warning)
-  // Mile 0.0 = headwaters, miles increase going downstream
-  // So if putIn.riverMile > takeOut.riverMile, user is trying to float upstream
+  // Mile values are ordered opposite of downstream flow for this data set.
   const isUpstream = displayPlan
-    ? displayPlan.putIn.riverMile > displayPlan.takeOut.riverMile
+    ? displayPlan.putIn.riverMile < displayPlan.takeOut.riverMile
     : false;
 
   if (isLoading) {
