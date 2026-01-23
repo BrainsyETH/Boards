@@ -250,6 +250,15 @@ h1, h2, h3, h4, h5, h6 {
   border: 2px solid rgba(255, 255, 255, 0.12) !important;
 }
 
+.maplibregl-popup-track-pointer {
+  pointer-events: none;
+}
+
+.maplibregl-popup-content,
+.maplibregl-popup-tip {
+  pointer-events: auto;
+}
+
 /* Access point popups specifically */
 .access-point-popup {
   z-index: 1000 !important;

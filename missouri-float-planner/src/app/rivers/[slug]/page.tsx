@@ -85,7 +85,7 @@ export default function RiverPage() {
   const handleMarkerClick = useCallback((point: AccessPoint) => {
     if (selectedPutIn && accessPoints) {
       const putInPoint = accessPoints.find((ap) => ap.id === selectedPutIn);
-      if (putInPoint && point.riverMile > putInPoint.riverMile) {
+      if (putInPoint && point.riverMile < putInPoint.riverMile) {
         setUpstreamWarning('That take-out is upstream of your put-in. Choose a downstream point.');
         return;
       }
@@ -97,10 +97,7 @@ export default function RiverPage() {
       // Put-in selected but no take-out - set this as take-out
       setSelectedTakeOut(point.id);
     } else {
-      // Both selected - start over with this as new put-in
-      setSelectedPutIn(point.id);
-      setSelectedTakeOut(null);
-      setShowPlan(false);
+      // Both selected - ignore until cleared
     }
   }, [accessPoints, selectedPutIn, selectedTakeOut]);
 
@@ -202,7 +199,7 @@ export default function RiverPage() {
                   {plan?.route && (
                     <RouteLayer
                       routeGeometry={plan.route.geometry}
-                      isUpstream={plan.putIn.riverMile > plan.takeOut.riverMile}
+                      isUpstream={plan.putIn.riverMile < plan.takeOut.riverMile}
                     />
                   )}
                   {accessPoints && (

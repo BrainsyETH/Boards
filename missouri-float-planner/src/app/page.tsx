@@ -102,20 +102,16 @@ export default function Home() {
 
   // Handle access point click
   const handleAccessPointClick = useCallback((point: AccessPoint) => {
-    console.log('Access point clicked:', point.name);
     if (selectedPutIn && accessPoints) {
       const putInPoint = accessPoints.find((ap) => ap.id === selectedPutIn);
-      if (putInPoint && point.riverMile > putInPoint.riverMile) {
+      if (putInPoint && point.riverMile < putInPoint.riverMile) {
         setUpstreamWarning('That take-out is upstream of your put-in. Choose a downstream point.');
         return;
       }
     }
     if (!selectedPutIn) {
       setSelectedPutIn(point.id);
-    } else if (!selectedTakeOut) {
-      setSelectedTakeOut(point.id);
-      setShowPlan(true);
-    } else {
+    } else if (!selectedTakeOut && point.id !== selectedPutIn) {
       setSelectedTakeOut(point.id);
       setShowPlan(true);
     }
@@ -159,6 +155,9 @@ export default function Home() {
   // Close river modal (but keep river selected)
   const handleCloseRiverModal = () => {
     setShowRiverModal(false);
+    setSelectedPutIn(null);
+    setSelectedTakeOut(null);
+    setShowPlan(false);
   };
 
   const initialBounds = river?.bounds;
@@ -255,7 +254,7 @@ export default function Home() {
             <PlanSummary
               plan={plan || null}
               isLoading={planLoading}
-              onClose={() => setShowPlan(false)}
+              onClose={handleClearSelection}
               onShare={handleShare}
             />
           )}
