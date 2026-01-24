@@ -42,7 +42,6 @@ const MapContainer = dynamic(() => import('@/components/map/MapContainer'), {
     </div>
   ),
 });
-const RiverLayer = dynamic(() => import('@/components/map/RiverLayer'), { ssr: false });
 const AccessPointMarkers = dynamic(() => import('@/components/map/AccessPointMarkers'), { ssr: false });
 
 export default function Home() {
@@ -358,13 +357,6 @@ export default function Home() {
                 )}
 
                 <MapContainer initialBounds={initialBounds} showLegend={true}>
-                  {river && (
-                    <RiverLayer
-                      riverGeometry={river.geometry}
-                      selected={true}
-                      routeGeometry={plan?.route.geometry}
-                    />
-                  )}
                   {accessPoints && (
                     <AccessPointMarkers
                       accessPoints={accessPoints}

@@ -10,7 +10,13 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { Layers } from 'lucide-react';
 
 // Available map styles (all free, no API key required)
+// Natural (liberty) is first and default
 const MAP_STYLES = {
+  liberty: {
+    name: 'Natural',
+    url: 'https://tiles.openfreemap.org/styles/liberty',
+    dark: false,
+  },
   voyager: {
     name: 'Standard',
     url: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
@@ -19,11 +25,6 @@ const MAP_STYLES = {
   positron: {
     name: 'Light',
     url: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
-    dark: false,
-  },
-  liberty: {
-    name: 'Natural',
-    url: 'https://tiles.openfreemap.org/styles/liberty',
     dark: false,
   },
   bright: {
@@ -385,10 +386,10 @@ export default function MapContainer({
         )}
       </div>
 
-      {/* Weather Overlay Toggle Button - moved left on desktop to avoid zoom controls */}
+      {/* Weather Overlay Toggle Button - aligned under style picker */}
       <button
         onClick={toggleWeather}
-        className={`absolute top-[168px] right-2.5 md:right-12 z-10 p-2 rounded-lg shadow-lg transition-all ${
+        className={`absolute top-[168px] right-2.5 z-10 p-2 rounded-lg shadow-lg transition-all ${
           weatherEnabled
             ? 'bg-river-water text-white'
             : 'bg-white/90 text-gray-700 hover:bg-white'
