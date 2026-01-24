@@ -193,6 +193,7 @@ export async function GET(request: NextRequest) {
         .single();
 
       if (cached) {
+        console.log('[DriveTime] Using cached data:', cached);
         driveBack = {
           minutes: Math.round(parseFloat(cached.drive_minutes)),
           miles: parseFloat(cached.drive_miles),
@@ -204,12 +205,17 @@ export async function GET(request: NextRequest) {
         const putInCoordsForDrive = putIn.location_snap?.coordinates || putIn.location_orig?.coordinates;
         const takeOutCoords = takeOut.location_snap?.coordinates || takeOut.location_orig?.coordinates;
 
+        console.log('[DriveTime] Put-in coords:', putInCoordsForDrive);
+        console.log('[DriveTime] Take-out coords:', takeOutCoords);
+
         if (!putInCoordsForDrive || !takeOutCoords) {
           throw new Error('Missing coordinates');
         }
 
         const [putInLng, putInLat] = putInCoordsForDrive;
         const [takeOutLng, takeOutLat] = takeOutCoords;
+
+        console.log('[DriveTime] Calling Mapbox from', { takeOutLng, takeOutLat }, 'to', { putInLng, putInLat });
 
         // Pass condition code to enable shorter cache for dangerous conditions
         const driveResult = await getDriveTime(
@@ -219,6 +225,8 @@ export async function GET(request: NextRequest) {
           putInLat,
           conditionCode
         );
+
+        console.log('[DriveTime] Mapbox result:', driveResult);
 
         // Cache the result
         await supabase.from('drive_time_cache').upsert({
