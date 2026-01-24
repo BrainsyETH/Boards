@@ -42,6 +42,48 @@ WHERE rg.gauge_station_id = gs.id
   AND gs.usgs_site_id = '07068000';
 
 -- ============================================
+-- JACKS FORK RIVER GAUGES
+-- ============================================
+-- Alley Spring gauge (07065495) - upper section, approximately mile 8
+UPDATE river_gauges rg
+SET river_mile = 8.0
+FROM gauge_stations gs, rivers r
+WHERE rg.gauge_station_id = gs.id
+  AND rg.river_id = r.id
+  AND r.slug = 'jacks-fork'
+  AND gs.usgs_site_id = '07065495';
+
+-- Eminence gauge (07066000) - lower section near confluence, approximately mile 40
+UPDATE river_gauges rg
+SET river_mile = 40.0
+FROM gauge_stations gs, rivers r
+WHERE rg.gauge_station_id = gs.id
+  AND rg.river_id = r.id
+  AND r.slug = 'jacks-fork'
+  AND gs.usgs_site_id = '07066000';
+
+-- ============================================
+-- ELEVEN POINT RIVER GAUGES
+-- ============================================
+-- Thomasville gauge (07071000) - upper section, approximately mile 5
+UPDATE river_gauges rg
+SET river_mile = 5.0
+FROM gauge_stations gs, rivers r
+WHERE rg.gauge_station_id = gs.id
+  AND rg.river_id = r.id
+  AND r.slug = 'eleven-point'
+  AND gs.usgs_site_id = '07071000';
+
+-- Bardley gauge (07071500) - mid section, approximately mile 30
+UPDATE river_gauges rg
+SET river_mile = 30.0
+FROM gauge_stations gs, rivers r
+WHERE rg.gauge_station_id = gs.id
+  AND rg.river_id = r.id
+  AND r.slug = 'eleven-point'
+  AND gs.usgs_site_id = '07071500';
+
+-- ============================================
 -- UPDATE SEGMENT-AWARE GAUGE SELECTION FUNCTION
 -- ============================================
 -- New logic: Select gauge at or upstream of put-in (largest river_mile <= put-in mile)
