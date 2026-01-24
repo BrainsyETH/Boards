@@ -6,6 +6,81 @@ import { createClient } from '@/lib/supabase/server';
 
 export const dynamic = 'force-dynamic';
 
+/**
+ * Parse PostGIS WKB hex string to extract coordinates
+ * WKB format for Point with SRID (EWKB):
+ * - 1 byte: byte order (01 = little-endian)
+ * - 4 bytes: type (Point with SRID = 0x20000001 in LE = 01000020)
+ * - 4 bytes: SRID (4326 = E6100000 in LE)
+ * - 8 bytes: X (longitude) as double
+ * - 8 bytes: Y (latitude) as double
+ */
+function parseWKBHex(hex: string): { lng: number; lat: number } | null {
+  try {
+    // Remove any whitespace
+    hex = hex.replace(/\s/g, '');
+
+    // Check minimum length for point with SRID (1 + 4 + 4 + 8 + 8 = 25 bytes = 50 hex chars)
+    if (hex.length < 50) return null;
+
+    // Check byte order (01 = little-endian, 00 = big-endian)
+    const byteOrder = hex.substring(0, 2);
+    const isLittleEndian = byteOrder === '01';
+
+    if (!isLittleEndian) {
+      // Big-endian not commonly used, skip for now
+      return null;
+    }
+
+    // Check type - for Point with SRID it's 0x20000001 (LE: 01000020)
+    const typeHex = hex.substring(2, 10);
+    const hasSSRID = typeHex === '01000020' || typeHex === '21000020';
+
+    // Skip SRID bytes if present
+    const coordStart = hasSSRID ? 18 : 10; // 18 = 2 + 8 + 8, 10 = 2 + 8
+
+    // Extract X (longitude) - 8 bytes = 16 hex chars
+    const xHex = hex.substring(coordStart, coordStart + 16);
+    const x = hexToDouble(xHex, isLittleEndian);
+
+    // Extract Y (latitude) - 8 bytes = 16 hex chars
+    const yHex = hex.substring(coordStart + 16, coordStart + 32);
+    const y = hexToDouble(yHex, isLittleEndian);
+
+    // Validate coordinates are reasonable
+    if (isNaN(x) || isNaN(y) || Math.abs(x) > 180 || Math.abs(y) > 90) {
+      return null;
+    }
+
+    return { lng: x, lat: y };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Convert hex string to double (IEEE 754)
+ */
+function hexToDouble(hex: string, littleEndian: boolean): number {
+  // Convert hex to bytes
+  const bytes = [];
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes.push(parseInt(hex.substring(i, i + 2), 16));
+  }
+
+  // Reverse bytes if little-endian
+  if (littleEndian) {
+    bytes.reverse();
+  }
+
+  // Create buffer and read as float64
+  const buffer = new ArrayBuffer(8);
+  const view = new DataView(buffer);
+  bytes.forEach((b, i) => view.setUint8(i, b));
+
+  return view.getFloat64(0, false); // false = big-endian (we already reversed)
+}
+
 export interface GaugeStation {
   id: string;
   usgsSiteId: string;
@@ -42,32 +117,42 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    // Fetch all active gauge stations with their latest readings
+    // Fetch all active gauge stations with location as GeoJSON
+    // Use raw query to convert PostGIS geometry to GeoJSON
     const { data: gaugeStations, error: gaugesError } = await supabase
-      .from('gauge_stations')
-      .select(`
-        id,
-        usgs_site_id,
-        name,
-        location,
-        active
-      `)
-      .eq('active', true);
+      .rpc('get_gauge_stations_with_geojson');
 
+    // Fallback to regular query if RPC doesn't exist
+    let stations = gaugeStations;
     if (gaugesError) {
-      console.error('Error fetching gauge stations:', gaugesError);
-      return NextResponse.json(
-        { error: 'Failed to fetch gauge stations' },
-        { status: 500 }
-      );
+      console.log('RPC not available, using regular query with location parsing');
+      const { data: fallbackStations, error: fallbackError } = await supabase
+        .from('gauge_stations')
+        .select(`
+          id,
+          usgs_site_id,
+          name,
+          location,
+          active
+        `)
+        .eq('active', true);
+
+      if (fallbackError) {
+        console.error('Error fetching gauge stations:', fallbackError);
+        return NextResponse.json(
+          { error: 'Failed to fetch gauge stations' },
+          { status: 500 }
+        );
+      }
+      stations = fallbackStations;
     }
 
-    if (!gaugeStations || gaugeStations.length === 0) {
+    if (!stations || stations.length === 0) {
       return NextResponse.json({ gauges: [] });
     }
 
     // Get latest readings for all gauges
-    const gaugeIds = gaugeStations.map(g => g.id);
+    const gaugeIds = stations.map((g: { id: string }) => g.id);
 
     const { data: readings, error: readingsError } = await supabase
       .from('gauge_readings')
@@ -149,17 +234,43 @@ export async function GET() {
     }
 
     // Build response
-    const gauges: GaugeStation[] = gaugeStations.map(station => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const gauges: GaugeStation[] = stations.map((station: any) => {
       const reading = latestReadings.get(station.id);
       const thresholds = thresholdsByGauge.get(station.id) || null;
 
-      // Parse location (PostGIS point)
+      // Parse location (PostGIS point) - handle different formats
       let coordinates = { lng: 0, lat: 0 };
       if (station.location) {
-        // Handle GeoJSON format
+        // Handle GeoJSON format from RPC or Supabase
         if (typeof station.location === 'object' && 'coordinates' in station.location) {
           const coords = station.location.coordinates as [number, number];
           coordinates = { lng: coords[0], lat: coords[1] };
+        }
+        // Handle string formats
+        else if (typeof station.location === 'string') {
+          // Try WKT format like "POINT(-91.5 37.5)"
+          const wktMatch = station.location.match(/POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\s*\)/i);
+          if (wktMatch) {
+            coordinates = { lng: parseFloat(wktMatch[1]), lat: parseFloat(wktMatch[2]) };
+          }
+          // Try PostGIS WKB hex format (starts with 01 for little-endian point)
+          else if (station.location.match(/^[0-9A-Fa-f]+$/)) {
+            const parsed = parseWKBHex(station.location);
+            if (parsed) {
+              coordinates = parsed;
+            }
+          }
+        }
+        // Handle object with type and coordinates
+        else if (typeof station.location === 'object') {
+          const loc = station.location as Record<string, unknown>;
+          if (Array.isArray(loc.coordinates)) {
+            coordinates = {
+              lng: loc.coordinates[0] as number,
+              lat: loc.coordinates[1] as number
+            };
+          }
         }
       }
 
