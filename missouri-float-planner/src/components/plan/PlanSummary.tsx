@@ -5,9 +5,54 @@
 // Simplified: TanStack Query handles caching natively via vesselTypeId in queryKey
 
 import { useState, useEffect, useCallback } from 'react';
-import type { FloatPlan, ConditionCode } from '@/types/api';
+import type { FloatPlan, FlowRating } from '@/types/api';
 import { useVesselTypes } from '@/hooks/useVesselTypes';
 import { useFloatPlan } from '@/hooks/useFloatPlan';
+
+// Flow rating display configuration (matches ConditionsBlock.tsx)
+const FLOW_RATING_CONFIG: Record<FlowRating, {
+  emoji: string;
+  bgClass: string;
+  textClass: string;
+  borderClass: string;
+}> = {
+  flood: {
+    emoji: '🚫',
+    bgClass: 'bg-red-600',
+    textClass: 'text-white',
+    borderClass: 'border-red-400',
+  },
+  high: {
+    emoji: '⚡',
+    bgClass: 'bg-orange-500',
+    textClass: 'text-white',
+    borderClass: 'border-orange-400',
+  },
+  good: {
+    emoji: '✓',
+    bgClass: 'bg-emerald-500',
+    textClass: 'text-white',
+    borderClass: 'border-emerald-400',
+  },
+  low: {
+    emoji: '↓',
+    bgClass: 'bg-amber-500',
+    textClass: 'text-white',
+    borderClass: 'border-amber-400',
+  },
+  poor: {
+    emoji: '⚠',
+    bgClass: 'bg-gray-500',
+    textClass: 'text-white',
+    borderClass: 'border-gray-400',
+  },
+  unknown: {
+    emoji: '?',
+    bgClass: 'bg-bluff-500',
+    textClass: 'text-white',
+    borderClass: 'border-bluff-400',
+  },
+};
 
 interface PlanSummaryProps {
   plan: FloatPlan | null;
@@ -16,15 +61,6 @@ interface PlanSummaryProps {
   onShare: () => void;
 }
 
-const conditionStyles: Record<ConditionCode, { bg: string; text: string; icon: string }> = {
-  optimal: { bg: 'bg-emerald-100', text: 'text-emerald-700', icon: '✓' },
-  low: { bg: 'bg-amber-100', text: 'text-amber-700', icon: '↓' },
-  very_low: { bg: 'bg-orange-100', text: 'text-orange-700', icon: '⚠' },
-  high: { bg: 'bg-orange-100', text: 'text-orange-700', icon: '↑' },
-  too_low: { bg: 'bg-red-100', text: 'text-red-700', icon: '✕' },
-  dangerous: { bg: 'bg-red-200', text: 'text-red-800', icon: '⚠' },
-  unknown: { bg: 'bg-bluff-100', text: 'text-bluff-600', icon: '?' },
-};
 
 // Dangerous Conditions Warning - displays when conditions are dangerous
 function DangerousWarning() {
@@ -56,6 +92,146 @@ function UnknownConditionsWarning() {
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+// Condition Badge with flow rating - tap to expand for details
+function ConditionBadge({ condition }: { condition: FloatPlan['condition'] }) {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  // Use flow rating if available, otherwise fall back to legacy code mapping
+  const flowRating: FlowRating = condition.flowRating ||
+    (condition.code === 'optimal' ? 'good' :
+     condition.code === 'very_low' || condition.code === 'too_low' ? 'poor' :
+     condition.code === 'dangerous' ? 'flood' :
+     condition.code as FlowRating) || 'unknown';
+
+  const ratingConfig = FLOW_RATING_CONFIG[flowRating] || FLOW_RATING_CONFIG.unknown;
+  const displayDescription = condition.flowDescription || condition.label || 'Unknown Conditions';
+
+  return (
+    <div className="space-y-2">
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className={`w-full rounded-xl p-3 ${ratingConfig.bgClass} ${ratingConfig.textClass} border-2 ${ratingConfig.borderClass} transition-all hover:opacity-95 active:scale-[0.99] text-left`}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">{ratingConfig.emoji}</span>
+            <div>
+              <p className="font-bold text-base">{displayDescription}</p>
+              {condition.gaugeName && (
+                <p className="text-xs opacity-80">{condition.gaugeName}</p>
+              )}
+            </div>
+          </div>
+          <svg
+            className={`w-5 h-5 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+
+        {/* Quick stats row */}
+        <div className="flex gap-4 mt-2 pt-2 border-t border-current/20 text-sm">
+          <div>
+            <span className="opacity-70">Discharge:</span>{' '}
+            <span className="font-semibold">
+              {condition.dischargeCfs !== null ? `${condition.dischargeCfs.toLocaleString()} cfs` : 'N/A'}
+            </span>
+          </div>
+          <div>
+            <span className="opacity-70">Height:</span>{' '}
+            <span className="font-semibold">
+              {condition.gaugeHeightFt !== null ? `${condition.gaugeHeightFt.toFixed(2)} ft` : 'N/A'}
+            </span>
+          </div>
+          {condition.percentile !== null && condition.percentile !== undefined && (
+            <div>
+              <span className="opacity-70">Percentile:</span>{' '}
+              <span className="font-semibold">{Math.round(condition.percentile)}%</span>
+            </div>
+          )}
+        </div>
+
+        <p className="text-xs opacity-60 mt-1 text-center">Tap for details</p>
+      </button>
+
+      {/* Expanded details */}
+      {isExpanded && (
+        <div className="bg-gray-50 rounded-xl p-3 space-y-3 border border-gray-200 animate-in slide-in-from-top-2 duration-200">
+          {/* What this means */}
+          <div>
+            <h4 className="font-bold text-gray-800 text-sm mb-1">What This Means</h4>
+            <p className="text-xs text-gray-600">
+              {flowRating === 'good' && 'Water levels are near the historical median for this date - ideal for floating.'}
+              {flowRating === 'low' && 'Water levels are below typical for this date. Expect some dragging in riffles.'}
+              {flowRating === 'poor' && 'Water levels are very low. Frequent dragging and portaging likely.'}
+              {flowRating === 'high' && 'Water levels are above typical. Fast current - experienced paddlers only.'}
+              {flowRating === 'flood' && 'Dangerous flooding conditions. Do not float.'}
+              {flowRating === 'unknown' && 'Unable to determine conditions. Check locally before launching.'}
+            </p>
+          </div>
+
+          {/* Percentile visualization */}
+          {condition.percentile !== null && condition.percentile !== undefined && (
+            <div>
+              <h4 className="font-bold text-gray-800 text-sm mb-2">How This Compares</h4>
+              <div className="relative h-6 bg-gradient-to-r from-gray-400 via-amber-400 via-emerald-400 via-orange-400 to-red-500 rounded-full overflow-hidden">
+                <div
+                  className="absolute top-0 bottom-0 w-0.5 bg-white shadow-lg"
+                  style={{ left: `${condition.percentile}%` }}
+                >
+                  <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-xs font-bold px-1.5 py-0.5 rounded whitespace-nowrap">
+                    {Math.round(condition.percentile)}%
+                  </div>
+                </div>
+              </div>
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Poor</span>
+                <span>Low</span>
+                <span>Good</span>
+                <span>High</span>
+                <span>Flood</span>
+              </div>
+              {condition.medianDischargeCfs && (
+                <p className="text-xs text-gray-500 mt-1">
+                  Typical for today: ~{condition.medianDischargeCfs.toLocaleString()} cfs
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* USGS Link */}
+          {condition.usgsUrl && (
+            <a
+              href={condition.usgsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-between w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg px-3 py-2 text-sm transition-colors"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <span className="font-medium">View USGS Gauge Data</span>
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
+          )}
+
+          {/* Accuracy warning */}
+          {condition.accuracyWarning && condition.accuracyWarningReason && (
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-2">
+              <p className="text-xs text-orange-700">
+                <span className="font-bold">Note:</span> {condition.accuracyWarningReason}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -158,8 +334,6 @@ export default function PlanSummary({
   }
 
   if (!displayPlan) return null;
-
-  const conditionStyle = conditionStyles[displayPlan.condition.code];
 
   return (
     <div className="glass-card rounded-2xl w-80 max-h-[85vh] flex flex-col animate-slide-in-right">
@@ -348,25 +522,8 @@ export default function PlanSummary({
         {displayPlan.condition.code === 'dangerous' && <DangerousWarning />}
         {displayPlan.condition.code === 'unknown' && <UnknownConditionsWarning />}
 
-        {/* Condition Badge */}
-        <div className={`rounded-xl p-3 ${conditionStyle.bg}`}>
-          <div className="flex items-center gap-2">
-            <span className="text-lg">{conditionStyle.icon}</span>
-            <div>
-              <p className={`font-semibold ${conditionStyle.text}`}>{displayPlan.condition.label}</p>
-              {displayPlan.condition.gaugeHeightFt && (
-                <p className={`text-sm ${conditionStyle.text} opacity-75`}>
-                  Gauge: {displayPlan.condition.gaugeHeightFt.toFixed(2)} ft
-                </p>
-              )}
-            </div>
-          </div>
-          {displayPlan.condition.accuracyWarning && (
-            <p className="text-xs mt-2 text-orange-600 bg-orange-50 rounded-lg px-2 py-1">
-              ⚠ {displayPlan.condition.accuracyWarningReason}
-            </p>
-          )}
-        </div>
+        {/* River Conditions - Flow Rating Based */}
+        <ConditionBadge condition={displayPlan.condition} />
 
         {/* Hazards */}
         {displayPlan.hazards.length > 0 && (
