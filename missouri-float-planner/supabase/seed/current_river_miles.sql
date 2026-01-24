@@ -26,7 +26,7 @@ BEGIN
     WHERE river_id = v_river_id AND (name ILIKE '%Baptist%Camp%');
 
     UPDATE access_points SET river_mile_downstream = 9.0
-    WHERE river_id = v_river_id AND (name ILIKE '%Cedar Grove%');
+    WHERE river_id = v_river_id AND (name ILIKE '%Cedar%Grove%' OR name ILIKE '%Cedargrove%');
 
     UPDATE access_points SET river_mile_downstream = 14.2
     WHERE river_id = v_river_id AND (name ILIKE '%Welch%Spring%');

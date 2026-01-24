@@ -153,6 +153,7 @@ export interface FloatPlan {
     miles: number;
     formatted: string;
     routeSummary: string | null;
+    routeGeometry: GeoJSON.LineString | null;
   };
   condition: RiverCondition;
   hazards: Hazard[];
