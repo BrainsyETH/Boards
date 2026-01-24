@@ -68,66 +68,62 @@ export default function DriveRouteLayer({
         properties: {},
       };
 
-      // Add or update source
-      if (hasSource()) {
-        try {
-          const source = map.getSource(DRIVE_SOURCE_ID) as maplibregl.GeoJSONSource;
-          source.setData(geojsonData);
-        } catch (err) {
-          console.warn('Error updating drive route source:', err);
-        }
-      } else {
-        try {
-          map.addSource(DRIVE_SOURCE_ID, {
-            type: 'geojson',
-            data: geojsonData,
-          });
-        } catch (err) {
-          console.warn('Error adding drive route source:', err);
-          return;
-        }
+      // Always clean up first to ensure fresh state after style changes
+      cleanup();
+
+      // Add source
+      try {
+        map.addSource(DRIVE_SOURCE_ID, {
+          type: 'geojson',
+          data: geojsonData,
+        });
+      } catch (err) {
+        console.warn('Error adding drive route source:', err);
+        return;
       }
 
-      // Add glow layer if it doesn't exist
-      if (!hasLayer(DRIVE_GLOW_LAYER_ID)) {
-        try {
-          map.addLayer({
-            id: DRIVE_GLOW_LAYER_ID,
-            type: 'line',
-            source: DRIVE_SOURCE_ID,
-            paint: {
-              'line-color': glowColor,
-              'line-width': 8,
-              'line-opacity': 0.6,
-              'line-blur': 2,
-            },
-          });
-        } catch (err) {
-          console.warn('Error adding drive route glow layer:', err);
-        }
+      // Verify source was added before continuing
+      if (!hasSource()) {
+        console.warn('Drive route source not available after adding');
+        return;
       }
 
-      // Add main route layer if it doesn't exist
-      if (!hasLayer(DRIVE_LAYER_ID)) {
-        try {
-          map.addLayer({
-            id: DRIVE_LAYER_ID,
-            type: 'line',
-            source: DRIVE_SOURCE_ID,
-            paint: {
-              'line-color': routeColor,
-              'line-width': 3,
-              'line-opacity': 0.9,
-              'line-dasharray': [2, 2],
-            },
-            layout: {
-              'line-cap': 'round',
-              'line-join': 'round',
-            },
-          });
-        } catch (err) {
-          console.warn('Error adding drive route layer:', err);
-        }
+      // Add glow layer
+      try {
+        map.addLayer({
+          id: DRIVE_GLOW_LAYER_ID,
+          type: 'line',
+          source: DRIVE_SOURCE_ID,
+          paint: {
+            'line-color': glowColor,
+            'line-width': 8,
+            'line-opacity': 0.6,
+            'line-blur': 2,
+          },
+        });
+      } catch (err) {
+        console.warn('Error adding drive route glow layer:', err);
+      }
+
+      // Add main route layer
+      try {
+        map.addLayer({
+          id: DRIVE_LAYER_ID,
+          type: 'line',
+          source: DRIVE_SOURCE_ID,
+          paint: {
+            'line-color': routeColor,
+            'line-width': 3,
+            'line-opacity': 0.9,
+            'line-dasharray': [2, 2],
+          },
+          layout: {
+            'line-cap': 'round',
+            'line-join': 'round',
+          },
+        });
+      } catch (err) {
+        console.warn('Error adding drive route layer:', err);
       }
     };
 

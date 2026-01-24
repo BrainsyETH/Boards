@@ -67,11 +67,12 @@ export default function WeatherBug({ riverSlug, riverId, className = '' }: Weath
   const riverStatus = getRiverConditionStatus(condition?.code || null);
 
   // Collapsed view - just show temperature and river status
+  // Positioned at top-left to avoid overlapping with map zoom controls
   if (!isExpanded) {
     return (
       <button
         onClick={() => setIsExpanded(true)}
-        className={`absolute top-4 right-4 z-20 glass-card-dark rounded-xl px-3 py-2
+        className={`absolute top-4 left-4 z-20 glass-card-dark rounded-xl px-3 py-2
                     backdrop-blur-md border border-white/10 shadow-lg
                     hover:border-white/20 transition-colors ${className}`}
       >
@@ -107,7 +108,7 @@ export default function WeatherBug({ riverSlug, riverId, className = '' }: Weath
 
   return (
     <div
-      className={`absolute top-4 right-4 z-20 glass-card-dark rounded-xl p-4
+      className={`absolute top-4 left-4 z-20 glass-card-dark rounded-xl p-4
                   backdrop-blur-md border border-white/10 shadow-lg
                   min-w-[240px] ${className}`}
     >

@@ -36,6 +36,10 @@ export default function AccessPointMarkers({
       window.matchMedia &&
       window.matchMedia('(hover: hover)').matches;
 
+    // Don't proceed if map isn't ready or no access points
+    // Important: Check BEFORE clearing existing markers to avoid flicker during loading
+    if (!map || !accessPoints.length) return;
+
     // Clear existing markers, popups, and React roots
     markersRef.current.forEach((marker) => marker.remove());
     popupsRef.current.forEach((popup) => popup.remove());
@@ -43,8 +47,6 @@ export default function AccessPointMarkers({
     markersRef.current = [];
     popupsRef.current = [];
     rootsRef.current = [];
-
-    if (!map || !accessPoints.length) return;
 
     const selectedPutInPoint = selectedPutIn
       ? accessPoints.find((point) => point.id === selectedPutIn)
