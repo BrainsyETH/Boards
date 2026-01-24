@@ -30,6 +30,8 @@ export async function GET() {
         description,
         fee_required,
         directions_override,
+        driving_lat,
+        driving_lng,
         approved,
         rivers(id, name, slug)
       `)
@@ -98,6 +100,8 @@ export async function GET() {
           description: ap.description,
           feeRequired: ap.fee_required,
           directionsOverride: ap.directions_override,
+          drivingLat: ap.driving_lat ? parseFloat(ap.driving_lat) : null,
+          drivingLng: ap.driving_lng ? parseFloat(ap.driving_lng) : null,
           approved: ap.approved,
           hasInvalidCoords, // Flag for admin UI to show warning
           hasMissingCoords, // New flag for points without coordinates

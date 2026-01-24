@@ -25,6 +25,8 @@ export async function PUT(
       feeRequired,
       riverId,
       directionsOverride,
+      drivingLat,
+      drivingLng,
     } = body;
 
     const supabase = createAdminClient();
@@ -101,6 +103,14 @@ export async function PUT(
       updateData.directions_override = directionsOverride === '' ? null : directionsOverride;
     }
 
+    // Handle driving coordinates (for accurate shuttle time calculation)
+    if (drivingLat !== undefined) {
+      updateData.driving_lat = drivingLat === '' || drivingLat === null ? null : parseFloat(drivingLat);
+    }
+    if (drivingLng !== undefined) {
+      updateData.driving_lng = drivingLng === '' || drivingLng === null ? null : parseFloat(drivingLng);
+    }
+
     // Check if we have anything to update
     if (Object.keys(updateData).length === 1) {
       // Only updated_at, no actual changes
@@ -141,6 +151,8 @@ export async function PUT(
         description,
         fee_required,
         directions_override,
+        driving_lat,
+        driving_lng,
         approved,
         rivers(id, name, slug)
       `)
@@ -214,6 +226,8 @@ export async function PUT(
       description: data.description,
       feeRequired: data.fee_required,
       directionsOverride: data.directions_override,
+      drivingLat: data.driving_lat ? parseFloat(data.driving_lat) : null,
+      drivingLng: data.driving_lng ? parseFloat(data.driving_lng) : null,
       approved: data.approved,
     };
 

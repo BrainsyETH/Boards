@@ -34,6 +34,7 @@ const MapContainer = dynamic(() => import('@/components/map/MapContainer'), {
 });
 const RiverLayer = dynamic(() => import('@/components/map/RiverLayer'), { ssr: false });
 const RouteLayer = dynamic(() => import('@/components/map/RouteLayer'), { ssr: false });
+const DriveRouteLayer = dynamic(() => import('@/components/map/DriveRouteLayer'), { ssr: false });
 const AccessPointMarkers = dynamic(() => import('@/components/map/AccessPointMarkers'), { ssr: false });
 
 export default function RiverPage() {
@@ -286,6 +287,12 @@ export default function RiverPage() {
                     <RouteLayer
                       routeGeometry={plan.route.geometry}
                       isUpstream={plan.putIn.riverMile > plan.takeOut.riverMile}
+                    />
+                  )}
+                  {/* Driving/shuttle route visualization (blue dashed line) */}
+                  {plan?.driveBack?.routeGeometry && (
+                    <DriveRouteLayer
+                      routeGeometry={plan.driveBack.routeGeometry}
                     />
                   )}
                   {accessPoints && (
