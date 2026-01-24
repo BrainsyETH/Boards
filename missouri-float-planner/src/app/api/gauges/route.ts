@@ -152,7 +152,7 @@ export async function GET() {
     }
 
     // Get latest readings for all gauges
-    const gaugeIds = gaugeStations.map(g => g.id);
+    const gaugeIds = stations.map((g: { id: string }) => g.id);
 
     const { data: readings, error: readingsError } = await supabase
       .from('gauge_readings')
@@ -234,7 +234,8 @@ export async function GET() {
     }
 
     // Build response
-    const gauges: GaugeStation[] = gaugeStations.map(station => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const gauges: GaugeStation[] = stations.map((station: any) => {
       const reading = latestReadings.get(station.id);
       const thresholds = thresholdsByGauge.get(station.id) || null;
 
