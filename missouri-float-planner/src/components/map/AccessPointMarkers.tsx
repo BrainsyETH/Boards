@@ -29,43 +29,6 @@ export default function AccessPointMarkers({
   const popupsRef = useRef<maplibregl.Popup[]>([]);
   const rootsRef = useRef<Root[]>([]);
   const supportsHoverRef = useRef(false);
-  const lastFitBoundsRef = useRef<string | null>(null);
-
-  // Fit map bounds to show both selected access points
-  useEffect(() => {
-    if (!map || !accessPoints.length) return;
-
-    // Only fit bounds when both points are selected
-    if (!selectedPutIn || !selectedTakeOut) {
-      lastFitBoundsRef.current = null;
-      return;
-    }
-
-    // Create a unique key for the current selection
-    const boundsKey = `${selectedPutIn}-${selectedTakeOut}`;
-
-    // Skip if we've already fit bounds for this selection
-    if (lastFitBoundsRef.current === boundsKey) return;
-
-    const putInPoint = accessPoints.find((p) => p.id === selectedPutIn);
-    const takeOutPoint = accessPoints.find((p) => p.id === selectedTakeOut);
-
-    if (!putInPoint || !takeOutPoint) return;
-
-    // Calculate bounds that include both points with padding
-    const bounds = new maplibregl.LngLatBounds();
-    bounds.extend([putInPoint.coordinates.lng, putInPoint.coordinates.lat]);
-    bounds.extend([takeOutPoint.coordinates.lng, takeOutPoint.coordinates.lat]);
-
-    // Fit bounds with smooth animation and generous padding
-    map.fitBounds(bounds, {
-      padding: { top: 80, bottom: 80, left: 40, right: 40 },
-      maxZoom: 14, // Don't zoom in too close
-      duration: 500, // Smooth animation
-    });
-
-    lastFitBoundsRef.current = boundsKey;
-  }, [map, accessPoints, selectedPutIn, selectedTakeOut]);
 
   useEffect(() => {
     supportsHoverRef.current =
@@ -222,10 +185,10 @@ export default function AccessPointMarkers({
       const popup = new maplibregl.Popup({
         closeButton: false,
         closeOnClick: false,
-        offset: 12,
-        anchor: 'bottom',
-        maxWidth: '260px',
+        offset: 20,
+        maxWidth: '240px',
         className: 'access-point-popup',
+        // No anchor specified - MapLibre will auto-position to keep popup in view
       }).setHTML(popupContent);
 
       // Show popup on hover for hover-capable devices
