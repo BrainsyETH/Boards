@@ -162,3 +162,255 @@ export async function fetchGaugeReading(siteId: string): Promise<GaugeReading | 
   const readings = await fetchGaugeReadings([siteId]);
   return readings[0] || null;
 }
+
+// ============================================
+// DAILY STATISTICS (PERCENTILES)
+// ============================================
+
+export interface DailyStatistics {
+  siteId: string;
+  month: number;
+  day: number;
+  /** 10th percentile discharge (cfs) - very low */
+  p10: number | null;
+  /** 25th percentile discharge (cfs) - low */
+  p25: number | null;
+  /** 50th percentile discharge (cfs) - median/typical */
+  p50: number | null;
+  /** 75th percentile discharge (cfs) - above average */
+  p75: number | null;
+  /** 90th percentile discharge (cfs) - high */
+  p90: number | null;
+  /** Mean discharge (cfs) */
+  mean: number | null;
+  /** Number of years of data used */
+  yearsOfRecord: number | null;
+}
+
+interface USGSStatValue {
+  month_nu: string;
+  day_nu: string;
+  p10_va?: string;
+  p25_va?: string;
+  p50_va?: string;
+  p75_va?: string;
+  p90_va?: string;
+  mean_va?: string;
+  count_nu?: string;
+}
+
+/**
+ * Fetches daily discharge statistics (percentiles) from USGS Statistics Service
+ *
+ * These statistics represent historical percentiles for each day of the year,
+ * allowing comparison of current discharge to typical conditions for that date.
+ *
+ * @param siteId USGS site ID
+ * @param date Optional date to get statistics for (defaults to today)
+ * @returns Daily statistics including percentiles, or null if unavailable
+ */
+export async function fetchDailyStatistics(
+  siteId: string,
+  date?: Date
+): Promise<DailyStatistics | null> {
+  const targetDate = date || new Date();
+  const month = targetDate.getMonth() + 1; // 1-12
+  const day = targetDate.getDate(); // 1-31
+
+  const url = new URL('https://waterservices.usgs.gov/nwis/stat/');
+  url.searchParams.set('format', 'json');
+  url.searchParams.set('sites', siteId);
+  url.searchParams.set('statReportType', 'daily');
+  url.searchParams.set('statTypeCd', 'p10,p25,p50,p75,p90,mean');
+  url.searchParams.set('parameterCd', '00060'); // Discharge only
+
+  try {
+    const response = await fetch(url.toString(), {
+      next: { revalidate: 86400 }, // Cache for 24 hours (stats don't change often)
+    });
+
+    if (!response.ok) {
+      console.error(`USGS Statistics API error: ${response.status} ${response.statusText}`);
+      return null;
+    }
+
+    const data = await response.json();
+
+    // Parse the RDB-style JSON response
+    // The structure is: { value: { timeSeries: [...] } }
+    const timeSeries = data?.value?.timeSeries;
+    if (!timeSeries || timeSeries.length === 0) {
+      console.warn(`No statistics available for site ${siteId}`);
+      return null;
+    }
+
+    // Find the statistics for discharge (parameter code 00060)
+    const dischargeSeries = timeSeries.find(
+      (ts: { variable?: { variableCode?: Array<{ value: string }> } }) =>
+        ts.variable?.variableCode?.[0]?.value === '00060'
+    );
+
+    if (!dischargeSeries?.values?.[0]?.value) {
+      console.warn(`No discharge statistics for site ${siteId}`);
+      return null;
+    }
+
+    // Find the statistic for the target day
+    const allStats = dischargeSeries.values[0].value as USGSStatValue[];
+    const dayStats = allStats.find(
+      (stat) => parseInt(stat.month_nu) === month && parseInt(stat.day_nu) === day
+    );
+
+    if (!dayStats) {
+      console.warn(`No statistics for ${month}/${day} at site ${siteId}`);
+      return null;
+    }
+
+    const parseVal = (val?: string): number | null => {
+      if (!val || val === '' || val === '-999999') return null;
+      const num = parseFloat(val);
+      return isNaN(num) ? null : num;
+    };
+
+    return {
+      siteId,
+      month,
+      day,
+      p10: parseVal(dayStats.p10_va),
+      p25: parseVal(dayStats.p25_va),
+      p50: parseVal(dayStats.p50_va),
+      p75: parseVal(dayStats.p75_va),
+      p90: parseVal(dayStats.p90_va),
+      mean: parseVal(dayStats.mean_va),
+      yearsOfRecord: parseVal(dayStats.count_nu),
+    };
+  } catch (error) {
+    console.error(`Error fetching USGS statistics for site ${siteId}:`, error);
+    return null;
+  }
+}
+
+/**
+ * Calculates what percentile a given discharge value falls into
+ * based on historical daily statistics
+ *
+ * @param dischargeCfs Current discharge in cfs
+ * @param stats Daily statistics for comparison
+ * @returns Estimated percentile (0-100) or null if can't be calculated
+ */
+export function calculateDischargePercentile(
+  dischargeCfs: number,
+  stats: DailyStatistics
+): number | null {
+  if (stats.p10 === null || stats.p50 === null || stats.p90 === null) {
+    return null;
+  }
+
+  // Interpolate between known percentiles
+  if (dischargeCfs <= stats.p10) {
+    // Below 10th percentile - estimate 0-10 range
+    return Math.max(0, Math.round((dischargeCfs / stats.p10) * 10));
+  }
+  if (stats.p25 !== null && dischargeCfs <= stats.p25) {
+    // Between p10 and p25
+    return Math.round(10 + ((dischargeCfs - stats.p10) / (stats.p25 - stats.p10)) * 15);
+  }
+  if (stats.p25 !== null && dischargeCfs <= stats.p50) {
+    // Between p25 and p50
+    return Math.round(25 + ((dischargeCfs - stats.p25) / (stats.p50 - stats.p25)) * 25);
+  }
+  if (stats.p75 !== null && dischargeCfs <= stats.p75) {
+    // Between p50 and p75
+    return Math.round(50 + ((dischargeCfs - stats.p50) / (stats.p75 - stats.p50)) * 25);
+  }
+  if (stats.p75 !== null && dischargeCfs <= stats.p90) {
+    // Between p75 and p90
+    return Math.round(75 + ((dischargeCfs - stats.p75) / (stats.p90 - stats.p75)) * 15);
+  }
+  // Above 90th percentile
+  return Math.min(100, Math.round(90 + ((dischargeCfs - stats.p90) / stats.p90) * 10));
+}
+
+export type FlowRating = 'flood' | 'high' | 'good' | 'low' | 'poor' | 'unknown';
+
+export interface FlowCondition {
+  rating: FlowRating;
+  label: string;
+  description: string;
+  percentile: number | null;
+  dischargeCfs: number | null;
+  gaugeHeightFt: number | null;
+}
+
+/**
+ * Rating thresholds based on percentile
+ * These align with MOHERP's methodology and Missouri Scenic Rivers guidance
+ */
+const PERCENTILE_RATINGS: Array<{ max: number; rating: FlowRating; label: string; description: string }> = [
+  { max: 10, rating: 'poor', label: 'Poor', description: 'Too low - frequent dragging and portages likely' },
+  { max: 25, rating: 'low', label: 'Low', description: 'Floatable with some dragging in riffles' },
+  { max: 75, rating: 'good', label: 'Good', description: 'Ideal conditions - minimal dragging' },
+  { max: 90, rating: 'high', label: 'High', description: 'Fast current - experienced paddlers only' },
+  { max: 100, rating: 'flood', label: 'Flood', description: 'Dangerous flooding - do not float' },
+];
+
+/**
+ * Determines flow condition rating based on current discharge and historical statistics
+ *
+ * @param reading Current gauge reading
+ * @param stats Daily statistics for the gauge
+ * @returns Flow condition with rating, description, and context
+ */
+export function calculateFlowCondition(
+  reading: GaugeReading,
+  stats: DailyStatistics | null
+): FlowCondition {
+  // If no discharge data, return unknown
+  if (reading.dischargeCfs === null) {
+    return {
+      rating: 'unknown',
+      label: 'Unknown',
+      description: 'Current conditions unavailable',
+      percentile: null,
+      dischargeCfs: null,
+      gaugeHeightFt: reading.gaugeHeightFt,
+    };
+  }
+
+  // If no statistics, we can still show the reading but can't rate it
+  if (!stats || stats.p50 === null) {
+    return {
+      rating: 'unknown',
+      label: 'Unknown',
+      description: 'Historical data unavailable for comparison',
+      percentile: null,
+      dischargeCfs: reading.dischargeCfs,
+      gaugeHeightFt: reading.gaugeHeightFt,
+    };
+  }
+
+  const percentile = calculateDischargePercentile(reading.dischargeCfs, stats);
+
+  if (percentile === null) {
+    return {
+      rating: 'unknown',
+      label: 'Unknown',
+      description: 'Unable to calculate percentile',
+      percentile: null,
+      dischargeCfs: reading.dischargeCfs,
+      gaugeHeightFt: reading.gaugeHeightFt,
+    };
+  }
+
+  // Find the appropriate rating based on percentile
+  const ratingInfo = PERCENTILE_RATINGS.find((r) => percentile <= r.max) || PERCENTILE_RATINGS[PERCENTILE_RATINGS.length - 1];
+
+  return {
+    rating: ratingInfo.rating,
+    label: ratingInfo.label,
+    description: ratingInfo.description,
+    percentile,
+    dischargeCfs: reading.dischargeCfs,
+    gaugeHeightFt: reading.gaugeHeightFt,
+  };
+}

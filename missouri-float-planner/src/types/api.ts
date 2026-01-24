@@ -75,6 +75,9 @@ export type ConditionCode =
   | 'too_low'
   | 'unknown';
 
+/** Flow rating based on discharge percentile comparison to historical data */
+export type FlowRating = 'flood' | 'high' | 'good' | 'low' | 'poor' | 'unknown';
+
 export interface RiverCondition {
   label: string;
   code: ConditionCode;
@@ -86,6 +89,16 @@ export interface RiverCondition {
   accuracyWarningReason: string | null;
   gaugeName: string | null;
   gaugeUsgsId: string | null;
+  /** Percentile-based flow rating (new system) */
+  flowRating?: FlowRating;
+  /** User-friendly flow description */
+  flowDescription?: string;
+  /** Current discharge percentile (0-100) compared to historical data for this date */
+  percentile?: number | null;
+  /** Median (50th percentile) discharge for this date in cfs */
+  medianDischargeCfs?: number | null;
+  /** Link to USGS gauge page for more details */
+  usgsUrl?: string | null;
 }
 
 export interface ConditionGauge {

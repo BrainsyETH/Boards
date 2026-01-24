@@ -3,8 +3,82 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
-import { fetchGaugeReadings } from '@/lib/usgs/gauges';
-import type { ConditionCode, ConditionGauge, ConditionResponse, RiverCondition } from '@/types/api';
+import {
+  fetchGaugeReadings,
+  fetchDailyStatistics,
+  calculateDischargePercentile,
+  type DailyStatistics,
+} from '@/lib/usgs/gauges';
+import type { ConditionCode, ConditionGauge, ConditionResponse, RiverCondition, FlowRating } from '@/types/api';
+
+// Flow rating descriptions for user display
+const FLOW_RATING_INFO: Record<FlowRating, { label: string; description: string }> = {
+  flood: { label: 'Flood', description: 'Dangerous flooding - do not float' },
+  high: { label: 'High', description: 'Fast current - experienced paddlers only' },
+  good: { label: 'Good', description: 'Ideal conditions - minimal dragging' },
+  low: { label: 'Low', description: 'Floatable with some dragging in riffles' },
+  poor: { label: 'Poor', description: 'Too low - frequent dragging and portages likely' },
+  unknown: { label: 'Unknown', description: 'Current conditions unavailable' },
+};
+
+/**
+ * Determines flow rating from percentile
+ */
+function getFlowRatingFromPercentile(percentile: number | null): FlowRating {
+  if (percentile === null) return 'unknown';
+  if (percentile <= 10) return 'poor';
+  if (percentile <= 25) return 'low';
+  if (percentile <= 75) return 'good';
+  if (percentile <= 90) return 'high';
+  return 'flood';
+}
+
+/**
+ * Fetches statistics and calculates percentile for a gauge reading
+ */
+async function enrichWithStatistics(
+  usgsSiteId: string,
+  dischargeCfs: number | null
+): Promise<{
+  percentile: number | null;
+  flowRating: FlowRating;
+  flowDescription: string;
+  medianDischargeCfs: number | null;
+  stats: DailyStatistics | null;
+}> {
+  if (dischargeCfs === null) {
+    return {
+      percentile: null,
+      flowRating: 'unknown',
+      flowDescription: FLOW_RATING_INFO.unknown.description,
+      medianDischargeCfs: null,
+      stats: null,
+    };
+  }
+
+  const stats = await fetchDailyStatistics(usgsSiteId);
+
+  if (!stats) {
+    return {
+      percentile: null,
+      flowRating: 'unknown',
+      flowDescription: 'Historical data unavailable for comparison',
+      medianDischargeCfs: null,
+      stats: null,
+    };
+  }
+
+  const percentile = calculateDischargePercentile(dischargeCfs, stats);
+  const flowRating = getFlowRatingFromPercentile(percentile);
+
+  return {
+    percentile,
+    flowRating,
+    flowDescription: FLOW_RATING_INFO[flowRating].description,
+    medianDischargeCfs: stats.p50,
+    stats,
+  };
+}
 
 // Force dynamic rendering (uses cookies for Supabase)
 export const dynamic = 'force-dynamic';
@@ -377,6 +451,50 @@ export async function GET(
         accuracyWarningReason: condition.accuracy_warning_reason,
         gaugeName: condition.gauge_name,
         gaugeUsgsId: condition.gauge_usgs_id,
+      };
+    }
+
+    // Enrich with percentile-based flow rating from USGS statistics
+    if (finalCondition.gaugeUsgsId && finalCondition.dischargeCfs !== null) {
+      try {
+        const statsEnrichment = await enrichWithStatistics(
+          finalCondition.gaugeUsgsId,
+          finalCondition.dischargeCfs
+        );
+
+        finalCondition = {
+          ...finalCondition,
+          flowRating: statsEnrichment.flowRating,
+          flowDescription: statsEnrichment.flowDescription,
+          percentile: statsEnrichment.percentile,
+          medianDischargeCfs: statsEnrichment.medianDischargeCfs,
+          usgsUrl: `https://waterdata.usgs.gov/monitoring-location/${finalCondition.gaugeUsgsId}/`,
+        };
+      } catch (statsError) {
+        console.warn('[Conditions API] Failed to fetch statistics:', statsError);
+        // Continue without statistics - the condition data is still valid
+        finalCondition = {
+          ...finalCondition,
+          flowRating: 'unknown',
+          flowDescription: 'Historical comparison unavailable',
+          percentile: null,
+          medianDischargeCfs: null,
+          usgsUrl: `https://waterdata.usgs.gov/monitoring-location/${finalCondition.gaugeUsgsId}/`,
+        };
+      }
+    } else {
+      // No USGS site ID or no discharge - can't calculate percentile
+      finalCondition = {
+        ...finalCondition,
+        flowRating: 'unknown',
+        flowDescription: finalCondition.dischargeCfs === null
+          ? 'Discharge data unavailable'
+          : 'Gauge information unavailable',
+        percentile: null,
+        medianDischargeCfs: null,
+        usgsUrl: finalCondition.gaugeUsgsId
+          ? `https://waterdata.usgs.gov/monitoring-location/${finalCondition.gaugeUsgsId}/`
+          : null,
       };
     }
 
