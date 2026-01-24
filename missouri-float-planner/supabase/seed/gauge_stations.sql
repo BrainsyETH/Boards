@@ -30,6 +30,18 @@ VALUES (
     active = EXCLUDED.active;
 
 -- Current River Gauges
+
+-- Current River at Akers (Upper section)
+INSERT INTO gauge_stations (usgs_site_id, name, location, active)
+VALUES (
+    '07064533',
+    'Current River above Akers, MO',
+    ST_SetSRID(ST_MakePoint(-91.5528, 37.3757), 4326),
+    true
+) ON CONFLICT (usgs_site_id) DO UPDATE SET
+    name = EXCLUDED.name,
+    active = EXCLUDED.active;
+
 INSERT INTO gauge_stations (usgs_site_id, name, location, active)
 VALUES (
     '07067000',
@@ -190,6 +202,45 @@ FROM rivers r, gauge_stations gs
 WHERE r.slug = 'meramec' AND gs.usgs_site_id = '07018500'
 ON CONFLICT (river_id, gauge_station_id) DO UPDATE SET
     is_primary = EXCLUDED.is_primary;
+
+-- Current River - Akers Gauge (Upper section)
+INSERT INTO river_gauges (
+    river_id,
+    gauge_station_id,
+    is_primary,
+    distance_from_section_miles,
+    accuracy_warning_threshold_miles,
+    threshold_unit,
+    level_too_low,
+    level_low,
+    level_optimal_min,
+    level_optimal_max,
+    level_high,
+    level_dangerous
+)
+SELECT
+    r.id,
+    gs.id,
+    false,
+    0.5,
+    10.0,
+    'ft',
+    1.5,
+    2.0,
+    2.5,
+    4.0,
+    5.0,
+    7.0
+FROM rivers r, gauge_stations gs
+WHERE r.slug = 'current' AND gs.usgs_site_id = '07064533'
+ON CONFLICT (river_id, gauge_station_id) DO UPDATE SET
+    is_primary = EXCLUDED.is_primary,
+    level_too_low = EXCLUDED.level_too_low,
+    level_low = EXCLUDED.level_low,
+    level_optimal_min = EXCLUDED.level_optimal_min,
+    level_optimal_max = EXCLUDED.level_optimal_max,
+    level_high = EXCLUDED.level_high,
+    level_dangerous = EXCLUDED.level_dangerous;
 
 -- Current River - Van Buren Gauge (Primary)
 INSERT INTO river_gauges (
