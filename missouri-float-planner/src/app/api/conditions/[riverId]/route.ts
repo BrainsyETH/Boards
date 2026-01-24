@@ -223,82 +223,119 @@ export async function GET(
     if (dbConditionIsUnknown) {
       console.log('[Conditions API] Database returned unknown, trying live USGS data...');
 
-      // Try to use live USGS data with thresholds from river_gauges
-      const { data: primaryGaugeData } = await supabase
-        .from('river_gauges')
-        .select(`
-          gauge_station_id,
-          level_too_low,
-          level_low,
-          level_optimal_min,
-          level_optimal_max,
-          level_high,
-          level_dangerous,
-          gauge_stations (
-            id,
-            name,
-            usgs_site_id
-          )
-        `)
-        .eq('river_id', riverId)
-        .eq('is_primary', true)
-        .limit(1)
-        .maybeSingle();
+      // The database function already selected the appropriate gauge (segment-aware if put-in provided)
+      // Use condition.gauge_usgs_id from the database result, or fall back to primary gauge query
+      let selectedGaugeUsgsSiteId = condition.gauge_usgs_id;
+      let selectedGaugeName = condition.gauge_name;
+      let selectedThresholds: {
+        level_too_low: number | null;
+        level_low: number | null;
+        level_optimal_min: number | null;
+        level_optimal_max: number | null;
+        level_high: number | null;
+        level_dangerous: number | null;
+      } | null = null;
 
-      if (primaryGaugeData) {
-        const gaugeStation = Array.isArray(primaryGaugeData.gauge_stations)
-          ? primaryGaugeData.gauge_stations[0]
-          : primaryGaugeData.gauge_stations;
-        const usgsSiteId = gaugeStation?.usgs_site_id;
+      // Get thresholds for the selected gauge
+      if (selectedGaugeUsgsSiteId) {
+        const { data: gaugeData } = await supabase
+          .from('river_gauges')
+          .select(`
+            level_too_low,
+            level_low,
+            level_optimal_min,
+            level_optimal_max,
+            level_high,
+            level_dangerous,
+            gauge_stations!inner (
+              usgs_site_id
+            )
+          `)
+          .eq('river_id', riverId)
+          .eq('gauge_stations.usgs_site_id', selectedGaugeUsgsSiteId)
+          .limit(1)
+          .maybeSingle();
 
-        if (usgsSiteId) {
-          const usgsReading = usgsReadingMap.get(usgsSiteId);
+        if (gaugeData) {
+          selectedThresholds = {
+            level_too_low: gaugeData.level_too_low,
+            level_low: gaugeData.level_low,
+            level_optimal_min: gaugeData.level_optimal_min,
+            level_optimal_max: gaugeData.level_optimal_max,
+            level_high: gaugeData.level_high,
+            level_dangerous: gaugeData.level_dangerous,
+          };
+        }
+      }
 
-          if (usgsReading && usgsReading.gaugeHeightFt !== null) {
-            console.log('[Conditions API] Using live USGS reading:', usgsReading.gaugeHeightFt, 'ft');
+      // If no gauge from database result, fall back to primary gauge
+      if (!selectedGaugeUsgsSiteId || !selectedThresholds) {
+        const { data: primaryGaugeData } = await supabase
+          .from('river_gauges')
+          .select(`
+            gauge_station_id,
+            level_too_low,
+            level_low,
+            level_optimal_min,
+            level_optimal_max,
+            level_high,
+            level_dangerous,
+            gauge_stations (
+              id,
+              name,
+              usgs_site_id
+            )
+          `)
+          .eq('river_id', riverId)
+          .eq('is_primary', true)
+          .limit(1)
+          .maybeSingle();
 
-            const computed = computeConditionFromReading(usgsReading.gaugeHeightFt, {
-              level_too_low: primaryGaugeData.level_too_low,
-              level_low: primaryGaugeData.level_low,
-              level_optimal_min: primaryGaugeData.level_optimal_min,
-              level_optimal_max: primaryGaugeData.level_optimal_max,
-              level_high: primaryGaugeData.level_high,
-              level_dangerous: primaryGaugeData.level_dangerous,
-            });
+        if (primaryGaugeData) {
+          const gaugeStation = Array.isArray(primaryGaugeData.gauge_stations)
+            ? primaryGaugeData.gauge_stations[0]
+            : primaryGaugeData.gauge_stations;
+          selectedGaugeUsgsSiteId = gaugeStation?.usgs_site_id || null;
+          selectedGaugeName = gaugeStation?.name || null;
+          selectedThresholds = {
+            level_too_low: primaryGaugeData.level_too_low,
+            level_low: primaryGaugeData.level_low,
+            level_optimal_min: primaryGaugeData.level_optimal_min,
+            level_optimal_max: primaryGaugeData.level_optimal_max,
+            level_high: primaryGaugeData.level_high,
+            level_dangerous: primaryGaugeData.level_dangerous,
+          };
+        }
+      }
 
-            const readingAgeHours = usgsReading.readingTimestamp
-              ? (Date.now() - new Date(usgsReading.readingTimestamp).getTime()) / (1000 * 60 * 60)
-              : null;
+      const usgsSiteId = selectedGaugeUsgsSiteId;
 
-            finalCondition = {
-              label: computed.label,
-              code: computed.code,
-              gaugeHeightFt: usgsReading.gaugeHeightFt,
-              dischargeCfs: usgsReading.dischargeCfs,
-              readingTimestamp: usgsReading.readingTimestamp,
-              readingAgeHours,
-              accuracyWarning: false,
-              accuracyWarningReason: null,
-              gaugeName: gaugeStation?.name || condition.gauge_name,
-              gaugeUsgsId: usgsSiteId,
-            };
-          } else {
-            diagnostic = 'No live USGS data available for this gauge.';
-            finalCondition = {
-              label: condition.condition_label || 'Unknown Conditions',
-              code: condition.condition_code || 'unknown',
-              gaugeHeightFt: condition.gauge_height_ft,
-              dischargeCfs: condition.discharge_cfs,
-              readingTimestamp: condition.reading_timestamp,
-              readingAgeHours: condition.reading_age_hours,
-              accuracyWarning: condition.accuracy_warning || false,
-              accuracyWarningReason: condition.accuracy_warning_reason,
-              gaugeName: condition.gauge_name,
-              gaugeUsgsId: condition.gauge_usgs_id,
-            };
-          }
+      if (selectedThresholds && usgsSiteId) {
+        const usgsReading = usgsReadingMap.get(usgsSiteId);
+
+        if (usgsReading && usgsReading.gaugeHeightFt !== null) {
+          console.log('[Conditions API] Using live USGS reading:', usgsReading.gaugeHeightFt, 'ft from', selectedGaugeName);
+
+          const computed = computeConditionFromReading(usgsReading.gaugeHeightFt, selectedThresholds);
+
+          const readingAgeHours = usgsReading.readingTimestamp
+            ? (Date.now() - new Date(usgsReading.readingTimestamp).getTime()) / (1000 * 60 * 60)
+            : null;
+
+          finalCondition = {
+            label: computed.label,
+            code: computed.code,
+            gaugeHeightFt: usgsReading.gaugeHeightFt,
+            dischargeCfs: usgsReading.dischargeCfs,
+            readingTimestamp: usgsReading.readingTimestamp,
+            readingAgeHours,
+            accuracyWarning: false,
+            accuracyWarningReason: null,
+            gaugeName: selectedGaugeName || condition.gauge_name,
+            gaugeUsgsId: usgsSiteId,
+          };
         } else {
-          diagnostic = 'Primary gauge has no USGS site ID configured.';
+          diagnostic = 'No live USGS data available for this gauge.';
           finalCondition = {
             label: condition.condition_label || 'Unknown Conditions',
             code: condition.condition_code || 'unknown',
@@ -313,7 +350,7 @@ export async function GET(
           };
         }
       } else {
-        diagnostic = 'No primary gauge configured for this river.';
+        diagnostic = 'No gauge configured for this river.';
         finalCondition = {
           label: condition.condition_label || 'Unknown Conditions',
           code: condition.condition_code || 'unknown',
