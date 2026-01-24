@@ -18,7 +18,6 @@ const MapContainer = dynamic(() => import('@/components/map/MapContainer'), {
     </div>
   ),
 });
-const RouteLayer = dynamic(() => import('@/components/map/RouteLayer'), { ssr: false });
 const AccessPointMarkers = dynamic(() => import('@/components/map/AccessPointMarkers'), { ssr: false });
 
 export default function SharedPlanPage() {
@@ -116,10 +115,6 @@ export default function SharedPlanPage() {
         {/* Map */}
         <div className="flex-1 relative min-h-[400px] lg:min-h-0 order-2 lg:order-1">
           <MapContainer initialBounds={bounds} showLegend={true}>
-            <RouteLayer
-              routeGeometry={plan.route.geometry}
-              isUpstream={plan.putIn.riverMile > plan.takeOut.riverMile}
-            />
             <AccessPointMarkers
               accessPoints={accessPoints}
               selectedPutIn={plan.putIn.id}
