@@ -22,7 +22,7 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
       <div className="glass-card-dark rounded-2xl p-6 border border-white/10">
         <div className="flex items-center gap-3">
           <LoadingSpinner size="sm" />
-          <p className="text-sm text-river-gravel">Loading conditions...</p>
+          <p className="text-sm text-white/70">Loading conditions...</p>
         </div>
       </div>
     );
@@ -32,7 +32,7 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
     return (
       <div className="glass-card-dark rounded-2xl p-6 border border-white/10">
         <h3 className="text-xl font-bold text-white mb-4">Conditions & Safety</h3>
-        <p className="text-sm text-river-gravel">Condition data not available at this time.</p>
+        <p className="text-sm text-white/70">Condition data not available at this time.</p>
       </div>
     );
   }
@@ -44,12 +44,12 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
   };
 
   const trend = getTrend();
-  const conditionColorClass = 
-    displayCondition.code === 'optimal' ? 'bg-emerald-100 text-emerald-700' :
-    displayCondition.code === 'low' || displayCondition.code === 'very_low' || displayCondition.code === 'too_low' ? 'bg-amber-100 text-amber-700' :
-    displayCondition.code === 'high' ? 'bg-orange-100 text-orange-700' :
-    displayCondition.code === 'dangerous' ? 'bg-red-100 text-red-700' :
-    'bg-bluff-100 text-bluff-600';
+  const conditionColorClass =
+    displayCondition.code === 'optimal' ? 'bg-emerald-100 text-emerald-800' :
+    displayCondition.code === 'low' || displayCondition.code === 'very_low' || displayCondition.code === 'too_low' ? 'bg-amber-100 text-amber-800' :
+    displayCondition.code === 'high' ? 'bg-orange-100 text-orange-800' :
+    displayCondition.code === 'dangerous' ? 'bg-red-100 text-red-800' :
+    'bg-bluff-100 text-bluff-700';
 
   return (
     <div className="glass-card-dark rounded-2xl p-6 border border-white/10">
@@ -59,87 +59,104 @@ export default function ConditionsBlock({ riverId, condition }: ConditionsBlockP
         {/* River Condition */}
         <div className={`rounded-xl p-4 ${conditionColorClass}`}>
           <div className="flex items-center justify-between mb-2">
-            <h4 className="font-semibold">River Condition</h4>
-            <span className="text-xs opacity-75">
+            <h4 className="font-bold text-base">River Condition</h4>
+            <span className="text-xs font-medium">
               {displayCondition.readingAgeHours !== null && displayCondition.readingAgeHours < 24
                 ? `Updated ${Math.round(displayCondition.readingAgeHours)}h ago`
                 : 'Recent'}
             </span>
           </div>
-          <p className="text-lg font-bold mb-3">{displayCondition.label}</p>
+          <p className="text-xl font-bold mb-3">{displayCondition.label}</p>
 
           {/* Gauge Data */}
           <div className="grid grid-cols-2 gap-3">
             {displayCondition.gaugeHeightFt !== null && (
               <div>
-                <p className="text-xs opacity-75 mb-1">Gauge Height</p>
-                <p className="text-xl font-bold">{displayCondition.gaugeHeightFt.toFixed(2)} ft</p>
+                <p className="text-xs font-semibold mb-1">Gauge Height</p>
+                <p className="text-2xl font-bold">{displayCondition.gaugeHeightFt.toFixed(2)} ft</p>
               </div>
             )}
             {displayCondition.dischargeCfs !== null && (
               <div>
-                <p className="text-xs opacity-75 mb-1">Discharge</p>
-                <p className="text-xl font-bold">{displayCondition.dischargeCfs.toLocaleString()} cfs</p>
+                <p className="text-xs font-semibold mb-1">Discharge</p>
+                <p className="text-2xl font-bold">{displayCondition.dischargeCfs.toLocaleString()} cfs</p>
               </div>
             )}
           </div>
 
-        {displayCondition.gaugeName && (
-          <p className="text-xs mt-2 opacity-75">Gauge: {displayCondition.gaugeName}</p>
-        )}
+          {displayCondition.gaugeName && (
+            <p className="text-xs mt-3 font-medium border-t border-current/20 pt-2">
+              📍 Gauge: {displayCondition.gaugeName}
+            </p>
+          )}
 
-        {gauges.length > 1 && (
-          <div className="mt-3 text-xs opacity-75">
-            <p className="font-semibold">Other gauges</p>
-            <ul className="mt-1 space-y-1">
-              {gauges
-                .filter((gauge) => !gauge.isPrimary)
-                .map((gauge) => (
-                  <li key={gauge.id} className="flex items-center justify-between gap-2">
-                    <span>{gauge.name || gauge.usgsSiteId || 'Unknown gauge'}</span>
-                    <span>
-                      {gauge.gaugeHeightFt !== null
-                        ? `${gauge.gaugeHeightFt.toFixed(2)} ft`
-                        : 'No reading'}
-                    </span>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        )}
-      </div>
+          {gauges.length > 1 && (
+            <div className="mt-3 text-xs border-t border-current/20 pt-2">
+              <p className="font-bold mb-1">Other Gauges</p>
+              <ul className="space-y-1">
+                {gauges
+                  .filter((gauge) => !gauge.isPrimary)
+                  .map((gauge) => (
+                    <li key={gauge.id} className="flex items-center justify-between gap-2 font-medium">
+                      <span>{gauge.name || gauge.usgsSiteId || 'Unknown gauge'}</span>
+                      <span className="font-bold">
+                        {gauge.gaugeHeightFt !== null
+                          ? `${gauge.gaugeHeightFt.toFixed(2)} ft`
+                          : 'No reading'}
+                      </span>
+                    </li>
+                  ))}
+              </ul>
+            </div>
+          )}
+        </div>
 
         {/* Trend */}
-        <div className="glass-bg-soft rounded-xl p-4 border border-white/10">
-          <div className="flex items-center gap-2">
-            <span className="text-lg">{trend.icon}</span>
+        <div className="bg-white/10 rounded-xl p-4 border border-white/20">
+          <div className="flex items-center gap-3">
+            <span className="text-2xl">{trend.icon}</span>
             <div>
-              <p className="text-xs text-river-gravel mb-1">Trend</p>
-              <p className="font-semibold text-white">{trend.label}</p>
+              <p className="text-xs text-white/60 font-medium uppercase tracking-wide mb-0.5">Trend</p>
+              <p className="font-bold text-white text-lg">{trend.label}</p>
             </div>
           </div>
-          <p className="text-xs text-river-gravel mt-2">
+          <p className="text-sm text-white/70 mt-3 pt-2 border-t border-white/10">
             Check USGS website for detailed historical trends
           </p>
         </div>
 
         {/* Safety Notes */}
-        <div className="glass-bg-soft border border-amber-500/30 rounded-xl p-4">
-          <h4 className="font-semibold text-amber-400 mb-2">Safety Reminders</h4>
-          <ul className="text-sm text-river-gravel space-y-1">
-            <li>• Always wear a life jacket</li>
-            <li>• Check weather conditions before floating</li>
-            <li>• Inform someone of your float plan</li>
-            <li>• Bring adequate water and sun protection</li>
-            <li>• Know your skill level and river difficulty</li>
+        <div className="bg-amber-500/20 border border-amber-400/40 rounded-xl p-4">
+          <h4 className="font-bold text-amber-300 mb-3 text-base">⚠️ Safety Reminders</h4>
+          <ul className="text-sm text-white/90 space-y-2">
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>Always wear a life jacket</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>Check weather conditions before floating</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>Inform someone of your float plan</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>Bring adequate water and sun protection</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="text-amber-400">•</span>
+              <span>Know your skill level and river difficulty</span>
+            </li>
           </ul>
         </div>
 
         {/* Accuracy Warning */}
         {displayCondition.accuracyWarning && displayCondition.accuracyWarningReason && (
-          <div className="glass-bg-soft border border-orange-500/30 rounded-xl p-4">
-            <p className="text-sm text-orange-400">
-              <span className="font-semibold">⚠ Warning:</span> {displayCondition.accuracyWarningReason}
+          <div className="bg-orange-500/20 border border-orange-400/40 rounded-xl p-4">
+            <p className="text-sm text-orange-200">
+              <span className="font-bold text-orange-300">⚠ Warning:</span> {displayCondition.accuracyWarningReason}
             </p>
           </div>
         )}
