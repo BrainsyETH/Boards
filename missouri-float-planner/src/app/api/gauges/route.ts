@@ -3,6 +3,7 @@
 
 import { NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { fetchGaugeReadings } from '@/lib/usgs/gauges';
 
 export const dynamic = 'force-dynamic';
 
@@ -171,7 +172,7 @@ export async function GET() {
       readingTimestamp: string | null;
     }>();
 
-    if (readings) {
+    if (readings && readings.length > 0) {
       for (const reading of readings) {
         if (!latestReadings.has(reading.gauge_station_id)) {
           latestReadings.set(reading.gauge_station_id, {
@@ -180,6 +181,42 @@ export async function GET() {
             readingTimestamp: reading.reading_timestamp,
           });
         }
+      }
+    } else {
+      // No readings in database - fetch live from USGS
+      console.log('No readings in database, fetching live from USGS...');
+      try {
+        const siteIds = stations
+          .map((s: { usgs_site_id: string }) => s.usgs_site_id)
+          .filter((id: string) => id);
+
+        if (siteIds.length > 0) {
+          const usgsReadings = await fetchGaugeReadings(siteIds);
+
+          // Create a map from USGS site ID to station ID
+          const siteToStationMap = new Map<string, string>();
+          for (const station of stations) {
+            if (station.usgs_site_id) {
+              siteToStationMap.set(station.usgs_site_id, station.id);
+            }
+          }
+
+          // Map USGS readings to station IDs
+          for (const usgsReading of usgsReadings) {
+            const stationId = siteToStationMap.get(usgsReading.siteId);
+            if (stationId) {
+              latestReadings.set(stationId, {
+                gaugeHeightFt: usgsReading.gaugeHeightFt,
+                dischargeCfs: usgsReading.dischargeCfs,
+                readingTimestamp: usgsReading.readingTimestamp,
+              });
+            }
+          }
+          console.log(`Fetched ${usgsReadings.length} readings from USGS`);
+        }
+      } catch (usgsError) {
+        console.error('Error fetching live USGS data:', usgsError);
+        // Continue without live data - gauges will show without readings
       }
     }
 

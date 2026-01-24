@@ -14,23 +14,26 @@ const RAPID_CHANGE_THRESHOLD = 0.5;
 
 export async function POST(request: NextRequest) {
   try {
-    // Verify cron secret
+    // Verify cron secret (bypass in development for easy testing)
+    const isDev = process.env.NODE_ENV === 'development';
     const authHeader = request.headers.get('authorization');
     const cronSecret = process.env.CRON_SECRET;
 
-    if (!cronSecret) {
-      console.error('CRON_SECRET not configured');
-      return NextResponse.json(
-        { error: 'Cron secret not configured' },
-        { status: 500 }
-      );
-    }
+    if (!isDev) {
+      if (!cronSecret) {
+        console.error('CRON_SECRET not configured');
+        return NextResponse.json(
+          { error: 'Cron secret not configured' },
+          { status: 500 }
+        );
+      }
 
-    if (authHeader !== `Bearer ${cronSecret}`) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      if (authHeader !== `Bearer ${cronSecret}`) {
+        return NextResponse.json(
+          { error: 'Unauthorized' },
+          { status: 401 }
+        );
+      }
     }
 
     const supabase = createAdminClient();
