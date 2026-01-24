@@ -32,7 +32,6 @@ const MapContainer = dynamic(() => import('@/components/map/MapContainer'), {
     </div>
   ),
 });
-const RiverLayer = dynamic(() => import('@/components/map/RiverLayer'), { ssr: false });
 const RouteLayer = dynamic(() => import('@/components/map/RouteLayer'), { ssr: false });
 const DriveRouteLayer = dynamic(() => import('@/components/map/DriveRouteLayer'), { ssr: false });
 const AccessPointMarkers = dynamic(() => import('@/components/map/AccessPointMarkers'), { ssr: false });
@@ -268,19 +267,8 @@ export default function RiverPage() {
                     </div>
                   </div>
                 )}
-                
-                {/* Simplified geometry warning */}
-                {river.geometry && river.geometry.coordinates && river.geometry.coordinates.length < 200 && (
-                  <div className="absolute bottom-4 left-4 z-20 bg-amber-500/90 text-white px-3 py-1.5 rounded-lg text-xs font-medium shadow-lg">
-                    Simplified river path
-                  </div>
-                )}
 
                 <MapContainer initialBounds={river.bounds} showLegend={true}>
-                  {/* River path visualization */}
-                  {river.geometry && (
-                    <RiverLayer riverGeometry={river.geometry} />
-                  )}
                   {/* Route visualization when both points are selected */}
                   {/* isUpstream: true when put-in is downstream (higher mile) of take-out */}
                   {plan?.route && (
