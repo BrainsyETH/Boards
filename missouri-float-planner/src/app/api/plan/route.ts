@@ -180,106 +180,64 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Get drive time (with caching)
+    // Get shuttle drive time using Mapbox Directions API
+    // Priority: directions_override (geocoded) > database coordinates
     let driveBack;
     try {
-      // Check cache first
-      const { data: cached } = await supabase
-        .from('drive_time_cache')
-        .select('*')
-        .eq('start_access_id', endId) // Take-out to put-in
-        .eq('end_access_id', startId)
-        .gt('expires_at', new Date().toISOString())
-        .single();
+      let putInLng: number, putInLat: number;
+      let takeOutLng: number, takeOutLat: number;
 
-      if (cached) {
-        console.log('[DriveTime] Using cached data:', cached);
-        driveBack = {
-          minutes: Math.round(parseFloat(cached.drive_minutes)),
-          miles: parseFloat(cached.drive_miles),
-          formatted: formatDriveTime(Math.round(parseFloat(cached.drive_minutes))),
-          routeSummary: cached.route_summary,
-        };
-      } else {
-        // Fetch from Mapbox
-        // Use directions_override if available (geocode address to coordinates)
-        // Otherwise fall back to location_snap or location_orig
-        let putInLng: number, putInLat: number;
-        let takeOutLng: number, takeOutLat: number;
-
-        // Geocode put-in directions override if available
-        if (putIn.directions_override) {
-          console.log('[DriveTime] Geocoding put-in override:', putIn.directions_override);
-          const geocoded = await geocodeAddress(putIn.directions_override);
-          if (geocoded) {
-            [putInLng, putInLat] = geocoded;
-            console.log('[DriveTime] Geocoded put-in coords:', { putInLng, putInLat });
-          } else {
-            const fallback = putIn.location_snap?.coordinates || putIn.location_orig?.coordinates;
-            if (!fallback) throw new Error('Missing put-in coordinates');
-            [putInLng, putInLat] = fallback;
-            console.log('[DriveTime] Geocoding failed, using fallback put-in coords:', { putInLng, putInLat });
-          }
+      // Get put-in coordinates (try directions_override first, then database coords)
+      if (putIn.directions_override) {
+        const geocoded = await geocodeAddress(putIn.directions_override);
+        if (geocoded) {
+          [putInLng, putInLat] = geocoded;
         } else {
+          // Geocoding failed, fall back to database coordinates
           const coords = putIn.location_snap?.coordinates || putIn.location_orig?.coordinates;
           if (!coords) throw new Error('Missing put-in coordinates');
           [putInLng, putInLat] = coords;
-          console.log('[DriveTime] Using database put-in coords:', { putInLng, putInLat });
         }
+      } else {
+        const coords = putIn.location_snap?.coordinates || putIn.location_orig?.coordinates;
+        if (!coords) throw new Error('Missing put-in coordinates');
+        [putInLng, putInLat] = coords;
+      }
 
-        // Geocode take-out directions override if available
-        if (takeOut.directions_override) {
-          console.log('[DriveTime] Geocoding take-out override:', takeOut.directions_override);
-          const geocoded = await geocodeAddress(takeOut.directions_override);
-          if (geocoded) {
-            [takeOutLng, takeOutLat] = geocoded;
-            console.log('[DriveTime] Geocoded take-out coords:', { takeOutLng, takeOutLat });
-          } else {
-            const fallback = takeOut.location_snap?.coordinates || takeOut.location_orig?.coordinates;
-            if (!fallback) throw new Error('Missing take-out coordinates');
-            [takeOutLng, takeOutLat] = fallback;
-            console.log('[DriveTime] Geocoding failed, using fallback take-out coords:', { takeOutLng, takeOutLat });
-          }
+      // Get take-out coordinates (try directions_override first, then database coords)
+      if (takeOut.directions_override) {
+        const geocoded = await geocodeAddress(takeOut.directions_override);
+        if (geocoded) {
+          [takeOutLng, takeOutLat] = geocoded;
         } else {
+          // Geocoding failed, fall back to database coordinates
           const coords = takeOut.location_snap?.coordinates || takeOut.location_orig?.coordinates;
           if (!coords) throw new Error('Missing take-out coordinates');
           [takeOutLng, takeOutLat] = coords;
-          console.log('[DriveTime] Using database take-out coords:', { takeOutLng, takeOutLat });
         }
-
-        console.log('[DriveTime] Calling Mapbox from', { takeOutLng, takeOutLat }, 'to', { putInLng, putInLat });
-
-        // Pass condition code to enable shorter cache for dangerous conditions
-        const driveResult = await getDriveTime(
-          takeOutLng,
-          takeOutLat,
-          putInLng,
-          putInLat,
-          conditionCode
-        );
-
-        console.log('[DriveTime] Mapbox result:', driveResult);
-
-        // Cache the result
-        await supabase.from('drive_time_cache').upsert({
-          start_access_id: endId,
-          end_access_id: startId,
-          drive_minutes: driveResult.minutes,
-          drive_miles: driveResult.miles,
-          route_summary: driveResult.routeSummary,
-          expires_at: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // 30 days
-        });
-
-        driveBack = {
-          minutes: driveResult.minutes,
-          miles: driveResult.miles,
-          formatted: formatDriveTime(driveResult.minutes),
-          routeSummary: driveResult.routeSummary,
-        };
+      } else {
+        const coords = takeOut.location_snap?.coordinates || takeOut.location_orig?.coordinates;
+        if (!coords) throw new Error('Missing take-out coordinates');
+        [takeOutLng, takeOutLat] = coords;
       }
+
+      // Call Mapbox Directions API (shuttle goes take-out -> put-in)
+      const driveResult = await getDriveTime(
+        takeOutLng,
+        takeOutLat,
+        putInLng,
+        putInLat,
+        conditionCode
+      );
+
+      driveBack = {
+        minutes: driveResult.minutes,
+        miles: driveResult.miles,
+        formatted: formatDriveTime(driveResult.minutes),
+        routeSummary: driveResult.routeSummary,
+      };
     } catch (error) {
       console.error('Error calculating drive time:', error);
-      // Fallback to estimated drive time
       driveBack = {
         minutes: 0,
         miles: 0,
