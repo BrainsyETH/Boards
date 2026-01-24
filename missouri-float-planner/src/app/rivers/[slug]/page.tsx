@@ -41,17 +41,6 @@ export default function RiverPage() {
   const slug = params.slug as string;
   const searchParams = useSearchParams();
 
-  // Data fetching
-  const { data: river, isLoading: riverLoading, error: riverError } = useRiver(slug);
-  const { data: accessPoints, isLoading: accessPointsLoading } = useAccessPoints(slug);
-  const { data: conditionData } = useConditions(river?.id || null);
-  const condition = conditionData?.condition ?? null;
-  const { data: vesselTypes } = useVesselTypes();
-  const { data: gaugeStations } = useGaugeStations();
-
-  // Gauge visibility state - default to ON so users can see gauges
-  const [showGauges, setShowGauges] = useState(true);
-
   // Read initial state from URL params
   const urlPutIn = searchParams.get('putIn');
   const urlTakeOut = searchParams.get('takeOut');
@@ -60,6 +49,19 @@ export default function RiverPage() {
   // Lifted state for planner/map integration
   const [selectedPutIn, setSelectedPutIn] = useState<string | null>(urlPutIn);
   const [selectedTakeOut, setSelectedTakeOut] = useState<string | null>(urlTakeOut);
+
+  // Gauge visibility state - default to ON so users can see gauges
+  const [showGauges, setShowGauges] = useState(true);
+
+  // Data fetching
+  const { data: river, isLoading: riverLoading, error: riverError } = useRiver(slug);
+  const { data: accessPoints, isLoading: accessPointsLoading } = useAccessPoints(slug);
+  const { data: conditionData } = useConditions(river?.id || null, {
+    putInAccessPointId: selectedPutIn,
+  });
+  const condition = conditionData?.condition ?? null;
+  const { data: vesselTypes } = useVesselTypes();
+  const { data: gaugeStations } = useGaugeStations();
   const [selectedVesselTypeId, setSelectedVesselTypeId] = useState<string | null>(null);
   const [showPlan, setShowPlan] = useState(false);
   const [upstreamWarning, setUpstreamWarning] = useState<string | null>(null);

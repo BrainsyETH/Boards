@@ -4,12 +4,24 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ConditionResponse } from '@/types/api';
 
-export function useConditions(riverId: string | null) {
+interface UseConditionsOptions {
+  putInAccessPointId?: string | null;
+}
+
+export function useConditions(riverId: string | null, options?: UseConditionsOptions) {
+  const putInAccessPointId = options?.putInAccessPointId;
+
   return useQuery<ConditionResponse | null, Error>({
-    queryKey: ['conditions', riverId],
+    queryKey: ['conditions', riverId, putInAccessPointId],
     queryFn: async (): Promise<ConditionResponse | null> => {
       if (!riverId) return null;
-      const response = await fetch(`/api/conditions/${riverId}`);
+
+      const url = new URL(`/api/conditions/${riverId}`, window.location.origin);
+      if (putInAccessPointId) {
+        url.searchParams.set('putInAccessPointId', putInAccessPointId);
+      }
+
+      const response = await fetch(url.toString());
       if (!response.ok) {
         throw new Error('Failed to fetch conditions');
       }
