@@ -153,13 +153,30 @@ export async function GET() {
       const reading = latestReadings.get(station.id);
       const thresholds = thresholdsByGauge.get(station.id) || null;
 
-      // Parse location (PostGIS point)
+      // Parse location (PostGIS point) - handle different formats
       let coordinates = { lng: 0, lat: 0 };
       if (station.location) {
-        // Handle GeoJSON format
+        // Handle GeoJSON format from Supabase
         if (typeof station.location === 'object' && 'coordinates' in station.location) {
           const coords = station.location.coordinates as [number, number];
           coordinates = { lng: coords[0], lat: coords[1] };
+        }
+        // Handle string WKT format like "POINT(-91.5 37.5)"
+        else if (typeof station.location === 'string') {
+          const match = station.location.match(/POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\s*\)/i);
+          if (match) {
+            coordinates = { lng: parseFloat(match[1]), lat: parseFloat(match[2]) };
+          }
+        }
+        // Handle object with type and coordinates
+        else if (typeof station.location === 'object') {
+          const loc = station.location as Record<string, unknown>;
+          if (Array.isArray(loc.coordinates)) {
+            coordinates = {
+              lng: loc.coordinates[0] as number,
+              lat: loc.coordinates[1] as number
+            };
+          }
         }
       }
 
