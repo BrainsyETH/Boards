@@ -5,8 +5,31 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
 import { getDriveTime } from '@/lib/mapbox/directions';
 import { calculateFloatTime, formatFloatTime, formatDistance, formatDriveTime } from '@/lib/calculations/floatTime';
-import { fetchGaugeReadings } from '@/lib/usgs/gauges';
-import type { PlanResponse, FloatPlan, AccessPointType, HazardType, HazardSeverity, ConditionCode } from '@/types/api';
+import {
+  fetchGaugeReadings,
+  fetchDailyStatistics,
+  calculateDischargePercentile,
+} from '@/lib/usgs/gauges';
+import type { PlanResponse, FloatPlan, AccessPointType, HazardType, HazardSeverity, ConditionCode, FlowRating } from '@/types/api';
+
+// Flow rating based on percentile thresholds
+function getFlowRatingFromPercentile(percentile: number | null): FlowRating {
+  if (percentile === null) return 'unknown';
+  if (percentile <= 10) return 'poor';
+  if (percentile <= 25) return 'low';
+  if (percentile <= 75) return 'good';
+  if (percentile <= 90) return 'high';
+  return 'flood';
+}
+
+const FLOW_DESCRIPTIONS: Record<FlowRating, string> = {
+  flood: 'Dangerous flooding - do not float',
+  high: 'Fast current - experienced paddlers only',
+  good: 'Ideal conditions - minimal dragging',
+  low: 'Floatable with some dragging in riffles',
+  poor: 'Too low - frequent dragging and portages likely',
+  unknown: 'Current conditions unavailable',
+};
 
 // Helper to compute condition from gauge height and thresholds
 function computeConditionFromReading(
@@ -429,6 +452,26 @@ export async function GET(request: NextRequest) {
       warnings.push('Water levels are very low - scraping and portaging likely');
     }
 
+    // Enrich condition with percentile-based flow rating
+    let flowRating: FlowRating = 'unknown';
+    let flowDescription = FLOW_DESCRIPTIONS.unknown;
+    let percentile: number | null = null;
+    let medianDischargeCfs: number | null = null;
+
+    if (condition?.gauge_usgs_id && condition?.discharge_cfs !== null) {
+      try {
+        const stats = await fetchDailyStatistics(condition.gauge_usgs_id);
+        if (stats) {
+          percentile = calculateDischargePercentile(condition.discharge_cfs, stats);
+          flowRating = getFlowRatingFromPercentile(percentile);
+          flowDescription = FLOW_DESCRIPTIONS[flowRating];
+          medianDischargeCfs = stats.p50;
+        }
+      } catch (statsError) {
+        console.warn('Failed to fetch statistics for plan:', statsError);
+      }
+    }
+
     // Build plan response
     const plan: FloatPlan = {
       river: {
@@ -519,6 +562,13 @@ export async function GET(request: NextRequest) {
         accuracyWarningReason: condition?.accuracy_warning_reason,
         gaugeName: condition?.gauge_name,
         gaugeUsgsId: condition?.gauge_usgs_id,
+        flowRating,
+        flowDescription,
+        percentile,
+        medianDischargeCfs,
+        usgsUrl: condition?.gauge_usgs_id
+          ? `https://waterdata.usgs.gov/monitoring-location/${condition.gauge_usgs_id}/`
+          : null,
       },
       hazards: (hazards || []).map(h => ({
         id: h.id,
