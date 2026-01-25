@@ -58,7 +58,12 @@ function getGaugeConditionColor(gauge: GaugeStation, riverId: string): string {
   if (threshold.levelLow !== null && height >= threshold.levelLow) {
     return 'bg-lime-500';
   }
-  return 'bg-yellow-500';
+  // Between level_too_low and level_low = some dragging expected
+  if (threshold.levelTooLow !== null && height >= threshold.levelTooLow) {
+    return 'bg-yellow-500';
+  }
+  // Below level_too_low = too low
+  return 'bg-red-400';
 }
 
 export default function RiverOverviewPanel({
