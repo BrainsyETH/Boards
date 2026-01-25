@@ -11,10 +11,28 @@ export async function GET() {
     const supabase = createAdminClient();
 
     // Get all rivers (including inactive for admin)
-    const { data: rivers, error } = await supabase
+    // Try with active column first, fall back without if column doesn't exist
+    let rivers;
+    let error;
+
+    const withActiveResult = await supabase
       .from('rivers')
       .select('id, name, slug, length_miles, active')
       .order('name', { ascending: true });
+
+    if (withActiveResult.error?.message?.includes('active')) {
+      // Column doesn't exist yet, fetch without it
+      const fallbackResult = await supabase
+        .from('rivers')
+        .select('id, name, slug, length_miles')
+        .order('name', { ascending: true });
+
+      rivers = fallbackResult.data?.map(r => ({ ...r, active: true }));
+      error = fallbackResult.error;
+    } else {
+      rivers = withActiveResult.data;
+      error = withActiveResult.error;
+    }
 
     if (error) {
       console.error('Error fetching rivers:', error);
