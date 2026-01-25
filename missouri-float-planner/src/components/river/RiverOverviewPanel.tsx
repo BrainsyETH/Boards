@@ -31,7 +31,7 @@ const conditionStyles: Record<ConditionCode, { bg: string; text: string; icon: s
 const CONDITION_LEGEND = [
   { code: 'too_low', label: 'Too Low', color: 'bg-neutral-400', description: 'Not recommended' },
   { code: 'very_low', label: 'Low', color: 'bg-yellow-500', description: 'Expect dragging' },
-  { code: 'low', label: 'Good', color: 'bg-lime-500', description: 'Floatable' },
+  { code: 'low', label: 'Okay', color: 'bg-lime-500', description: 'Floatable' },
   { code: 'optimal', label: 'Optimal', color: 'bg-emerald-500', description: 'Ideal' },
   { code: 'high', label: 'High', color: 'bg-orange-500', description: 'Fast current' },
   { code: 'dangerous', label: 'Flood', color: 'bg-red-600', description: 'Do not float' },

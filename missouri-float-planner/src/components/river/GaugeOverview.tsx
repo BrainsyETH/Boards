@@ -41,7 +41,7 @@ function getGaugeCondition(gauge: GaugeStation, riverId: string): {
     return { code: 'optimal', label: 'Optimal', color: 'bg-emerald-500' };
   }
   if (threshold.levelLow !== null && height >= threshold.levelLow) {
-    return { code: 'low', label: 'Good', color: 'bg-lime-500' };
+    return { code: 'low', label: 'Okay', color: 'bg-lime-500' };
   }
   // Between level_too_low and level_low = some dragging expected
   if (threshold.levelTooLow !== null && height >= threshold.levelTooLow) {

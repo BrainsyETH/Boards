@@ -31,7 +31,7 @@ const FLOW_RATING_CONFIG: Record<FlowRating, {
     borderClass: 'border-orange-400',
   },
   good: {
-    label: 'Good',
+    label: 'Okay',
     emoji: '✓',
     bgClass: 'bg-lime-500',
     textClass: 'text-white',
