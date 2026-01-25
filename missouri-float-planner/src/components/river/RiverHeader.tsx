@@ -14,28 +14,6 @@ interface RiverHeaderProps {
 export default function RiverHeader({ river, condition }: RiverHeaderProps) {
   const router = useRouter();
 
-  // Determine navigability status
-  const getNavigabilityStatus = () => {
-    if (!condition) return { label: 'Unknown', color: 'bg-neutral-400', icon: '?' };
-
-    switch (condition.code) {
-      case 'optimal':
-        return { label: 'Navigable', color: 'bg-support-500', icon: '✓' };
-      case 'low':
-      case 'very_low':
-      case 'too_low':
-        return { label: 'Low & Draggy', color: 'bg-amber-500', icon: '↓' };
-      case 'high':
-        return { label: 'High & Fast', color: 'bg-orange-500', icon: '↑' };
-      case 'dangerous':
-        return { label: 'Dangerous', color: 'bg-red-600', icon: '⚠' };
-      default:
-        return { label: 'Unknown', color: 'bg-neutral-400', icon: '?' };
-    }
-  };
-
-  const navigability = getNavigabilityStatus();
-
   return (
     <div className="text-white" style={{ background: 'linear-gradient(to bottom right, #0F2D35, #163F4A, #0F2D35)' }}>
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -81,19 +59,8 @@ export default function RiverHeader({ river, condition }: RiverHeaderProps) {
             </div>
           </div>
 
-          {/* Right: Navigability Status */}
+          {/* Right: Gauge Summary */}
           <div className="flex flex-col items-end gap-4">
-            {/* Navigability Badge */}
-            <div className={`${navigability.color} rounded-xl px-6 py-3 shadow-lg`}>
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">{navigability.icon}</span>
-                <div>
-                  <p className="text-xs uppercase tracking-wide opacity-90">Navigability</p>
-                  <p className="text-xl font-bold">{navigability.label}</p>
-                </div>
-              </div>
-            </div>
-
             {/* Gauge Summary */}
             {condition && (
               <div className="backdrop-blur-sm rounded-xl px-4 py-3 min-w-[200px]" style={{ backgroundColor: 'rgba(29, 82, 95, 0.7)' }}>

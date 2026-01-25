@@ -370,7 +370,7 @@ export default function MapContainer({
       )}
       
       {/* Map Style Picker - positioned below MapLibre navigation controls */}
-      <div className="absolute top-[120px] right-2.5 z-10">
+      <div className={`absolute top-[120px] right-2.5 ${showStylePicker ? 'z-50' : 'z-10'}`}>
         <button
           onClick={() => setShowStylePicker(!showStylePicker)}
           className={`p-2 rounded-lg shadow-lg transition-all ${
@@ -385,7 +385,7 @@ export default function MapContainer({
         </button>
 
         {showStylePicker && (
-          <div className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-md rounded-lg shadow-lg border border-gray-200 overflow-hidden min-w-[120px]">
+          <div className="absolute top-full right-0 mt-2 bg-white/95 backdrop-blur-md rounded-lg shadow-lg border border-gray-200 overflow-hidden min-w-[120px] z-50">
             {(Object.keys(MAP_STYLES) as MapStyleKey[]).map((key) => (
               <button
                 key={key}

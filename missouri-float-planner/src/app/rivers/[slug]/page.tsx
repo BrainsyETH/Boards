@@ -51,8 +51,8 @@ export default function RiverPage() {
   const [selectedPutIn, setSelectedPutIn] = useState<string | null>(urlPutIn);
   const [selectedTakeOut, setSelectedTakeOut] = useState<string | null>(urlTakeOut);
 
-  // Gauge visibility state - default to ON so users can see gauges
-  const [showGauges, setShowGauges] = useState(true);
+  // Gauge visibility state - default to OFF for cleaner map view
+  const [showGauges, setShowGauges] = useState(false);
 
   // Data fetching
   const { data: river, isLoading: riverLoading, error: riverError } = useRiver(slug);
@@ -245,6 +245,13 @@ export default function RiverPage() {
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Left Column - Content (scrollable) */}
           <div className="w-full lg:w-[400px] flex-shrink-0 order-2 lg:order-1 space-y-4">
+            {/* Gauge Stations Overview - at top for quick reference */}
+            <GaugeOverview
+              gauges={gaugeStations}
+              riverId={river.id}
+              isLoading={!allGaugeStations}
+            />
+
             {/* Planner Panel */}
             <PlannerPanel
               river={river}
@@ -258,13 +265,6 @@ export default function RiverPage() {
               planLoading={planLoading}
               showPlan={showPlan}
               onShowPlanChange={setShowPlan}
-            />
-
-            {/* Gauge Stations Overview */}
-            <GaugeOverview
-              gauges={gaugeStations}
-              riverId={river.id}
-              isLoading={!allGaugeStations}
             />
 
             {/* Conditions & Safety */}
@@ -290,10 +290,10 @@ export default function RiverPage() {
             <PointsOfInterest riverSlug={slug} />
           </div>
 
-          {/* Right Column - Map (fills available height on desktop) */}
-          <div className="flex-1 order-1 lg:order-2 flex flex-col">
-            <div className="lg:sticky lg:top-4 flex-1 min-h-[400px] lg:min-h-[500px]">
-              <div className="relative h-full rounded-xl overflow-hidden shadow-2xl border-2 border-neutral-200">
+          {/* Right Column - Map (contained fixed height) */}
+          <div className="flex-1 order-1 lg:order-2">
+            <div className="lg:sticky lg:top-4">
+              <div className="relative h-[350px] lg:h-[500px] rounded-xl overflow-hidden shadow-2xl border-2 border-neutral-200">
                 {/* Weather Bug overlay */}
                 <WeatherBug riverSlug={slug} riverId={river.id} />
 
