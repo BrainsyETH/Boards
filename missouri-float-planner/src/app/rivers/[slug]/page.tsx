@@ -10,6 +10,7 @@ import { useParams, useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import RiverHeader from '@/components/river/RiverHeader';
 import PlannerPanel from '@/components/river/PlannerPanel';
+import GaugeOverview from '@/components/river/GaugeOverview';
 import ConditionsBlock from '@/components/river/ConditionsBlock';
 import DifficultyExperience from '@/components/river/DifficultyExperience';
 import LogisticsSection from '@/components/river/LogisticsSection';
@@ -257,6 +258,13 @@ export default function RiverPage() {
               planLoading={planLoading}
               showPlan={showPlan}
               onShowPlanChange={setShowPlan}
+            />
+
+            {/* Gauge Stations Overview */}
+            <GaugeOverview
+              gauges={gaugeStations}
+              riverId={river.id}
+              isLoading={!allGaugeStations}
             />
 
             {/* Conditions & Safety */}
