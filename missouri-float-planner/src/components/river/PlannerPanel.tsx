@@ -116,7 +116,20 @@ export default function PlannerPanel({
                 onTakeOutChange(null);
                 onShowPlanChange(false);
               }}
-              className="w-full text-sm py-2 px-3 rounded-lg border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-colors"
+              className="w-full text-sm py-2.5 px-4 rounded-lg font-medium transition-colors"
+              style={{
+                backgroundColor: 'rgba(240, 112, 82, 0.15)',
+                border: '2px solid #F07052',
+                color: '#F07052'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#F07052';
+                e.currentTarget.style.color = '#FFFFFF';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'rgba(240, 112, 82, 0.15)';
+                e.currentTarget.style.color = '#F07052';
+              }}
             >
               Clear Selection
             </button>

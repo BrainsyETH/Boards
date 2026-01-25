@@ -108,8 +108,24 @@ export default function Home() {
     }
   }, [rivers]);
 
-  // Handle access point click
+  // Handle access point click - supports selection and deselection
   const handleAccessPointClick = useCallback((point: AccessPoint) => {
+    // If clicking the current put-in, deselect it and clear take-out too
+    if (point.id === selectedPutIn) {
+      setSelectedPutIn(null);
+      setSelectedTakeOut(null);
+      setShowPlan(false);
+      return;
+    }
+
+    // If clicking the current take-out, deselect it
+    if (point.id === selectedTakeOut) {
+      setSelectedTakeOut(null);
+      setShowPlan(false);
+      return;
+    }
+
+    // Prevent upstream take-out selection
     if (selectedPutIn && accessPoints) {
       const putInPoint = accessPoints.find((ap) => ap.id === selectedPutIn);
       if (putInPoint && point.riverMile < putInPoint.riverMile) {
@@ -117,9 +133,15 @@ export default function Home() {
         return;
       }
     }
+
+    // Normal selection flow
     if (!selectedPutIn) {
       setSelectedPutIn(point.id);
     } else if (!selectedTakeOut && point.id !== selectedPutIn) {
+      setSelectedTakeOut(point.id);
+      setShowPlan(true);
+    } else {
+      // Both selected - clicking a new point changes the take-out
       setSelectedTakeOut(point.id);
       setShowPlan(true);
     }
@@ -243,7 +265,7 @@ export default function Home() {
       {/* Main content area - split layout */}
       <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
         {/* Left sidebar - River selector and Plan summary */}
-        <aside className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 overflow-y-auto scrollbar-thin order-2 lg:order-1">
+        <aside className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 order-2 lg:order-1">
           {/* River Selector */}
           <div className="bg-white border-2 border-neutral-200 rounded-lg p-4 shadow-sm">
             <label className="block text-sm font-medium text-neutral-700 mb-2">Select a River</label>

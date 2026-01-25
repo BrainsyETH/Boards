@@ -290,10 +290,10 @@ export default function RiverPage() {
             <PointsOfInterest riverSlug={slug} />
           </div>
 
-          {/* Right Column - Map (contained height, sticky on desktop) */}
-          <div className="flex-1 order-1 lg:order-2">
-            <div className="lg:sticky lg:top-4">
-              <div className="relative h-[400px] lg:h-[600px] rounded-xl overflow-hidden shadow-2xl border-2 border-neutral-200">
+          {/* Right Column - Map (fills available height on desktop) */}
+          <div className="flex-1 order-1 lg:order-2 flex flex-col">
+            <div className="lg:sticky lg:top-4 flex-1 min-h-[400px] lg:min-h-[500px]">
+              <div className="relative h-full rounded-xl overflow-hidden shadow-2xl border-2 border-neutral-200">
                 {/* Weather Bug overlay */}
                 <WeatherBug riverSlug={slug} riverId={river.id} />
 

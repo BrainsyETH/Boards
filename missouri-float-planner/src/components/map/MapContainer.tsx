@@ -277,6 +277,9 @@ export default function MapContainer({
     const mapStyleUrl = process.env.NEXT_PUBLIC_MAP_STYLE_URL ||
       (initialStyle === 'satellite' ? SATELLITE_STYLE : MAP_STYLES[initialStyle].url);
 
+    // Reset mapLoaded when creating a new map instance (important for bounds changes)
+    setMapLoaded(false);
+
     // Initialize map
     map.current = new maplibregl.Map({
       container: mapContainer.current,
