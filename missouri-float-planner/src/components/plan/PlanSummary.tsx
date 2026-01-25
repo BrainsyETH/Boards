@@ -8,7 +8,7 @@ import type { FloatPlan, FlowRating } from '@/types/api';
 import { useVesselTypes } from '@/hooks/useVesselTypes';
 import { useFloatPlan } from '@/hooks/useFloatPlan';
 
-// Flow rating display configuration
+// Flow rating display configuration - colors match gauge condition legend
 const FLOW_RATING_CONFIG: Record<FlowRating, {
   label: string;
   emoji: string;
@@ -33,9 +33,9 @@ const FLOW_RATING_CONFIG: Record<FlowRating, {
   good: {
     label: 'Good',
     emoji: '✓',
-    bgClass: 'bg-support-500',
+    bgClass: 'bg-lime-500',
     textClass: 'text-white',
-    borderClass: 'border-support-400',
+    borderClass: 'border-lime-400',
   },
   low: {
     label: 'Low',
@@ -47,9 +47,9 @@ const FLOW_RATING_CONFIG: Record<FlowRating, {
   poor: {
     label: 'Too Low',
     emoji: '⚠',
-    bgClass: 'bg-amber-500',
-    textClass: 'text-neutral-900',
-    borderClass: 'border-amber-400',
+    bgClass: 'bg-yellow-600',
+    textClass: 'text-white',
+    borderClass: 'border-yellow-500',
   },
   unknown: {
     label: 'Unknown',
@@ -115,11 +115,16 @@ const FLOW_EXPLANATIONS: Record<FlowRating, string> = {
 // Compact River Conditions component with inline explanation
 function ConditionBadge({ condition }: { condition: FloatPlan['condition'] }) {
   // Use flow rating if available, otherwise fall back to legacy code mapping
+  // Condition codes: optimal, low, very_low, too_low, high, dangerous, unknown
+  // Flow ratings: good, low, poor, high, flood, unknown
   const flowRating: FlowRating = condition.flowRating ||
     (condition.code === 'optimal' ? 'good' :
-     condition.code === 'very_low' || condition.code === 'too_low' ? 'poor' :
+     condition.code === 'low' ? 'good' :  // low condition = good/floatable
+     condition.code === 'very_low' ? 'low' :  // very_low = some dragging
+     condition.code === 'too_low' ? 'poor' :  // too_low = scraping likely
      condition.code === 'dangerous' ? 'flood' :
-     condition.code as FlowRating) || 'unknown';
+     condition.code === 'high' ? 'high' :
+     'unknown');
 
   const ratingConfig = FLOW_RATING_CONFIG[flowRating] || FLOW_RATING_CONFIG.unknown;
 

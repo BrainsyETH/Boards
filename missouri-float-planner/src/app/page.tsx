@@ -196,18 +196,17 @@ export default function Home() {
   return (
     <div className="h-screen flex flex-col bg-neutral-50">
       {/* Header with controls */}
-      <header className="relative z-20 bg-primary-800 border-b-2 border-neutral-900 pb-4">
+      <header className="relative z-20 border-b-2 border-neutral-900 pb-4" style={{ backgroundColor: '#163F4A' }}>
         <div className="max-w-7xl mx-auto px-4 pt-4">
           {/* Logo and title */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-accent-500 border-2 border-neutral-900 shadow-md
-                            flex items-center justify-center">
+              <div className="w-10 h-10 rounded-lg border-2 border-neutral-900 shadow-md flex items-center justify-center" style={{ backgroundColor: '#F07052' }}>
                 <Waves className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-heading font-bold text-white">Missouri Float Planner</h1>
-                <p className="text-sm text-primary-200">Plan your Ozark adventure</p>
+                <h1 className="text-xl font-heading font-bold" style={{ color: '#FFFFFF' }}>Missouri Float Planner</h1>
+                <p className="text-sm" style={{ color: '#A3D1DB' }}>Plan your Ozark adventure</p>
               </div>
             </div>
 
@@ -255,13 +254,44 @@ export default function Home() {
         {/* Left sidebar - Plan summary only */}
         <aside className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 overflow-y-auto scrollbar-thin order-2 lg:order-1">
           {/* Plan Summary (when available) */}
-          {showPlan && (
+          {showPlan ? (
             <PlanSummary
               plan={plan || null}
               isLoading={planLoading}
               onClose={handleClearSelection}
               onShare={handleShare}
             />
+          ) : (
+            /* Instruction card when no plan is selected */
+            <div className="bg-white border-2 border-neutral-200 rounded-lg p-6 shadow-sm">
+              <div className="text-center">
+                <div className="w-16 h-16 mx-auto rounded-xl flex items-center justify-center mb-4" style={{ backgroundColor: '#2D7889' }}>
+                  <Waves className="w-10 h-10 text-white" />
+                </div>
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">Plan Your Float</h3>
+                <p className="text-sm text-neutral-600 mb-4">
+                  {!selectedRiverId
+                    ? 'Select a river from the dropdown above to get started.'
+                    : !selectedPutIn
+                    ? 'Click a marker on the map to set your put-in point.'
+                    : 'Click another marker to set your take-out point.'}
+                </p>
+                <div className="flex flex-col gap-2 text-left text-sm">
+                  <div className="flex items-center gap-3 py-2 px-3 rounded-lg" style={{ backgroundColor: selectedRiverId ? '#E8F5E9' : '#F5F5F5' }}>
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${selectedRiverId ? 'bg-emerald-500 text-white' : 'bg-neutral-300 text-neutral-600'}`}>1</span>
+                    <span className={selectedRiverId ? 'text-emerald-700 font-medium' : 'text-neutral-600'}>Select a river</span>
+                  </div>
+                  <div className="flex items-center gap-3 py-2 px-3 rounded-lg" style={{ backgroundColor: selectedPutIn ? '#E8F5E9' : '#F5F5F5' }}>
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${selectedPutIn ? 'bg-emerald-500 text-white' : 'bg-neutral-300 text-neutral-600'}`}>2</span>
+                    <span className={selectedPutIn ? 'text-emerald-700 font-medium' : 'text-neutral-600'}>Choose put-in point</span>
+                  </div>
+                  <div className="flex items-center gap-3 py-2 px-3 rounded-lg" style={{ backgroundColor: selectedTakeOut ? '#E8F5E9' : '#F5F5F5' }}>
+                    <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${selectedTakeOut ? 'bg-emerald-500 text-white' : 'bg-neutral-300 text-neutral-600'}`}>3</span>
+                    <span className={selectedTakeOut ? 'text-emerald-700 font-medium' : 'text-neutral-600'}>Choose take-out point</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
         </aside>
 

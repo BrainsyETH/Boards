@@ -240,11 +240,49 @@ export default function RiverPage() {
         condition={condition}
       />
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Main Content */}
-          <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
+      {/* Main Content - Map-first layout */}
+      <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
+        {/* Left Column - Map (larger on desktop) */}
+        <div className="flex-1 lg:flex-[3] order-1 lg:order-1 min-h-[400px] lg:min-h-0">
+          <div className="relative h-full rounded-xl overflow-hidden shadow-2xl border-2 border-neutral-200">
+            {/* Weather Bug overlay */}
+            <WeatherBug riverSlug={slug} riverId={river.id} />
+
+            {upstreamWarning && (
+              <div className="absolute top-4 left-4 right-4 z-30">
+                <div className="bg-red-50 border-2 border-red-300 text-red-800 text-sm px-4 py-2 rounded-md shadow-md">
+                  {upstreamWarning}
+                </div>
+              </div>
+            )}
+
+            <MapContainer
+              initialBounds={river.bounds}
+              showLegend={true}
+              showGauges={showGauges}
+              onGaugeToggle={setShowGauges}
+            >
+              {accessPoints && (
+                <AccessPointMarkers
+                  accessPoints={accessPoints}
+                  selectedPutIn={selectedPutIn}
+                  selectedTakeOut={selectedTakeOut}
+                  onMarkerClick={handleMarkerClick}
+                />
+              )}
+              {showGauges && gaugeStations && (
+                <GaugeStationMarkers
+                  gauges={gaugeStations}
+                  selectedRiverId={river.id}
+                  nearestGaugeId={nearestGauge?.id}
+                />
+              )}
+            </MapContainer>
+          </div>
+        </div>
+
+        {/* Right Column - Content (scrollable sidebar) */}
+        <div className="w-full lg:w-96 flex-shrink-0 order-2 lg:order-2 overflow-y-auto scrollbar-thin space-y-4">
             {/* Planner Panel */}
             <PlannerPanel
               river={river}
@@ -289,49 +327,7 @@ export default function RiverPage() {
             {/* Points of Interest */}
             <PointsOfInterest riverSlug={slug} />
           </div>
-
-          {/* Right Column - Map */}
-          <div className="lg:col-span-1 order-1 lg:order-2">
-            <div className="sticky top-4 relative">
-              <div className="rounded-xl overflow-hidden shadow-2xl h-[400px] sm:h-[500px] lg:h-[600px] w-full">
-                {/* Weather Bug overlay */}
-                <WeatherBug riverSlug={slug} riverId={river.id} />
-
-                {upstreamWarning && (
-                  <div className="absolute top-4 left-4 right-4 z-30">
-                    <div className="bg-red-50 border-2 border-red-300 text-red-800 text-sm px-4 py-2 rounded-md shadow-md">
-                      {upstreamWarning}
-                    </div>
-                  </div>
-                )}
-
-                <MapContainer
-                  initialBounds={river.bounds}
-                  showLegend={true}
-                  showGauges={showGauges}
-                  onGaugeToggle={setShowGauges}
-                >
-                  {accessPoints && (
-                    <AccessPointMarkers
-                      accessPoints={accessPoints}
-                      selectedPutIn={selectedPutIn}
-                      selectedTakeOut={selectedTakeOut}
-                      onMarkerClick={handleMarkerClick}
-                    />
-                  )}
-                  {showGauges && gaugeStations && (
-                    <GaugeStationMarkers
-                      gauges={gaugeStations}
-                      selectedRiverId={river.id}
-                      nearestGaugeId={nearestGauge?.id}
-                    />
-                  )}
-                </MapContainer>
-              </div>
-            </div>
-          </div>
         </div>
-      </div>
     </div>
   );
 }
