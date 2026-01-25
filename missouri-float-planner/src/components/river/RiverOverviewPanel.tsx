@@ -5,11 +5,13 @@
 
 import { useEffect, useState } from 'react';
 import type { RiverWithDetails, RiverCondition, ConditionCode } from '@/types/api';
+import type { GaugeStation } from '@/hooks/useGaugeStations';
 
 interface RiverOverviewPanelProps {
   river: RiverWithDetails | null;
   condition: RiverCondition | null;
   accessPointCount: number;
+  gaugeStations?: GaugeStation[];
   isOpen: boolean;
   onClose: () => void;
   isDesktop?: boolean;
@@ -27,17 +29,43 @@ const conditionStyles: Record<ConditionCode, { bg: string; text: string; icon: s
 
 // Condition level explanations for the legend (ordered: Very Low → Low → Good → High → Flood)
 const CONDITION_LEGEND = [
-  { code: 'very_low', label: 'Low', icon: '⚠', color: 'bg-yellow-500', description: 'Scraping and portaging likely' },
-  { code: 'low', label: 'Good', icon: '↓', color: 'bg-lime-500', description: 'Good conditions with some dragging' },
-  { code: 'optimal', label: 'Optimal', icon: '✓', color: 'bg-emerald-500', description: 'Ideal conditions' },
-  { code: 'high', label: 'High', icon: '↑', color: 'bg-orange-500', description: 'Fast current - experienced paddlers only' },
-  { code: 'dangerous', label: 'Flood', icon: '🚫', color: 'bg-red-600', description: 'Dangerous conditions - do not float' },
+  { code: 'very_low', label: 'Low', color: 'bg-yellow-500', description: 'Scraping likely' },
+  { code: 'low', label: 'Good', color: 'bg-lime-500', description: 'Some dragging' },
+  { code: 'optimal', label: 'Optimal', color: 'bg-emerald-500', description: 'Ideal' },
+  { code: 'high', label: 'High', color: 'bg-orange-500', description: 'Fast current' },
+  { code: 'dangerous', label: 'Flood', color: 'bg-red-600', description: 'Do not float' },
 ];
+
+// Determine condition based on gauge height and thresholds
+function getGaugeConditionColor(gauge: GaugeStation, riverId: string): string {
+  const height = gauge.gaugeHeightFt;
+  const threshold = gauge.thresholds?.find(t => t.riverId === riverId);
+
+  if (height === null || !threshold) {
+    return 'bg-neutral-400';
+  }
+
+  if (threshold.levelDangerous !== null && height >= threshold.levelDangerous) {
+    return 'bg-red-600';
+  }
+  if (threshold.levelHigh !== null && height >= threshold.levelHigh) {
+    return 'bg-orange-500';
+  }
+  if (threshold.levelOptimalMin !== null && threshold.levelOptimalMax !== null &&
+      height >= threshold.levelOptimalMin && height <= threshold.levelOptimalMax) {
+    return 'bg-emerald-500';
+  }
+  if (threshold.levelLow !== null && height >= threshold.levelLow) {
+    return 'bg-lime-500';
+  }
+  return 'bg-yellow-500';
+}
 
 export default function RiverOverviewPanel({
   river,
   condition,
   accessPointCount,
+  gaugeStations,
   isOpen,
   onClose,
   isDesktop = false,
@@ -100,59 +128,42 @@ export default function RiverOverviewPanel({
               </button>
             </div>
 
-            {/* Quick stats - inline */}
-            <div className="flex items-center gap-3 flex-shrink-0">
-              <div className="rounded-md px-3 py-1.5 border" style={{ backgroundColor: '#1D525F', borderColor: '#256574' }}>
-                <p className="text-[10px] font-medium uppercase" style={{ color: '#72B5C4' }}>Length</p>
-                <p className="text-sm font-bold text-white">{river.lengthMiles.toFixed(1)} mi</p>
-              </div>
-              <div className="rounded-md px-3 py-1.5 border" style={{ backgroundColor: '#1D525F', borderColor: '#256574' }}>
-                <p className="text-[10px] font-medium uppercase" style={{ color: '#72B5C4' }}>Access</p>
-                <p className="text-sm font-bold" style={{ color: '#A3D1DB' }}>{accessPointCount}</p>
-              </div>
-              <div className={`rounded-md px-3 py-1.5 border ${conditionStyle.bg}`} style={{ borderColor: '#256574' }}>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm">{conditionStyle.icon}</span>
-                  <div>
-                    <p className={`font-semibold text-xs ${conditionStyle.text}`}>
-                      {condition?.label ?? 'Unknown'}
-                    </p>
-                    {condition?.gaugeHeightFt !== null && condition?.gaugeHeightFt !== undefined && (
-                      <p className={`text-[10px] ${conditionStyle.text} opacity-75`}>
-                        {condition.gaugeHeightFt.toFixed(2)} ft
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </div>
-              {condition?.dischargeCfs !== null && condition?.dischargeCfs !== undefined && (
-                <div className="rounded-md px-3 py-1.5 border" style={{ backgroundColor: '#1D525F', borderColor: '#256574' }}>
-                  <p className="text-[10px] font-medium uppercase" style={{ color: '#72B5C4' }}>Flow</p>
-                  <p className="text-sm font-bold text-white">{condition.dischargeCfs.toLocaleString()} cfs</p>
-                </div>
-              )}
+            {/* Length stat */}
+            <div className="rounded-md px-3 py-1.5 border flex-shrink-0" style={{ backgroundColor: '#1D525F', borderColor: '#256574' }}>
+              <p className="text-[10px] font-medium uppercase" style={{ color: '#72B5C4' }}>Length</p>
+              <p className="text-sm font-bold text-white">{river.lengthMiles.toFixed(1)} mi</p>
             </div>
 
-            {/* Tags - inline */}
-            <div className="flex items-center gap-2 flex-wrap flex-1">
-              {river.region && (
-                <span className="px-2 py-1 rounded-md text-[10px] border" style={{ backgroundColor: '#1D525F', color: '#A3D1DB', borderColor: '#256574' }}>
-                  {river.region}
-                </span>
-              )}
-              {river.difficultyRating && (
-                <span className="px-2 py-1 rounded-md text-[10px] border" style={{ backgroundColor: '#256574', color: '#D4EAEF', borderColor: '#2D7889' }}>
-                  {river.difficultyRating}
-                </span>
-              )}
+            {/* Gauge Stations */}
+            <div className="flex items-center gap-4 flex-1">
+              <p className="text-[10px] font-medium uppercase flex-shrink-0" style={{ color: '#72B5C4' }}>Gauges:</p>
+              <div className="flex items-center gap-4 flex-wrap">
+                {gaugeStations && gaugeStations.length > 0 ? (
+                  gaugeStations.map((gauge) => (
+                    <div key={gauge.id} className="flex items-center gap-2">
+                      <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${getGaugeConditionColor(gauge, river.id)}`} />
+                      <span className="text-xs text-white truncate max-w-[180px]" title={gauge.name}>
+                        {gauge.name.replace('Current River', '').replace('Eleven Point River', '').replace('near', '@').replace('above', '@').trim() || gauge.name}
+                      </span>
+                      {gauge.gaugeHeightFt !== null && (
+                        <span className="text-[10px]" style={{ color: '#72B5C4' }}>
+                          {gauge.gaugeHeightFt.toFixed(2)} ft
+                        </span>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <span className="text-xs" style={{ color: '#72B5C4' }}>No gauge data</span>
+                )}
+              </div>
             </div>
 
-            {/* Compact condition legend */}
-            <div className="flex items-center gap-3 flex-shrink-0 pl-4" style={{ borderLeft: '1px solid #256574' }}>
-              <p className="text-[10px] font-medium uppercase" style={{ color: '#72B5C4' }}>Conditions:</p>
-              <div className="flex items-center gap-2">
+            {/* Vertical condition legend */}
+            <div className="flex-shrink-0 pl-4" style={{ borderLeft: '1px solid #256574' }}>
+              <p className="text-[10px] font-medium uppercase mb-1" style={{ color: '#72B5C4' }}>Conditions:</p>
+              <div className="flex flex-col gap-0.5">
                 {CONDITION_LEGEND.map((item) => (
-                  <div key={item.code} className="flex items-center gap-1" title={item.description}>
+                  <div key={item.code} className="flex items-center gap-1.5">
                     <span className={`w-2 h-2 rounded-full ${item.color}`} />
                     <span className="text-[10px] text-white">{item.label}</span>
                   </div>

@@ -16,6 +16,7 @@ import { useAccessPoints } from '@/hooks/useAccessPoints';
 import { useConditions } from '@/hooks/useConditions';
 import { useFloatPlan } from '@/hooks/useFloatPlan';
 import { useVesselTypes } from '@/hooks/useVesselTypes';
+import { useGaugeStations } from '@/hooks/useGaugeStations';
 import type { AccessPoint } from '@/types/api';
 
 // Hook to detect desktop viewport
@@ -63,6 +64,12 @@ export default function Home() {
   const { data: conditionData } = useConditions(selectedRiverId);
   const condition = conditionData?.condition ?? null;
   const { data: vesselTypes } = useVesselTypes();
+  const { data: allGaugeStations } = useGaugeStations();
+
+  // Filter gauge stations for selected river
+  const gaugeStations = selectedRiverId && allGaugeStations
+    ? allGaugeStations.filter(gauge => gauge.thresholds?.some(t => t.riverId === selectedRiverId))
+    : [];
 
   // Set default vessel type when loaded (using useEffect to avoid render issues)
   useEffect(() => {
@@ -374,6 +381,7 @@ export default function Home() {
               river={river}
               condition={condition || null}
               accessPointCount={accessPoints?.length || 0}
+              gaugeStations={gaugeStations}
               isOpen={showRiverModal}
               onClose={handleCloseRiverModal}
               isDesktop={true}
@@ -388,6 +396,7 @@ export default function Home() {
           river={river}
           condition={condition || null}
           accessPointCount={accessPoints?.length || 0}
+          gaugeStations={gaugeStations}
           isOpen={showRiverModal}
           onClose={handleCloseRiverModal}
           isDesktop={false}
