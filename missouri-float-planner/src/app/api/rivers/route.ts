@@ -12,8 +12,13 @@ export async function GET() {
   try {
     const supabase = await createClient();
 
-    // Get all active rivers with access point counts
-    const { data: rivers, error } = await supabase
+    // Get all rivers with access point counts
+    // Try with active filter first, fall back to all rivers if column doesn't exist
+    let rivers;
+    let error;
+
+    // First try with active filter (for databases with the migration applied)
+    const activeResult = await supabase
       .from('rivers')
       .select(`
         id,
@@ -27,6 +32,29 @@ export async function GET() {
       `)
       .eq('active', true)
       .order('name', { ascending: true });
+
+    if (activeResult.error?.message?.includes('active')) {
+      // Column doesn't exist yet, fetch all rivers
+      const fallbackResult = await supabase
+        .from('rivers')
+        .select(`
+          id,
+          name,
+          slug,
+          length_miles,
+          description,
+          difficulty_rating,
+          region,
+          access_points!inner(id)
+        `)
+        .order('name', { ascending: true });
+
+      rivers = fallbackResult.data;
+      error = fallbackResult.error;
+    } else {
+      rivers = activeResult.data;
+      error = activeResult.error;
+    }
 
     if (error) {
       console.error('Error fetching rivers:', error);
