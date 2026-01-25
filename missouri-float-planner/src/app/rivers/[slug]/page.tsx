@@ -240,49 +240,11 @@ export default function RiverPage() {
         condition={condition}
       />
 
-      {/* Main Content - Map-first layout */}
-      <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
-        {/* Left Column - Map (larger on desktop) */}
-        <div className="flex-1 lg:flex-[3] order-1 lg:order-1 min-h-[400px] lg:min-h-0">
-          <div className="relative h-full rounded-xl overflow-hidden shadow-2xl border-2 border-neutral-200">
-            {/* Weather Bug overlay */}
-            <WeatherBug riverSlug={slug} riverId={river.id} />
-
-            {upstreamWarning && (
-              <div className="absolute top-4 left-4 right-4 z-30">
-                <div className="bg-red-50 border-2 border-red-300 text-red-800 text-sm px-4 py-2 rounded-md shadow-md">
-                  {upstreamWarning}
-                </div>
-              </div>
-            )}
-
-            <MapContainer
-              initialBounds={river.bounds}
-              showLegend={true}
-              showGauges={showGauges}
-              onGaugeToggle={setShowGauges}
-            >
-              {accessPoints && (
-                <AccessPointMarkers
-                  accessPoints={accessPoints}
-                  selectedPutIn={selectedPutIn}
-                  selectedTakeOut={selectedTakeOut}
-                  onMarkerClick={handleMarkerClick}
-                />
-              )}
-              {showGauges && gaugeStations && (
-                <GaugeStationMarkers
-                  gauges={gaugeStations}
-                  selectedRiverId={river.id}
-                  nearestGaugeId={nearestGauge?.id}
-                />
-              )}
-            </MapContainer>
-          </div>
-        </div>
-
-        {/* Right Column - Content (scrollable sidebar) */}
-        <div className="w-full lg:w-96 flex-shrink-0 order-2 lg:order-2 overflow-y-auto scrollbar-thin space-y-4">
+      {/* Main Content - Content left, Map right */}
+      <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="flex flex-col lg:flex-row gap-6">
+          {/* Left Column - Content (scrollable) */}
+          <div className="w-full lg:w-[400px] flex-shrink-0 order-2 lg:order-1 space-y-4">
             {/* Planner Panel */}
             <PlannerPanel
               river={river}
@@ -327,7 +289,49 @@ export default function RiverPage() {
             {/* Points of Interest */}
             <PointsOfInterest riverSlug={slug} />
           </div>
+
+          {/* Right Column - Map (contained height, sticky on desktop) */}
+          <div className="flex-1 order-1 lg:order-2">
+            <div className="lg:sticky lg:top-4">
+              <div className="relative h-[400px] lg:h-[600px] rounded-xl overflow-hidden shadow-2xl border-2 border-neutral-200">
+                {/* Weather Bug overlay */}
+                <WeatherBug riverSlug={slug} riverId={river.id} />
+
+                {upstreamWarning && (
+                  <div className="absolute top-4 left-4 right-4 z-30">
+                    <div className="bg-red-50 border-2 border-red-300 text-red-800 text-sm px-4 py-2 rounded-md shadow-md">
+                      {upstreamWarning}
+                    </div>
+                  </div>
+                )}
+
+                <MapContainer
+                  initialBounds={river.bounds}
+                  showLegend={true}
+                  showGauges={showGauges}
+                  onGaugeToggle={setShowGauges}
+                >
+                  {accessPoints && (
+                    <AccessPointMarkers
+                      accessPoints={accessPoints}
+                      selectedPutIn={selectedPutIn}
+                      selectedTakeOut={selectedTakeOut}
+                      onMarkerClick={handleMarkerClick}
+                    />
+                  )}
+                  {showGauges && gaugeStations && (
+                    <GaugeStationMarkers
+                      gauges={gaugeStations}
+                      selectedRiverId={river.id}
+                      nearestGaugeId={nearestGauge?.id}
+                    />
+                  )}
+                </MapContainer>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
   );
 }

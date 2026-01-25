@@ -225,15 +225,6 @@ export default function Home() {
 
           {/* Controls row */}
           <div className="flex flex-col lg:flex-row gap-4">
-            {/* River selector */}
-            <div className="lg:w-80">
-              <RiverSelector
-                rivers={rivers || []}
-                selectedRiverId={selectedRiverId}
-                onSelect={handleRiverSelect}
-              />
-            </div>
-
             {/* Clear selection button */}
             {(selectedPutIn || selectedTakeOut) && (
               <button
@@ -251,8 +242,18 @@ export default function Home() {
 
       {/* Main content area - split layout */}
       <main className="flex-1 flex flex-col lg:flex-row gap-4 p-4 overflow-hidden">
-        {/* Left sidebar - Plan summary only */}
+        {/* Left sidebar - River selector and Plan summary */}
         <aside className="w-full lg:w-80 flex-shrink-0 flex flex-col gap-4 overflow-y-auto scrollbar-thin order-2 lg:order-1">
+          {/* River Selector */}
+          <div className="bg-white border-2 border-neutral-200 rounded-lg p-4 shadow-sm">
+            <label className="block text-sm font-medium text-neutral-700 mb-2">Select a River</label>
+            <RiverSelector
+              rivers={rivers || []}
+              selectedRiverId={selectedRiverId}
+              onSelect={handleRiverSelect}
+            />
+          </div>
+
           {/* Plan Summary (when available) */}
           {showPlan ? (
             <PlanSummary

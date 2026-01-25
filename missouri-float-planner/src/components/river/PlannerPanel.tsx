@@ -3,15 +3,11 @@
 // src/components/river/PlannerPanel.tsx
 // Primary planning interaction panel
 // State is lifted to parent (RiverPage) to enable map integration
+// Users select put-in/take-out by clicking map markers
 
-import dynamic from 'next/dynamic';
 import PlanSummary from '@/components/plan/PlanSummary';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import type { RiverWithDetails, AccessPoint, FloatPlan } from '@/types/api';
-
-const AccessPointSelector = dynamic(() => import('@/components/river/AccessPointSelector'), {
-  ssr: false,
-});
 
 interface PlannerPanelProps {
   river: RiverWithDetails;
@@ -44,6 +40,10 @@ export default function PlannerPanel({
 }: PlannerPanelProps) {
   const selectedPutInPoint = selectedPutIn
     ? accessPoints.find((point) => point.id === selectedPutIn)
+    : null;
+
+  const selectedTakeOutPoint = selectedTakeOut
+    ? accessPoints.find((point) => point.id === selectedTakeOut)
     : null;
 
   const handleShare = async () => {
@@ -80,39 +80,51 @@ export default function PlannerPanel({
           <LoadingSpinner size="md" />
         </div>
       ) : (
-        <div className="space-y-6">
-          {/* Put-in Selector */}
-          <div>
-            <label className="block text-sm font-semibold text-white mb-2">
-              Put-in Point
-            </label>
-            <AccessPointSelector
-              accessPoints={accessPoints}
-              selectedId={selectedPutIn}
-              onSelect={onPutInChange}
-              placeholder="Select put-in point..."
-            />
+        <div className="space-y-4">
+          {/* Selection Display - Read Only */}
+          <div className="grid grid-cols-2 gap-3">
+            {/* Put-in Display */}
+            <div className="bg-white/10 rounded-lg p-3 border border-white/20">
+              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#4EB86B' }}>Put-in</p>
+              {selectedPutInPoint ? (
+                <p className="text-sm font-semibold text-white truncate" title={selectedPutInPoint.name}>
+                  {selectedPutInPoint.name}
+                </p>
+              ) : (
+                <p className="text-sm text-white/50 italic">Click map marker</p>
+              )}
+            </div>
+
+            {/* Take-out Display */}
+            <div className="bg-white/10 rounded-lg p-3 border border-white/20">
+              <p className="text-xs font-medium uppercase tracking-wide mb-1" style={{ color: '#F07052' }}>Take-out</p>
+              {selectedTakeOutPoint ? (
+                <p className="text-sm font-semibold text-white truncate" title={selectedTakeOutPoint.name}>
+                  {selectedTakeOutPoint.name}
+                </p>
+              ) : (
+                <p className="text-sm text-white/50 italic">Click map marker</p>
+              )}
+            </div>
           </div>
 
-          {/* Take-out Selector */}
-          <div>
-            <label className="block text-sm font-semibold text-white mb-2">
-              Take-out Point
-            </label>
-            <AccessPointSelector
-              accessPoints={accessPoints}
-              selectedId={selectedTakeOut}
-              onSelect={onTakeOutChange}
-              placeholder="Select take-out point..."
-              excludeId={selectedPutIn}
-              referenceMile={selectedPutInPoint?.riverMile ?? null}
-              warnUpstream={Boolean(selectedPutInPoint)}
-            />
-          </div>
+          {/* Clear Selection Button */}
+          {(selectedPutIn || selectedTakeOut) && (
+            <button
+              onClick={() => {
+                onPutInChange(null);
+                onTakeOutChange(null);
+                onShowPlanChange(false);
+              }}
+              className="w-full text-sm py-2 px-3 rounded-lg border border-white/20 text-white/70 hover:text-white hover:border-white/40 transition-colors"
+            >
+              Clear Selection
+            </button>
+          )}
 
           {/* Plan Summary */}
           {showPlan && (
-            <div className="border-t border-white/10 pt-6">
+            <div className="border-t border-white/10 pt-4">
               <PlanSummary
                 plan={plan}
                 isLoading={planLoading}
@@ -129,8 +141,8 @@ export default function PlannerPanel({
           {/* Instructions */}
           {!selectedPutIn && (
             <div className="bg-primary-700/30 rounded-xl p-4 text-sm text-primary-200 border border-primary-600/30">
-              <p className="font-medium mb-1 text-white">👆 Get Started</p>
-              <p>Select a put-in and take-out point above to calculate your float plan.</p>
+              <p className="font-medium mb-1 text-white">Click the map to plan your float</p>
+              <p>Click a marker to set your <span style={{ color: '#4EB86B' }}>put-in</span>, then click another for your <span style={{ color: '#F07052' }}>take-out</span>.</p>
             </div>
           )}
         </div>
