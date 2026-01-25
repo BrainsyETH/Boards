@@ -100,7 +100,7 @@ function UnknownConditionsWarning() {
 const FLOW_EXPLANATIONS: Record<FlowRating, string> = {
   good: 'Ideal for floating - water levels are near normal for this time of year.',
   low: 'Expect some dragging in shallow riffles. Still floatable.',
-  poor: 'Very low water - frequent dragging and portaging likely.',
+  poor: 'Frequent dragging and portaging may occur.',
   high: 'Fast current with stronger hydraulics. Experienced paddlers only.',
   flood: 'Dangerous flooding conditions. Do not float.',
   unknown: 'Check conditions locally before launching.',
