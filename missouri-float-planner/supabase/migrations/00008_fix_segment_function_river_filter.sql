@@ -16,7 +16,8 @@ END $$;
 
 CREATE OR REPLACE FUNCTION get_river_condition_segment(
     p_river_id UUID,
-    p_put_in_point GEOMETRY(Point, 4326) DEFAULT NULL
+    p_put_in_point GEOMETRY(Point, 4326) DEFAULT NULL,
+    p_put_in_mile NUMERIC DEFAULT NULL
 )
 RETURNS TABLE (
     condition_label TEXT,
@@ -29,15 +30,26 @@ RETURNS TABLE (
     accuracy_warning_reason TEXT,
     gauge_name TEXT,
     gauge_usgs_id TEXT,
-    distance_to_put_in_meters NUMERIC
+    gauge_river_mile NUMERIC
 ) AS $$
 BEGIN
     RETURN QUERY
     WITH selected_gauge AS (
-        -- If put-in point provided, use nearest gauge; otherwise fall back to primary
         SELECT
             CASE
+                WHEN p_put_in_mile IS NOT NULL THEN (
+                    -- Select NEAREST gauge by river mile (absolute distance)
+                    SELECT gs.id
+                    FROM gauge_stations gs
+                    JOIN river_gauges rg ON rg.gauge_station_id = gs.id
+                    WHERE rg.river_id = p_river_id
+                      AND gs.active = TRUE
+                      AND rg.river_mile IS NOT NULL
+                    ORDER BY ABS(rg.river_mile - p_put_in_mile) ASC
+                    LIMIT 1
+                )
                 WHEN p_put_in_point IS NOT NULL THEN (
+                    -- Fallback: nearest gauge by geographic distance
                     SELECT gs.id FROM gauge_stations gs
                     JOIN river_gauges rg ON rg.gauge_station_id = gs.id
                     WHERE rg.river_id = p_river_id AND gs.active = TRUE
@@ -45,11 +57,25 @@ BEGIN
                     LIMIT 1
                 )
                 ELSE (
+                    -- Default: primary gauge
                     SELECT rg.gauge_station_id FROM river_gauges rg
                     WHERE rg.river_id = p_river_id AND rg.is_primary = TRUE
                     LIMIT 1
                 )
             END as gauge_id
+    ),
+    -- Fallback to primary gauge if no gauge found
+    fallback_gauge AS (
+        SELECT
+            COALESCE(
+                sg.gauge_id,
+                (
+                    SELECT rg.gauge_station_id FROM river_gauges rg
+                    WHERE rg.river_id = p_river_id AND rg.is_primary = TRUE
+                    LIMIT 1
+                )
+            ) as gauge_id
+        FROM selected_gauge sg
     ),
     gauge_info AS (
         SELECT
@@ -63,12 +89,13 @@ BEGIN
             rg.level_optimal_max,
             rg.level_high,
             rg.level_dangerous,
+            rg.river_mile as gauge_mile,
             gs.name as gauge_name,
             gs.usgs_site_id,
             gs.location as gauge_location
         FROM river_gauges rg
         JOIN gauge_stations gs ON gs.id = rg.gauge_station_id
-        JOIN selected_gauge sg ON sg.gauge_id = rg.gauge_station_id
+        JOIN fallback_gauge fg ON fg.gauge_id = rg.gauge_station_id
         WHERE rg.river_id = p_river_id  -- FIX: Added river_id filter
           AND gs.active = TRUE
         LIMIT 1
@@ -120,14 +147,10 @@ BEGIN
         END,
         gi.gauge_name,
         gi.usgs_site_id,
-        CASE
-            WHEN p_put_in_point IS NOT NULL THEN
-                ST_Distance(gi.gauge_location::geography, p_put_in_point::geography)::NUMERIC
-            ELSE NULL
-        END
+        gi.gauge_mile
     FROM gauge_info gi
     LEFT JOIN latest_reading lr ON TRUE;
 END;
 $$ LANGUAGE plpgsql STABLE;
 
-COMMENT ON FUNCTION get_river_condition_segment IS 'Gets river condition using segment-aware gauge selection when put-in point is provided. Fixed to filter by river_id when selecting thresholds.';
+COMMENT ON FUNCTION get_river_condition_segment IS 'Gets river condition using NEAREST gauge by river mile. Fixed to filter by river_id when selecting thresholds.';
