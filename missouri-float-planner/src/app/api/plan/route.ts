@@ -98,13 +98,47 @@ export async function GET(request: NextRequest) {
 
     const supabase = await createClient();
 
-    // Get river details
-    const { data: river, error: riverError } = await supabase
-      .from('rivers')
-      .select('id, name, slug')
-      .eq('id', riverId)
-      .single();
+    // OPTIMIZATION: Parallelize independent database queries
+    // These 4 queries don't depend on each other's results
+    const [riverResult, accessPointsResult, vesselTypeResult, segmentResult] = await Promise.all([
+      // Query 1: Get river details
+      supabase
+        .from('rivers')
+        .select('id, name, slug')
+        .eq('id', riverId)
+        .single(),
 
+      // Query 2: Get access points
+      supabase
+        .from('access_points')
+        .select('*')
+        .in('id', [startId, endId])
+        .eq('approved', true),
+
+      // Query 3: Get vessel type (specific or default)
+      vesselTypeId
+        ? supabase
+            .from('vessel_types')
+            .select('*')
+            .eq('id', vesselTypeId)
+            .single()
+        : supabase
+            .from('vessel_types')
+            .select('*')
+            .order('sort_order', { ascending: true })
+            .limit(1)
+            .single(),
+
+      // Query 4: Get float segment using database function
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (supabase.rpc as any)('get_float_segment', {
+        p_start_access_id: startId,
+        p_end_access_id: endId,
+      }),
+    ]);
+
+    // Validate river
+    const { data: river, error: riverError } = riverResult;
     if (riverError || !river) {
       return NextResponse.json(
         { error: 'River not found' },
@@ -112,13 +146,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get access points
-    const { data: accessPoints, error: accessError } = await supabase
-      .from('access_points')
-      .select('*')
-      .in('id', [startId, endId])
-      .eq('approved', true);
-
+    // Validate access points
+    const { data: accessPoints, error: accessError } = accessPointsResult;
     if (accessError || !accessPoints || accessPoints.length !== 2) {
       return NextResponse.json(
         { error: 'Access points not found' },
@@ -136,27 +165,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get vessel type (default to first if not specified)
-    let vesselType;
-    if (vesselTypeId) {
-      const { data: vt } = await supabase
-        .from('vessel_types')
-        .select('*')
-        .eq('id', vesselTypeId)
-        .single();
-      vesselType = vt;
-    }
-
-    if (!vesselType) {
-      const { data: defaultVessel } = await supabase
-        .from('vessel_types')
-        .select('*')
-        .order('sort_order', { ascending: true })
-        .limit(1)
-        .single();
-      vesselType = defaultVessel;
-    }
-
+    // Validate vessel type
+    const vesselType = vesselTypeResult.data;
     if (!vesselType) {
       return NextResponse.json(
         { error: 'Vessel type not found' },
@@ -164,16 +174,8 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get float segment using database function
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data: segment, error: segmentError } = await (supabase.rpc as any)(
-      'get_float_segment',
-      {
-        p_start_access_id: startId,
-        p_end_access_id: endId,
-      }
-    );
-
+    // Validate segment
+    const { data: segment, error: segmentError } = segmentResult;
     if (segmentError || !segment || segment.length === 0) {
       return NextResponse.json(
         { error: 'Could not calculate float segment' },

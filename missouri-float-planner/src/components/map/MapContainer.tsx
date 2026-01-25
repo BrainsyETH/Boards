@@ -116,51 +116,7 @@ export default function MapContainer({
   // Note: Style preference is loaded synchronously in the map initialization effect
   // to avoid a flash of wrong style on first render
 
-  // Change map style
-  const changeMapStyle = useCallback((styleKey: MapStyleKey) => {
-    if (!map.current) return;
-
-    setMapStyle(styleKey);
-    localStorage.setItem('mapStyle', styleKey);
-    setShowStylePicker(false);
-
-    // Use custom style object for satellite, URL for others
-    const style = styleKey === 'satellite' ? SATELLITE_STYLE : MAP_STYLES[styleKey].url;
-    map.current.setStyle(style);
-
-    // Re-apply background color after style loads (only for dark styles)
-    map.current.once('style.load', () => {
-      if (MAP_STYLES[styleKey].dark) {
-        try {
-          map.current?.setPaintProperty('background', 'background-color', '#0f132f');
-        } catch {
-          // Background layer might not exist
-        }
-      }
-      // Re-trigger radar layer if enabled
-      if (weatherEnabled && radarTimestamp) {
-        updateRadarLayer();
-      }
-    });
-  }, [weatherEnabled, radarTimestamp]);
-
-  // Fetch latest radar timestamp from RainViewer API
-  const fetchRadarTimestamp = useCallback(async () => {
-    try {
-      const response = await fetch('https://api.rainviewer.com/public/weather-maps.json');
-      const data: RainViewerResponse = await response.json();
-      
-      // Get the most recent radar frame
-      const latestRadar = data.radar.past[data.radar.past.length - 1];
-      if (latestRadar) {
-        setRadarTimestamp(latestRadar.path);
-      }
-    } catch (error) {
-      console.warn('Failed to fetch RainViewer data:', error);
-    }
-  }, []);
-
-  // Add or remove radar layer
+  // Add or remove radar layer (defined before changeMapStyle which uses it)
   const updateRadarLayer = useCallback(() => {
     if (!map.current || !mapLoaded) return;
 
@@ -225,6 +181,50 @@ export default function MapContainer({
       }
     }
   }, [weatherEnabled, radarTimestamp, mapLoaded]);
+
+  // Change map style
+  const changeMapStyle = useCallback((styleKey: MapStyleKey) => {
+    if (!map.current) return;
+
+    setMapStyle(styleKey);
+    localStorage.setItem('mapStyle', styleKey);
+    setShowStylePicker(false);
+
+    // Use custom style object for satellite, URL for others
+    const style = styleKey === 'satellite' ? SATELLITE_STYLE : MAP_STYLES[styleKey].url;
+    map.current.setStyle(style);
+
+    // Re-apply background color after style loads (only for dark styles)
+    map.current.once('style.load', () => {
+      if (MAP_STYLES[styleKey].dark) {
+        try {
+          map.current?.setPaintProperty('background', 'background-color', '#0f132f');
+        } catch {
+          // Background layer might not exist
+        }
+      }
+      // Re-trigger radar layer if enabled
+      if (weatherEnabled && radarTimestamp) {
+        updateRadarLayer();
+      }
+    });
+  }, [weatherEnabled, radarTimestamp, updateRadarLayer]);
+
+  // Fetch latest radar timestamp from RainViewer API
+  const fetchRadarTimestamp = useCallback(async () => {
+    try {
+      const response = await fetch('https://api.rainviewer.com/public/weather-maps.json');
+      const data: RainViewerResponse = await response.json();
+
+      // Get the most recent radar frame
+      const latestRadar = data.radar.past[data.radar.past.length - 1];
+      if (latestRadar) {
+        setRadarTimestamp(latestRadar.path);
+      }
+    } catch (error) {
+      console.warn('Failed to fetch RainViewer data:', error);
+    }
+  }, []);
 
   // Toggle weather overlay
   const toggleWeather = useCallback(() => {

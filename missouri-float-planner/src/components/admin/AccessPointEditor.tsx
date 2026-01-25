@@ -548,7 +548,7 @@ export default function AccessPointEditor({
       rootsRef.current = [];
       lineSourceIdsRef.current = [];
     };
-  }, [map, accessPoints, pendingUpdates, savingIds, errorIds, onUpdate, onRefresh, onSelectAccessPoint, selectedAccessPointId]);
+  }, [map, accessPoints, pendingUpdates, savingIds, errorIds, approvingIds, onUpdate, onRefresh, onApprovalChange, onSelectAccessPoint, selectedAccessPointId]);
 
   return null;
 }
