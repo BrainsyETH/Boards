@@ -25,12 +25,12 @@ const conditionStyles: Record<ConditionCode, { bg: string; text: string; icon: s
   unknown: { bg: 'bg-bluff-100', text: 'text-bluff-600', icon: '?' },
 };
 
-// Condition level explanations for the legend
+// Condition level explanations for the legend (ordered: Very Low → Low → Good → High → Flood)
 const CONDITION_LEGEND = [
-  { code: 'optimal', label: 'Good', icon: '✓', color: 'bg-emerald-500', description: 'Ideal conditions - minimal dragging' },
-  { code: 'low', label: 'Low', icon: '↓', color: 'bg-amber-500', description: 'Floatable with some dragging in riffles' },
   { code: 'very_low', label: 'Very Low', icon: '⚠', color: 'bg-orange-500', description: 'Frequent scraping and portaging likely' },
-  { code: 'high', label: 'High', icon: '↑', color: 'bg-orange-500', description: 'Fast current - experienced paddlers only' },
+  { code: 'low', label: 'Low', icon: '↓', color: 'bg-amber-500', description: 'Floatable with some dragging in riffles' },
+  { code: 'optimal', label: 'Good', icon: '✓', color: 'bg-emerald-500', description: 'Ideal conditions - minimal dragging' },
+  { code: 'high', label: 'High', icon: '↑', color: 'bg-blue-500', description: 'Fast current - experienced paddlers only' },
   { code: 'dangerous', label: 'Flood', icon: '🚫', color: 'bg-red-600', description: 'Dangerous conditions - do not float' },
 ];
 
