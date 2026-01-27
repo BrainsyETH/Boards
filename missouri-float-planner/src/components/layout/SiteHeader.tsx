@@ -60,8 +60,8 @@ export default function SiteHeader() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 no-underline">
             <Image
-              src="https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter.png"
-              alt="Eddy the Otter"
+              src="https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_favicon.png"
+              alt="Eddy"
               width={32}
               height={32}
               className="w-8 h-8 rounded-md"
