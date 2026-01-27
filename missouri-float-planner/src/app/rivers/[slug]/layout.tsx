@@ -27,6 +27,9 @@ export async function generateMetadata({ params }: RiverLayoutProps): Promise<Me
       return {
         title: 'River',
         description: 'Plan your float trip on Missouri rivers.',
+        openGraph: {
+          images: [{ url: `${BASE_URL}/api/og`, width: 1200, height: 630, type: 'image/png' }],
+        },
       };
     }
 
@@ -42,6 +45,9 @@ export async function generateMetadata({ params }: RiverLayoutProps): Promise<Me
     if (riverError || !river) {
       return {
         title: 'River Not Found',
+        openGraph: {
+          images: [{ url: `${BASE_URL}/api/og`, width: 1200, height: 630, type: 'image/png' }],
+        },
       };
     }
 
@@ -113,6 +119,7 @@ export async function generateMetadata({ params }: RiverLayoutProps): Promise<Me
             url: ogImageUrl,
             width: 1200,
             height: 630,
+            type: 'image/png',
             alt: `${river.name} current conditions and float trip info`,
           },
         ],
@@ -121,14 +128,48 @@ export async function generateMetadata({ params }: RiverLayoutProps): Promise<Me
         card: 'summary_large_image',
         title: `${river.name}${conditionSuffix}`,
         description,
-        images: [ogImageUrl],
+        images: [
+          {
+            url: ogImageUrl,
+            width: 1200,
+            height: 630,
+          },
+        ],
       },
     };
   } catch (error) {
     console.error('Error generating river metadata:', error);
+    const fallbackOgImage = `${BASE_URL}/api/og`;
     return {
       title: 'River',
       description: 'Plan your float trip on Missouri rivers.',
+      openGraph: {
+        type: 'website',
+        title: 'River | Eddy',
+        description: 'Plan your float trip on Missouri rivers.',
+        siteName: 'Eddy',
+        images: [
+          {
+            url: fallbackOgImage,
+            width: 1200,
+            height: 630,
+            type: 'image/png',
+            alt: 'Eddy - Missouri Float Trip Planner',
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'River | Eddy',
+        description: 'Plan your float trip on Missouri rivers.',
+        images: [
+          {
+            url: fallbackOgImage,
+            width: 1200,
+            height: 630,
+          },
+        ],
+      },
     };
   }
 }

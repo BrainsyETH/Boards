@@ -31,6 +31,9 @@ export async function generateMetadata({ params }: PlanLayoutProps): Promise<Met
       return {
         title: 'Float Plan',
         description: 'View and share your Missouri float trip plan.',
+        openGraph: {
+          images: [{ url: `${BASE_URL}/api/og`, width: 1200, height: 630, type: 'image/png' }],
+        },
       };
     }
 
@@ -47,6 +50,9 @@ export async function generateMetadata({ params }: PlanLayoutProps): Promise<Met
       return {
         title: 'Plan Not Found',
         description: 'This float plan could not be found.',
+        openGraph: {
+          images: [{ url: `${BASE_URL}/api/og`, width: 1200, height: 630, type: 'image/png' }],
+        },
       };
     }
 
@@ -127,6 +133,7 @@ export async function generateMetadata({ params }: PlanLayoutProps): Promise<Met
             url: ogImageUrl,
             width: 1200,
             height: 630,
+            type: 'image/png',
             alt: `Float plan for ${riverName}: ${putInName} to ${takeOutName}`,
           },
         ],
@@ -135,14 +142,48 @@ export async function generateMetadata({ params }: PlanLayoutProps): Promise<Met
         card: 'summary_large_image',
         title: `${riverName}: ${putInName} to ${takeOutName}`,
         description,
-        images: [ogImageUrl],
+        images: [
+          {
+            url: ogImageUrl,
+            width: 1200,
+            height: 630,
+          },
+        ],
       },
     };
   } catch (error) {
     console.error('Error generating plan metadata:', error);
+    const fallbackOgImage = `${BASE_URL}/api/og`;
     return {
       title: 'Float Plan',
       description: 'View and share your Missouri float trip plan.',
+      openGraph: {
+        type: 'website',
+        title: 'Float Plan | Eddy',
+        description: 'View and share your Missouri float trip plan.',
+        siteName: 'Eddy',
+        images: [
+          {
+            url: fallbackOgImage,
+            width: 1200,
+            height: 630,
+            type: 'image/png',
+            alt: 'Eddy - Missouri Float Trip Planner',
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: 'Float Plan | Eddy',
+        description: 'View and share your Missouri float trip plan.',
+        images: [
+          {
+            url: fallbackOgImage,
+            width: 1200,
+            height: 630,
+          },
+        ],
+      },
     };
   }
 }
