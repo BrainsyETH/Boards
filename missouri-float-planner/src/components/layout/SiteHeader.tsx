@@ -6,7 +6,8 @@
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Waves, Menu, X, ChevronDown } from 'lucide-react';
+import Image from 'next/image';
+import { Menu, X, ChevronDown } from 'lucide-react';
 import { useRivers } from '@/hooks/useRivers';
 import type { ConditionCode } from '@/types/api';
 
@@ -58,12 +59,13 @@ export default function SiteHeader() {
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 no-underline">
-            <div
-              className="w-8 h-8 rounded-md border-2 border-neutral-900 shadow-sm flex items-center justify-center"
-              style={{ backgroundColor: '#F07052' }}
-            >
-              <Waves className="w-5 h-5 text-white" />
-            </div>
+            <Image
+              src="https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter.png"
+              alt="Eddy the Otter"
+              width={32}
+              height={32}
+              className="w-8 h-8 rounded-md"
+            />
             <span className="text-lg font-heading font-bold text-white">
               Eddy
             </span>
