@@ -4,6 +4,8 @@ import { Providers } from "@/lib/providers";
 import SiteHeader from "@/components/layout/SiteHeader";
 import "./globals.css";
 
+const BASE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://floatmo.com';
+
 // Using local Geist fonts with CSS variables that match the design system
 // In production, these can be swapped for Google Fonts (Space Grotesk, Inter, JetBrains Mono)
 const geistSans = localFont({
@@ -26,8 +28,34 @@ const geistHeading = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Float MO",
-  description: "Plan your float trip on Missouri rivers with real-time conditions and route information.",
+  metadataBase: new URL(BASE_URL),
+  title: {
+    default: "Float MO - Missouri River Float Trip Planner",
+    template: "%s | Float MO",
+  },
+  description: "Plan your float trip on Missouri rivers with real-time water conditions, access points, float time estimates, and weather forecasts for the Ozarks.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    siteName: "Float MO",
+    title: "Float MO - Missouri River Float Trip Planner",
+    description: "Real-time water conditions, float times, access points, and weather for Missouri's best float rivers. Check before you go!",
+    url: BASE_URL,
+    images: [
+      {
+        url: `${BASE_URL}/api/og`,
+        width: 1200,
+        height: 630,
+        alt: "Float MO - Plan Your Missouri Float Trip",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Float MO - Missouri River Float Trip Planner",
+    description: "Real-time water conditions, float times, access points, and weather for Missouri's best float rivers.",
+    images: [`${BASE_URL}/api/og`],
+  },
 };
 
 export default function RootLayout({
