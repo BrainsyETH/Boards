@@ -3,40 +3,43 @@
 @tailwind utilities;
 
 /* =========================================
-   Eddy - Organic Brutalist Theme
-   Bold and grounded with natural warmth
+   Eddy the Otter — Neo-Brutalist Theme
+   Thick black outlines, flat vibrant colors,
+   no gradients, chunky shapes
+   Palette: Adventure Night, Bluewater,
+   Green Treeline, Neon Pink
    ========================================= */
 
 :root {
   /* =========================================
-     Color System
+     Color System — Eddy the Otter Palette
      ========================================= */
 
-  /* Primary — Deep river blue-green */
-  --color-primary-900: #0F2D35;
-  --color-primary-800: #163F4A;
-  --color-primary-700: #1D525F;
-  --color-primary-600: #256574;
-  --color-primary-500: #2D7889;
-  --color-primary-400: #4A9AAD;
-  --color-primary-300: #72B5C4;
-  --color-primary-200: #A3D1DB;
-  --color-primary-100: #D4EAEF;
-  --color-primary-50: #EBF5F7;
+  /* Primary — Adventure Night (#161748) */
+  --color-primary-900: #161748;
+  --color-primary-800: #1C1C54;
+  --color-primary-700: #222260;
+  --color-primary-600: #2D2D7A;
+  --color-primary-500: #3D3D9E;
+  --color-primary-400: #5757B7;
+  --color-primary-300: #8181C9;
+  --color-primary-200: #ABABDB;
+  --color-primary-100: #D5D5ED;
+  --color-primary-50: #EEEEF8;
 
-  /* Secondary — Sandbar tan */
-  --color-secondary-900: #3D3425;
-  --color-secondary-800: #5C4E38;
-  --color-secondary-700: #7A684B;
-  --color-secondary-600: #99835F;
-  --color-secondary-500: #B89D72;
-  --color-secondary-400: #C9B391;
-  --color-secondary-300: #D9C9B0;
-  --color-secondary-200: #E8DFD0;
-  --color-secondary-100: #F4EFE7;
-  --color-secondary-50: #FAF8F4;
+  /* Secondary — Bluewater (#39a0ca) */
+  --color-secondary-900: #0D2028;
+  --color-secondary-800: #184051;
+  --color-secondary-700: #236079;
+  --color-secondary-600: #2E80A2;
+  --color-secondary-500: #39A0CA;
+  --color-secondary-400: #52B0D8;
+  --color-secondary-300: #72C0E1;
+  --color-secondary-200: #A1D5EB;
+  --color-secondary-100: #D0EAF5;
+  --color-secondary-50: #EBF6FB;
 
-  /* Accent — Sunset coral */
+  /* Accent — Neon Pink / Sunset Coral (#F07052) */
   --color-accent-900: #7A2419;
   --color-accent-800: #A33122;
   --color-accent-700: #CC3E2B;
@@ -48,30 +51,30 @@
   --color-accent-100: #FDE7E1;
   --color-accent-50: #FEF5F3;
 
-  /* Support — Trail green */
-  --color-support-900: #1A3D23;
-  --color-support-800: #275C35;
-  --color-support-700: #347A47;
-  --color-support-600: #419959;
-  --color-support-500: #4EB86B;
-  --color-support-400: #71C989;
-  --color-support-300: #95D9A7;
-  --color-support-200: #B8E9C5;
-  --color-support-100: #DCF4E2;
-  --color-support-50: #EDFAF1;
+  /* Support — Green Treeline (#478559) */
+  --color-support-900: #0F1D12;
+  --color-support-800: #1D3724;
+  --color-support-700: #2B5135;
+  --color-support-600: #396B47;
+  --color-support-500: #478559;
+  --color-support-400: #5FA774;
+  --color-support-300: #7EBA8D;
+  --color-support-200: #A9D1B3;
+  --color-support-100: #D4E8D9;
+  --color-support-50: #EDF5EF;
 
-  /* Neutrals — Warm stone tones */
-  --color-neutral-950: #1A1814;
-  --color-neutral-900: #2D2A24;
-  --color-neutral-800: #3F3B33;
-  --color-neutral-700: #524D43;
-  --color-neutral-600: #6B6459;
-  --color-neutral-500: #857D70;
-  --color-neutral-400: #A49C8E;
-  --color-neutral-300: #C2BAAC;
-  --color-neutral-200: #DBD5CA;
-  --color-neutral-100: #EDEBE6;
-  --color-neutral-50: #F7F6F3;
+  /* Neutrals — Cool-toned */
+  --color-neutral-950: #16161E;
+  --color-neutral-900: #22222C;
+  --color-neutral-800: #33333F;
+  --color-neutral-700: #454556;
+  --color-neutral-600: #5C5C6E;
+  --color-neutral-500: #78788A;
+  --color-neutral-400: #9E9EAD;
+  --color-neutral-300: #C4C4CE;
+  --color-neutral-200: #DCDCE2;
+  --color-neutral-100: #EDEDF0;
+  --color-neutral-50: #F8F8FA;
 
   /* Semantic Colors */
   --color-background: var(--color-neutral-50);
@@ -80,32 +83,34 @@
   --color-text-secondary: var(--color-neutral-600);
   --color-text-muted: var(--color-neutral-500);
   --color-text-inverse: #FFFFFF;
-  --color-border: var(--color-neutral-200);
-  --color-border-strong: var(--color-neutral-300);
+  --color-border: var(--color-neutral-900);
+  --color-border-light: var(--color-neutral-200);
+  --color-border-strong: var(--color-neutral-900);
 
   /* State Colors */
   --color-success: var(--color-support-500);
   --color-warning: #E5A000;
   --color-error: #DC2626;
-  --color-info: var(--color-primary-500);
+  --color-info: var(--color-secondary-500);
 
-  /* Shadows — Organic Brutalist offset shadows */
-  --shadow-xs: 1px 1px 0 var(--color-neutral-300);
-  --shadow-sm: 2px 2px 0 var(--color-neutral-300);
-  --shadow-md: 3px 3px 0 var(--color-neutral-400);
-  --shadow-lg: 4px 4px 0 var(--color-neutral-500);
-  --shadow-xl: 6px 6px 0 var(--color-neutral-600);
+  /* Shadows — Neo-Brutalist hard black offsets */
+  --shadow-xs: 1px 1px 0 var(--color-neutral-900);
+  --shadow-sm: 2px 2px 0 var(--color-neutral-900);
+  --shadow-md: 3px 3px 0 var(--color-neutral-900);
+  --shadow-lg: 4px 4px 0 var(--color-neutral-900);
+  --shadow-xl: 6px 6px 0 var(--color-neutral-900);
 
-  /* Soft shadows */
-  --shadow-soft-sm: 0 1px 3px rgba(45, 42, 36, 0.1);
-  --shadow-soft-md: 0 4px 6px rgba(45, 42, 36, 0.1);
-  --shadow-soft-lg: 0 10px 15px rgba(45, 42, 36, 0.1);
+  /* Soft shadows for map overlays */
+  --shadow-soft-sm: 0 1px 3px rgba(22, 22, 30, 0.12);
+  --shadow-soft-md: 0 4px 6px rgba(22, 22, 30, 0.12);
+  --shadow-soft-lg: 0 10px 15px rgba(22, 22, 30, 0.12);
 
   /* Colored shadows */
   --shadow-accent: 3px 3px 0 var(--color-accent-600);
-  --shadow-primary: 3px 3px 0 var(--color-primary-700);
+  --shadow-primary: 3px 3px 0 var(--color-primary-900);
+  --shadow-water: 3px 3px 0 var(--color-secondary-600);
 
-  /* Borders */
+  /* Borders — Neo-Brutalist thick black */
   --border-thin: 1px;
   --border-base: 2px;
   --border-thick: 3px;
@@ -127,8 +132,9 @@
   --color-text-primary: var(--color-neutral-100);
   --color-text-secondary: var(--color-neutral-400);
   --color-text-muted: var(--color-neutral-500);
-  --color-border: var(--color-neutral-800);
-  --color-border-strong: var(--color-neutral-700);
+  --color-border: var(--color-neutral-700);
+  --color-border-light: var(--color-neutral-800);
+  --color-border-strong: var(--color-neutral-600);
 }
 
 /* Base styles */
@@ -154,12 +160,12 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* =========================================
-   Component Styles
+   Component Styles — Neo-Brutalist
    ========================================= */
 
 /* ===== BUTTONS ===== */
 
-/* Primary Button — Accent color with offset shadow */
+/* Primary Button — Accent color with hard black offset shadow */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -168,11 +174,11 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.75rem 1.5rem;
   font-family: var(--font-heading), system-ui, sans-serif;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1;
   color: white;
   background-color: var(--color-accent-500);
-  border: var(--border-base) solid var(--color-neutral-900);
+  border: var(--border-chunky) solid var(--color-neutral-900);
   border-radius: 6px;
   box-shadow: var(--shadow-md);
   cursor: pointer;
@@ -184,13 +190,13 @@ h1, h2, h3, h4, h5, h6 {
 
 .btn-primary:hover {
   background-color: var(--color-accent-600);
-  transform: translate(-1px, -1px);
-  box-shadow: var(--shadow-lg);
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-xl);
 }
 
 .btn-primary:active {
-  transform: translate(2px, 2px);
-  box-shadow: var(--shadow-xs);
+  transform: translate(3px, 3px);
+  box-shadow: none;
 }
 
 .btn-primary:focus-visible {
@@ -206,7 +212,7 @@ h1, h2, h3, h4, h5, h6 {
   opacity: 0.7;
 }
 
-/* Secondary Button — Outline style */
+/* Secondary Button — Outline with thick border */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
@@ -215,31 +221,35 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.75rem 1.5rem;
   font-family: var(--font-heading), system-ui, sans-serif;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1;
-  color: var(--color-primary-700);
-  background-color: transparent;
-  border: var(--border-base) solid var(--color-primary-500);
+  color: var(--color-primary-900);
+  background-color: var(--color-surface);
+  border: var(--border-chunky) solid var(--color-neutral-900);
   border-radius: 6px;
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   transition:
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
     background-color var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out);
+    color var(--duration-fast) var(--ease-out);
 }
 
 .btn-secondary:hover {
-  background-color: var(--color-primary-50);
-  border-color: var(--color-primary-600);
-  color: var(--color-primary-800);
+  background-color: var(--color-secondary-50);
+  color: var(--color-secondary-700);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-secondary:active {
-  background-color: var(--color-primary-100);
+  transform: translate(2px, 2px);
+  box-shadow: none;
 }
 
 .btn-secondary:focus-visible {
-  outline: 3px solid var(--color-primary-300);
+  outline: 3px solid var(--color-secondary-300);
   outline-offset: 2px;
 }
 
@@ -252,27 +262,29 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.5rem 1rem;
   font-family: var(--font-body), system-ui, sans-serif;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--color-text-secondary);
   background: transparent;
-  border: none;
+  border: var(--border-base) solid transparent;
   border-radius: 4px;
   cursor: pointer;
   transition:
     color var(--duration-fast) var(--ease-out),
-    background-color var(--duration-fast) var(--ease-out);
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
 }
 
 .btn-ghost:hover {
-  color: var(--color-primary-600);
+  color: var(--color-primary-900);
   background-color: var(--color-neutral-100);
+  border-color: var(--color-neutral-300);
 }
 
 .btn-ghost:active {
   background-color: var(--color-neutral-200);
 }
 
-/* Icon Button */
+/* Icon Button — Neo-Brutalist square */
 .btn-icon {
   display: inline-flex;
   align-items: center;
@@ -280,24 +292,30 @@ h1, h2, h3, h4, h5, h6 {
   width: 40px;
   height: 40px;
   padding: 0;
-  color: var(--color-text-secondary);
+  color: var(--color-text-primary);
   background-color: var(--color-surface);
-  border: var(--border-base) solid var(--color-border);
+  border: var(--border-thick) solid var(--color-neutral-900);
   border-radius: 6px;
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   transition:
-    background-color var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out),
-    color var(--duration-fast) var(--ease-out);
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    background-color var(--duration-fast) var(--ease-out);
 }
 
 .btn-icon:hover {
-  color: var(--color-primary-600);
-  background-color: var(--color-primary-50);
-  border-color: var(--color-primary-300);
+  background-color: var(--color-secondary-50);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-md);
 }
 
-/* ===== CARDS ===== */
+.btn-icon:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+/* ===== CARDS — Neo-Brutalist ===== */
 
 .card {
   position: relative;
@@ -305,7 +323,7 @@ h1, h2, h3, h4, h5, h6 {
   flex-direction: column;
   padding: 1.25rem;
   background-color: var(--color-surface);
-  border: var(--border-base) solid var(--color-primary-700);
+  border: var(--border-chunky) solid var(--color-neutral-900);
   border-radius: 8px;
   box-shadow: var(--shadow-md);
   transition:
@@ -315,14 +333,14 @@ h1, h2, h3, h4, h5, h6 {
 
 .card:hover {
   transform: translate(-2px, -2px);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-xl);
 }
 
 /* Trip Summary Card */
 .trip-card {
   padding: 1.5rem;
   background-color: var(--color-secondary-50);
-  border: var(--border-thick) solid var(--color-primary-600);
+  border: var(--border-chunky) solid var(--color-neutral-900);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
 }
@@ -335,16 +353,18 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   padding: 1rem;
   background-color: var(--color-surface);
-  border: var(--border-base) solid var(--color-border);
+  border: var(--border-thick) solid var(--color-neutral-900);
   border-radius: 6px;
   transition:
-    border-color var(--duration-fast) var(--ease-out),
-    box-shadow var(--duration-fast) var(--ease-out);
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
 }
 
 .access-card:hover {
-  border-color: var(--color-primary-400);
+  border-color: var(--color-secondary-500);
   box-shadow: var(--shadow-sm);
+  transform: translate(-1px, -1px);
 }
 
 .access-card--selected {
@@ -356,25 +376,25 @@ h1, h2, h3, h4, h5, h6 {
 /* Glass Card — For overlays on map */
 .glass-card {
   background: rgba(255, 255, 255, 0.95);
-  border: var(--border-base) solid var(--color-border);
-  box-shadow: var(--shadow-soft-lg);
+  border: var(--border-thick) solid var(--color-neutral-900);
+  box-shadow: var(--shadow-md);
   border-radius: 8px;
 }
 
 .glass-card-dark {
-  background: rgba(15, 45, 53, 0.95);
-  border: var(--border-base) solid var(--color-primary-700);
-  box-shadow: var(--shadow-soft-lg);
+  background: rgba(22, 23, 72, 0.95);
+  border: var(--border-thick) solid var(--color-neutral-900);
+  box-shadow: var(--shadow-md);
   border-radius: 8px;
   color: white;
 }
 
 .glass-bg {
   background: rgba(255, 255, 255, 0.9);
-  border: var(--border-thin) solid var(--color-border);
+  border: var(--border-base) solid var(--color-neutral-900);
 }
 
-/* ===== BADGES ===== */
+/* ===== BADGES — Neo-Brutalist ===== */
 
 .badge {
   display: inline-flex;
@@ -382,12 +402,13 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.25rem;
   padding: 0.25rem 0.75rem;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
+  border: var(--border-base) solid var(--color-neutral-900);
   border-radius: 9999px;
 }
 
 .badge-primary {
-  color: var(--color-primary-800);
+  color: var(--color-primary-900);
   background-color: var(--color-primary-100);
 }
 
@@ -403,7 +424,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .badge-secondary {
   color: var(--color-secondary-800);
-  background-color: var(--color-secondary-200);
+  background-color: var(--color-secondary-100);
 }
 
 .badge-neutral {
@@ -411,58 +432,58 @@ h1, h2, h3, h4, h5, h6 {
   background-color: var(--color-neutral-200);
 }
 
-/* Condition badges */
+/* Condition badges — Neo-Brutalist with thick borders */
 .badge-optimal {
   background: var(--color-support-100);
   color: var(--color-support-700);
-  border: 1px solid var(--color-support-300);
+  border: var(--border-base) solid var(--color-support-500);
   border-radius: 6px;
   padding: 0.25rem 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
 }
 
 .badge-low {
   background: #FFFBEB;
   color: #92400E;
-  border: 1px solid #FCD34D;
+  border: var(--border-base) solid #F59E0B;
   border-radius: 6px;
   padding: 0.25rem 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
 }
 
 .badge-high {
   background: #FFF7ED;
   color: #9A3412;
-  border: 1px solid #FDBA74;
+  border: var(--border-base) solid #F97316;
   border-radius: 6px;
   padding: 0.25rem 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
 }
 
 .badge-danger {
   background: #FEF2F2;
   color: #991B1B;
-  border: 1px solid #FCA5A5;
+  border: var(--border-base) solid #EF4444;
   border-radius: 6px;
   padding: 0.25rem 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
 }
 
 .badge-unknown {
   background: var(--color-neutral-100);
   color: var(--color-neutral-600);
-  border: 1px solid var(--color-neutral-300);
+  border: var(--border-base) solid var(--color-neutral-400);
   border-radius: 6px;
   padding: 0.25rem 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.875rem;
 }
 
-/* ===== FORM ELEMENTS ===== */
+/* ===== FORM ELEMENTS — Neo-Brutalist ===== */
 
 .input {
   width: 100%;
@@ -471,8 +492,9 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1rem;
   color: var(--color-text-primary);
   background-color: var(--color-surface);
-  border: var(--border-base) solid var(--color-border-strong);
+  border: var(--border-thick) solid var(--color-neutral-900);
   border-radius: 6px;
+  box-shadow: var(--shadow-sm);
   transition:
     border-color var(--duration-fast) var(--ease-out),
     box-shadow var(--duration-fast) var(--ease-out);
@@ -483,13 +505,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .input:hover {
-  border-color: var(--color-neutral-400);
+  box-shadow: var(--shadow-md);
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px var(--color-primary-100);
+  border-color: var(--color-secondary-500);
+  box-shadow: var(--shadow-water);
 }
 
 .input--error {
@@ -497,15 +519,17 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .input--error:focus {
-  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+  box-shadow: 3px 3px 0 rgba(220, 38, 38, 0.5);
 }
 
 .label {
   display: block;
   margin-bottom: 0.5rem;
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 700;
   color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
 }
 
 .select {
@@ -516,19 +540,20 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 1rem;
   color: var(--color-text-primary);
   background-color: var(--color-surface);
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B6459' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2322222C' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 1.25rem;
-  border: var(--border-base) solid var(--color-border-strong);
+  border: var(--border-thick) solid var(--color-neutral-900);
   border-radius: 6px;
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
 }
 
 .select:focus {
   outline: none;
-  border-color: var(--color-primary-500);
-  box-shadow: 0 0 0 3px var(--color-primary-100);
+  border-color: var(--color-secondary-500);
+  box-shadow: var(--shadow-water);
 }
 
 /* ===== MAP COMPONENTS ===== */
@@ -561,21 +586,21 @@ h1, h2, h3, h4, h5, h6 {
   height: 40px;
   color: var(--color-text-primary);
   background-color: var(--color-surface);
-  border: var(--border-base) solid var(--color-border);
+  border: var(--border-thick) solid var(--color-neutral-900);
   border-radius: 6px;
-  box-shadow: var(--shadow-soft-md);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
   transition:
-    background-color var(--duration-fast) var(--ease-out),
-    border-color var(--duration-fast) var(--ease-out);
+    transform var(--duration-fast) var(--ease-out),
+    box-shadow var(--duration-fast) var(--ease-out);
 }
 
 .map-control:hover {
-  background-color: var(--color-neutral-50);
-  border-color: var(--color-primary-400);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-md);
 }
 
-/* Map popup styling */
+/* Map popup styling — Neo-Brutalist */
 .maplibregl-popup {
   z-index: 1000 !important;
 }
@@ -586,7 +611,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0 !important;
   overflow: hidden !important;
   background: var(--color-surface) !important;
-  border: var(--border-base) solid var(--color-primary-600) !important;
+  border: var(--border-chunky) solid var(--color-neutral-900) !important;
 }
 
 .maplibregl-popup-track-pointer {
@@ -620,7 +645,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .maplibregl-popup-tip {
-  border-top-color: var(--color-primary-600) !important;
+  border-top-color: var(--color-neutral-900) !important;
 }
 
 /* Map Legend */
@@ -631,12 +656,12 @@ h1, h2, h3, h4, h5, h6 {
   z-index: 10;
   padding: 1rem;
   background-color: var(--color-surface);
-  border: var(--border-base) solid var(--color-border);
+  border: var(--border-thick) solid var(--color-neutral-900);
   border-radius: 6px;
-  box-shadow: var(--shadow-soft-md);
+  box-shadow: var(--shadow-md);
 }
 
-/* ===== SIDEBAR ===== */
+/* ===== SIDEBAR — Neo-Brutalist ===== */
 
 .sidebar {
   display: flex;
@@ -644,14 +669,15 @@ h1, h2, h3, h4, h5, h6 {
   width: 400px;
   height: 100%;
   background-color: var(--color-surface);
-  border-right: var(--border-base) solid var(--color-border);
+  border-right: var(--border-chunky) solid var(--color-neutral-900);
 }
 
 .sidebar__header {
   flex-shrink: 0;
   padding: 1.25rem;
-  background-color: var(--color-primary-800);
+  background-color: var(--color-primary-900);
   color: white;
+  border-bottom: var(--border-chunky) solid var(--color-neutral-900);
 }
 
 .sidebar__title {
@@ -673,19 +699,19 @@ h1, h2, h3, h4, h5, h6 {
 .sidebar__section-title {
   margin-bottom: 0.75rem;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-text-muted);
+  font-weight: 700;
+  color: var(--color-primary-900);
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.05em;
 }
 
 .sidebar__footer {
   flex-shrink: 0;
   padding: 1.25rem;
-  border-top: var(--border-base) solid var(--color-border);
+  border-top: var(--border-chunky) solid var(--color-neutral-900);
 }
 
-/* ===== HEADER / NAVIGATION ===== */
+/* ===== HEADER / NAVIGATION — Neo-Brutalist ===== */
 
 .header {
   position: sticky;
@@ -695,8 +721,8 @@ h1, h2, h3, h4, h5, h6 {
   align-items: center;
   justify-content: space-between;
   padding: 1rem 1.5rem;
-  background-color: var(--color-primary-800);
-  border-bottom: var(--border-thick) solid var(--color-neutral-900);
+  background-color: var(--color-primary-900);
+  border-bottom: var(--border-chunky) solid var(--color-neutral-900);
 }
 
 .header__logo {
@@ -720,33 +746,37 @@ h1, h2, h3, h4, h5, h6 {
   padding: 0.5rem 1rem;
   font-family: var(--font-heading), system-ui, sans-serif;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--color-primary-100);
+  font-weight: 700;
+  color: var(--color-primary-200);
   text-decoration: none;
   text-transform: uppercase;
-  letter-spacing: 0.025em;
+  letter-spacing: 0.05em;
+  border: var(--border-base) solid transparent;
   border-radius: 4px;
   transition:
     color var(--duration-fast) var(--ease-out),
-    background-color var(--duration-fast) var(--ease-out);
+    background-color var(--duration-fast) var(--ease-out),
+    border-color var(--duration-fast) var(--ease-out);
 }
 
 .header__link:hover {
   color: white;
-  background-color: var(--color-primary-700);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
 }
 
 .header__link--active {
   color: var(--color-accent-400);
-  background-color: var(--color-primary-900);
+  background-color: rgba(240, 112, 82, 0.1);
+  border-color: var(--color-accent-500);
 }
 
-/* ===== HERO ===== */
+/* ===== HERO — Neo-Brutalist ===== */
 
 .hero {
   position: relative;
   padding: 5rem 1.5rem;
-  background-color: var(--color-primary-800);
+  background-color: var(--color-primary-900);
   color: white;
   overflow: hidden;
 }
@@ -774,7 +804,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 2rem;
   font-size: 1.125rem;
   line-height: 1.625;
-  color: var(--color-primary-100);
+  color: var(--color-primary-200);
 }
 
 /* ===== LOADING & FEEDBACK ===== */
@@ -782,8 +812,8 @@ h1, h2, h3, h4, h5, h6 {
 .spinner {
   width: 24px;
   height: 24px;
-  border: 3px solid var(--color-primary-200);
-  border-top-color: var(--color-primary-600);
+  border: 3px solid var(--color-secondary-200);
+  border-top-color: var(--color-secondary-500);
   border-radius: 9999px;
   animation: spin 0.8s linear infinite;
 }
@@ -810,7 +840,7 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(
     90deg,
     transparent,
-    rgba(255, 255, 255, 0.4),
+    rgba(255, 255, 255, 0.5),
     transparent
   );
   animation: shimmer 1.5s infinite;
@@ -825,8 +855,9 @@ h1, h2, h3, h4, h5, h6 {
 .error-state {
   padding: 1.5rem;
   background-color: rgba(220, 38, 38, 0.05);
-  border: var(--border-base) solid var(--color-error);
+  border: var(--border-chunky) solid var(--color-error);
   border-radius: 8px;
+  box-shadow: var(--shadow-sm);
 }
 
 /* ===== ANIMATIONS ===== */
@@ -890,7 +921,7 @@ h1, h2, h3, h4, h5, h6 {
 /* ===== FOCUS STATES ===== */
 
 *:focus-visible {
-  outline: 3px solid var(--color-primary-400);
+  outline: 3px solid var(--color-accent-400);
   outline-offset: 2px;
 }
 
@@ -903,21 +934,18 @@ h1, h2, h3, h4, h5, h6 {
 /* ===== MOBILE TOUCH & SCROLL OPTIMIZATIONS ===== */
 
 @media (max-width: 1023px) {
-  /* Improve touch scrolling on mobile */
   .overflow-y-auto,
   .overflow-auto {
     -webkit-overflow-scrolling: touch;
     scroll-behavior: smooth;
   }
 
-  /* Prevent text selection on interactive elements on mobile */
   button,
   [role="button"] {
     -webkit-user-select: none;
     user-select: none;
   }
 
-  /* Larger touch targets on mobile */
   button,
   a,
   [role="button"] {
@@ -925,13 +953,11 @@ h1, h2, h3, h4, h5, h6 {
     min-width: 44px;
   }
 
-  /* Disable pull-to-refresh on scrollable areas */
   .overscroll-contain {
     overscroll-behavior: contain;
   }
 }
 
-/* Fix iOS momentum scrolling issues */
 @supports (-webkit-touch-callout: none) {
   .overflow-y-auto {
     -webkit-overflow-scrolling: touch;
@@ -953,24 +979,18 @@ h1, h2, h3, h4, h5, h6 {
 /* ===== SELECTION ===== */
 
 ::selection {
-  background: var(--color-primary-200);
+  background: var(--color-accent-200);
   color: var(--color-primary-900);
 }
 
 /* ===== UTILITY CLASSES ===== */
 
 .text-gradient-water {
-  background: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-support-500) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-secondary-500);
 }
 
 .text-gradient-sunset {
-  background: linear-gradient(135deg, var(--color-accent-500) 0%, var(--color-primary-500) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-accent-500);
 }
 
 /* ===== ADMIN STYLES ===== */

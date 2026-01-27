@@ -287,14 +287,14 @@ export default function PlanSummary({
   return (
     <div className="bg-white border-2 border-neutral-200 rounded-lg w-full shadow-lg">
       {/* Header */}
-      <div className="px-4 py-3 lg:px-5 lg:py-4 text-white rounded-t-md" style={{ backgroundColor: '#163F4A' }}>
+      <div className="px-4 py-3 lg:px-5 lg:py-4 text-white rounded-t-md" style={{ backgroundColor: '#161748' }}>
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
             <h2 className="text-base lg:text-lg font-heading font-bold text-white">Your Float Plan</h2>
-            <span className="text-sm hidden lg:inline" style={{ color: '#A3D1DB' }}>{displayPlan.river.name}</span>
+            <span className="text-sm hidden lg:inline" style={{ color: '#ABABDB' }}>{displayPlan.river.name}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button onClick={onShare} className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md transition-colors hover:bg-white/10" style={{ color: '#A3D1DB' }}>
+            <button onClick={onShare} className="flex items-center gap-1.5 text-sm font-medium px-3 py-1.5 rounded-md transition-colors hover:bg-white/10" style={{ color: '#ABABDB' }}>
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
@@ -366,14 +366,14 @@ export default function PlanSummary({
             <div className="flex items-center justify-between mb-2">
               <p className="text-[10px] font-medium text-primary-700 uppercase tracking-wide">Float Details</p>
               {canoeVessel && raftVessel && (
-                <div className="flex items-center rounded-md p-0.5 border-2 border-neutral-300" style={{ backgroundColor: '#E8DFD0' }}>
+                <div className="flex items-center rounded-md p-0.5 border-2 border-neutral-300" style={{ backgroundColor: '#DCDCE2' }}>
                   <button
                     onClick={() => handleVesselChange(canoeVessel.id)}
                     disabled={recalculating}
                     className={`px-2 py-0.5 text-xs font-bold rounded transition-all ${recalculating ? 'opacity-50 cursor-not-allowed' : ''}`}
                     style={selectedVesselTypeId === canoeVessel.id
-                      ? { backgroundColor: '#2D7889', color: 'white' }
-                      : { backgroundColor: 'transparent', color: '#3F3B33' }}
+                      ? { backgroundColor: '#3D3D9E', color: 'white' }
+                      : { backgroundColor: 'transparent', color: '#33333F' }}
                   >
                     Canoe
                   </button>
@@ -382,8 +382,8 @@ export default function PlanSummary({
                     disabled={recalculating}
                     className={`px-2 py-0.5 text-xs font-bold rounded transition-all ${recalculating ? 'opacity-50 cursor-not-allowed' : ''}`}
                     style={selectedVesselTypeId === raftVessel.id
-                      ? { backgroundColor: '#2D7889', color: 'white' }
-                      : { backgroundColor: 'transparent', color: '#3F3B33' }}
+                      ? { backgroundColor: '#3D3D9E', color: 'white' }
+                      : { backgroundColor: 'transparent', color: '#33333F' }}
                   >
                     Raft
                   </button>
@@ -430,8 +430,8 @@ export default function PlanSummary({
           </div>
 
           {/* Column 4: Shuttle */}
-          <div className="rounded-lg p-3 border-2 border-neutral-300" style={{ backgroundColor: '#F4EFE7' }}>
-            <p className="text-[10px] font-bold uppercase tracking-wide flex items-center gap-1 mb-2" style={{ color: '#524D43' }}>
+          <div className="rounded-lg p-3 border-2 border-neutral-300" style={{ backgroundColor: '#EDEDF0' }}>
+            <p className="text-[10px] font-bold uppercase tracking-wide flex items-center gap-1 mb-2" style={{ color: '#454556' }}>
               <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
               </svg>
@@ -446,7 +446,7 @@ export default function PlanSummary({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 w-full px-2.5 py-2 rounded-md text-xs font-bold transition-colors border-2 border-neutral-800 shadow-sm hover:shadow-md"
-                style={{ backgroundColor: '#4EB86B', color: 'white' }}
+                style={{ backgroundColor: '#478559', color: 'white' }}
               >
                 <span className="flex items-center gap-1 flex-shrink-0">
                   <span className="text-sm">🏠</span>
@@ -471,10 +471,10 @@ export default function PlanSummary({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 w-full px-2.5 py-2 rounded-md text-xs font-bold transition-colors border-2 border-neutral-800 shadow-sm hover:shadow-md"
-                style={{ backgroundColor: '#2D7889', color: 'white' }}
+                style={{ backgroundColor: '#39A0CA', color: 'white' }}
               >
                 <span className="flex items-center gap-1 flex-shrink-0">
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#4EB86B' }}></span>
+                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#478559' }}></span>
                   <span style={{ color: 'rgba(255,255,255,0.7)' }}>→</span>
                   <span className="w-2 h-2 rounded-full" style={{ backgroundColor: '#F07052' }}></span>
                 </span>

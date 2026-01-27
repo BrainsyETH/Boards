@@ -1,5 +1,6 @@
 // src/app/api/og/route.tsx
 // Default OG image for the homepage / site-wide fallback
+// Neo-Brutalist style with Eddy the Otter palette
 
 import { ImageResponse } from 'next/og';
 
@@ -14,19 +15,19 @@ export async function GET() {
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
-          background: 'linear-gradient(135deg, #0F2D35 0%, #163F4A 40%, #1D525F 100%)',
+          background: '#161748',
           padding: '60px',
           fontFamily: 'system-ui, sans-serif',
         }}
       >
-        {/* Top bar accent */}
+        {/* Top bar accent — chunky Neo-Brutalist */}
         <div
           style={{
             position: 'absolute',
             top: 0,
             left: 0,
             right: 0,
-            height: '6px',
+            height: '8px',
             background: '#F07052',
             display: 'flex',
           }}
@@ -43,7 +44,8 @@ export async function GET() {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              border: '3px solid #0F2D35',
+              border: '4px solid #22222C',
+              boxShadow: '3px 3px 0 #22222C',
             }}
           >
             <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -52,8 +54,8 @@ export async function GET() {
               <path d="M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1" />
             </svg>
           </div>
-          <span style={{ fontSize: '28px', fontWeight: 700, color: '#A3D1DB', letterSpacing: '-0.02em' }}>
-            FLOAT MO
+          <span style={{ fontSize: '28px', fontWeight: 700, color: '#ABABDB', letterSpacing: '-0.02em' }}>
+            EDDY
           </span>
         </div>
 
@@ -76,7 +78,7 @@ export async function GET() {
           <p
             style={{
               fontSize: '26px',
-              color: '#A3D1DB',
+              color: '#ABABDB',
               lineHeight: 1.4,
               margin: 0,
               maxWidth: '800px',
@@ -86,7 +88,7 @@ export async function GET() {
           </p>
         </div>
 
-        {/* Bottom feature pills */}
+        {/* Bottom feature pills — Neo-Brutalist */}
         <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           {['Live Water Levels', '8 Rivers', '30+ Access Points', 'Float Time Estimates', 'Weather Forecasts'].map((feature) => (
             <div
@@ -94,11 +96,12 @@ export async function GET() {
               style={{
                 padding: '10px 20px',
                 borderRadius: '8px',
-                background: 'rgba(255,255,255,0.1)',
-                border: '1px solid rgba(255,255,255,0.2)',
-                color: '#D4EAEF',
+                background: '#222260',
+                border: '3px solid #22222C',
+                boxShadow: '2px 2px 0 #22222C',
+                color: '#D5D5ED',
                 fontSize: '16px',
-                fontWeight: 600,
+                fontWeight: 700,
                 display: 'flex',
               }}
             >

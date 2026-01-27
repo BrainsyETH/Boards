@@ -123,9 +123,9 @@ export default function SharedPlanPage() {
       </main>
 
       {/* Footer */}
-      <footer className="flex-shrink-0 bg-primary-800 border-t-2 border-neutral-900 px-4 py-3">
-        <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-primary-200">
-          <p>Float MO &middot; Water data from USGS</p>
+      <footer className="flex-shrink-0 border-t-4 border-neutral-900 px-4 py-3" style={{ backgroundColor: '#161748' }}>
+        <div className="max-w-7xl mx-auto flex items-center justify-between text-sm" style={{ color: '#ABABDB' }}>
+          <p className="font-bold">Eddy &middot; Water data from USGS</p>
           <p className="hidden md:block">Always check local conditions before floating</p>
         </div>
       </footer>

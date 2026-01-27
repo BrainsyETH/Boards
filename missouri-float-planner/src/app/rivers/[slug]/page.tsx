@@ -89,7 +89,7 @@ export async function generateMetadata({ params }: RiverPageProps): Promise<Meta
         title: `${river.name} - Float Trip Conditions & Info`,
         description,
         url: pageUrl,
-        siteName: 'Float MO',
+        siteName: 'Eddy',
         images: [
           {
             url: ogImageUrl,

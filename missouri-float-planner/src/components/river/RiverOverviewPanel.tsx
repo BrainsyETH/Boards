@@ -112,7 +112,7 @@ export default function RiverOverviewPanel({
         className={`w-full border-t-2 border-neutral-900 transform transition-all duration-300 ease-out ${
           isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0'
         }`}
-        style={{ backgroundColor: '#163F4A' }}
+        style={{ backgroundColor: '#161748' }}
       >
         {/* Content - Compact horizontal layout for desktop */}
         <div className="px-6 py-3">
@@ -122,12 +122,12 @@ export default function RiverOverviewPanel({
             <div className="flex items-center gap-3 flex-shrink-0">
               <div>
                 <h2 className="text-lg font-heading font-bold text-white">{river.name}</h2>
-                <p className="text-xs" style={{ color: '#72B5C4' }}>Know before you float</p>
+                <p className="text-xs" style={{ color: '#39A0CA' }}>Know before you float</p>
               </div>
               <button
                 onClick={onClose}
                 className="hover:text-white transition-colors p-1.5 rounded-lg hover:bg-white/10"
-                style={{ color: '#72B5C4' }}
+                style={{ color: '#39A0CA' }}
                 aria-label="Close river panel"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -137,14 +137,14 @@ export default function RiverOverviewPanel({
             </div>
 
             {/* Length stat */}
-            <div className="rounded-md px-3 py-1.5 border flex-shrink-0" style={{ backgroundColor: '#1D525F', borderColor: '#256574' }}>
-              <p className="text-[10px] font-medium uppercase" style={{ color: '#72B5C4' }}>Length</p>
+            <div className="rounded-md px-3 py-1.5 border flex-shrink-0" style={{ backgroundColor: '#222260', borderColor: '#5757B7' }}>
+              <p className="text-[10px] font-medium uppercase" style={{ color: '#39A0CA' }}>Length</p>
               <p className="text-sm font-bold text-white">{river.lengthMiles.toFixed(1)} mi</p>
             </div>
 
             {/* Gauge Stations */}
             <div className="flex items-center gap-4 flex-1">
-              <p className="text-[10px] font-medium uppercase flex-shrink-0" style={{ color: '#72B5C4' }}>Gauges:</p>
+              <p className="text-[10px] font-medium uppercase flex-shrink-0" style={{ color: '#39A0CA' }}>Gauges:</p>
               <div className="flex items-center gap-4 flex-wrap">
                 {gaugeStations && gaugeStations.length > 0 ? (
                   gaugeStations.map((gauge) => (
@@ -154,21 +154,21 @@ export default function RiverOverviewPanel({
                         {gauge.name.replace('Current River', '').replace('Eleven Point River', '').replace('near', '@').replace('above', '@').trim() || gauge.name}
                       </span>
                       {gauge.gaugeHeightFt !== null && (
-                        <span className="text-[10px]" style={{ color: '#72B5C4' }}>
+                        <span className="text-[10px]" style={{ color: '#39A0CA' }}>
                           {gauge.gaugeHeightFt.toFixed(2)} ft
                         </span>
                       )}
                     </div>
                   ))
                 ) : (
-                  <span className="text-xs" style={{ color: '#72B5C4' }}>No gauge data</span>
+                  <span className="text-xs" style={{ color: '#39A0CA' }}>No gauge data</span>
                 )}
               </div>
             </div>
 
             {/* Vertical condition legend */}
-            <div className="flex-shrink-0 pl-4" style={{ borderLeft: '1px solid #256574' }}>
-              <p className="text-[10px] font-medium uppercase mb-1" style={{ color: '#72B5C4' }}>Conditions:</p>
+            <div className="flex-shrink-0 pl-4" style={{ borderLeft: '1px solid #5757B7' }}>
+              <p className="text-[10px] font-medium uppercase mb-1" style={{ color: '#39A0CA' }}>Conditions:</p>
               <div className="flex flex-col gap-0.5">
                 {CONDITION_LEGEND.map((item) => (
                   <div key={item.code} className="flex items-center gap-1.5">
@@ -181,7 +181,7 @@ export default function RiverOverviewPanel({
           </div>
 
           {/* Disclaimer - compact single line */}
-          <p className="text-[10px] mt-2 text-center" style={{ color: '#4A9AAD' }}>
+          <p className="text-[10px] mt-2 text-center" style={{ color: '#5757B7' }}>
             Always confirm conditions with local outfitters before your float. This data is for planning purposes only.
           </p>
         </div>
@@ -220,16 +220,16 @@ export default function RiverOverviewPanel({
           }}
         >
           {/* Header section */}
-          <div className="relative px-5 py-4" style={{ backgroundColor: '#163F4A', borderBottom: '1px solid #1D525F' }}>
+          <div className="relative px-5 py-4" style={{ backgroundColor: '#161748', borderBottom: '1px solid #222260' }}>
             <div className="relative flex justify-between items-start">
               <div>
                 <h2 className="text-lg font-heading font-bold text-white">{river.name}</h2>
-                <p className="text-sm mt-0.5" style={{ color: '#A3D1DB' }}>Know before you float</p>
+                <p className="text-sm mt-0.5" style={{ color: '#ABABDB' }}>Know before you float</p>
               </div>
               <button
                 onClick={onClose}
                 className="hover:text-white transition-colors p-1"
-                style={{ color: '#72B5C4' }}
+                style={{ color: '#39A0CA' }}
                 aria-label="Close river panel"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -262,7 +262,7 @@ export default function RiverPage() {
 
           {/* Map */}
           <div className="order-1 lg:order-2">
-            <div className="relative h-[350px] lg:h-[450px] rounded-xl overflow-hidden shadow-2xl border-2 border-neutral-200">
+            <div className="relative h-[350px] lg:h-[450px] rounded-xl overflow-hidden border-4 border-neutral-900" style={{ boxShadow: '4px 4px 0 #22222C' }}>
               {/* Weather Bug overlay */}
               <WeatherBug riverSlug={slug} riverId={river.id} />
 

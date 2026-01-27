@@ -101,8 +101,8 @@ export async function generateMetadata({ params }: PlanPageProps): Promise<Metad
     if (driveBackFormatted) descParts.push(`${driveBackFormatted} drive back`);
 
     const description = descParts.length > 0
-      ? `${riverName} float plan - ${descParts.join(' | ')}. Check current conditions on Float MO.`
-      : `${riverName} float plan from ${putInName} to ${takeOutName}. Check current conditions on Float MO.`;
+      ? `${riverName} float plan - ${descParts.join(' | ')}. Check current conditions on Eddy.`
+      : `${riverName} float plan from ${putInName} to ${takeOutName}. Check current conditions on Eddy.`;
 
     // Build OG image URL
     const ogParams = new URLSearchParams({
@@ -127,7 +127,7 @@ export async function generateMetadata({ params }: PlanPageProps): Promise<Metad
         title: `Float Plan: ${riverName} - ${putInName} to ${takeOutName}`,
         description,
         url: pageUrl,
-        siteName: 'Float MO',
+        siteName: 'Eddy',
         images: [
           {
             url: ogImageUrl,
