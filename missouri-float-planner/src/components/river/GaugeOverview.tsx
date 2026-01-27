@@ -136,12 +136,16 @@ export default function GaugeOverview({ gauges, riverId, isLoading, defaultOpen 
         <div className="flex flex-wrap items-center gap-4 text-xs">
           <span className="text-neutral-500 font-medium">Conditions:</span>
           <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-neutral-400" />
+            <span className="text-neutral-600">Too Low</span>
+          </div>
+          <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-yellow-500" />
             <span className="text-neutral-600">Low</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-lime-500" />
-            <span className="text-neutral-600">Good</span>
+            <span className="text-neutral-600">Okay</span>
           </div>
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500" />
