@@ -1,7 +1,7 @@
 'use client';
 
 // src/app/page.tsx
-// Landing page for Float MO
+// Landing page for Eddy
 
 import { Suspense } from 'react';
 import Link from 'next/link';
@@ -64,8 +64,7 @@ function HomeContent() {
             </div>
           </div>
           <h1 className="text-4xl md:text-5xl font-heading font-bold text-white mb-4">
-            Plan Your Missouri{' '}
-            <span style={{ color: '#F07052' }}>Float Trip</span>
+            <span style={{ color: '#F07052' }}>Eddy</span>
           </h1>
           <p className="text-lg text-white/80 max-w-xl mx-auto mb-8">
             Real-time water conditions, access points, and float time estimates
@@ -158,7 +157,7 @@ function HomeContent() {
       {/* Footer */}
       <footer className="bg-primary-800 border-t-2 border-neutral-900 px-4 py-3">
         <div className="max-w-5xl mx-auto flex items-center justify-between text-sm text-primary-200">
-          <p>Float MO &middot; Water data from USGS</p>
+          <p>Eddy &middot; Water data from USGS</p>
           <p className="hidden md:block">Always check local conditions before floating</p>
         </div>
       </footer>

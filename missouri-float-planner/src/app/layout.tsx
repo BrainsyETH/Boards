@@ -26,8 +26,8 @@ const geistHeading = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Float MO",
-  description: "Plan your float trip on Missouri rivers with real-time conditions and route information.",
+  title: "Eddy",
+  description: "Plan your Missouri float trip with real-time water conditions, access points, and float time estimates.",
 };
 
 export default function RootLayout({

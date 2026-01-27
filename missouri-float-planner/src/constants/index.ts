@@ -1,5 +1,5 @@
 // src/constants/index.ts
-// App-wide constants for Missouri Float Planner
+// App-wide constants for Eddy
 
 // Map defaults
 export const DEFAULT_MAP_CENTER = {

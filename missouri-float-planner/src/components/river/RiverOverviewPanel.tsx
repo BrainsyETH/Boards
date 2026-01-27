@@ -122,7 +122,7 @@ export default function RiverOverviewPanel({
             <div className="flex items-center gap-3 flex-shrink-0">
               <div>
                 <h2 className="text-lg font-heading font-bold text-white">{river.name}</h2>
-                <p className="text-xs" style={{ color: '#72B5C4' }}>Plan your float with live conditions</p>
+                <p className="text-xs" style={{ color: '#72B5C4' }}>Know before you float</p>
               </div>
               <button
                 onClick={onClose}
@@ -224,7 +224,7 @@ export default function RiverOverviewPanel({
             <div className="relative flex justify-between items-start">
               <div>
                 <h2 className="text-lg font-heading font-bold text-white">{river.name}</h2>
-                <p className="text-sm mt-0.5" style={{ color: '#A3D1DB' }}>Plan your float with live conditions</p>
+                <p className="text-sm mt-0.5" style={{ color: '#A3D1DB' }}>Know before you float</p>
               </div>
               <button
                 onClick={onClose}

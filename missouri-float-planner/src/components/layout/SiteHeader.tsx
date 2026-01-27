@@ -1,7 +1,7 @@
 'use client';
 
 // src/components/layout/SiteHeader.tsx
-// Global site header with Float MO branding and river navigation dropdown
+// Global site header with Eddy branding and river navigation dropdown
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
@@ -65,7 +65,7 @@ export default function SiteHeader() {
               <Waves className="w-5 h-5 text-white" />
             </div>
             <span className="text-lg font-heading font-bold text-white">
-              Float MO
+              Eddy
             </span>
           </Link>
 

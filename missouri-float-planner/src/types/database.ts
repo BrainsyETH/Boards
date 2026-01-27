@@ -1,5 +1,5 @@
 // src/types/database.ts
-// Database types for Missouri Float Planner
+// Database types for Eddy
 // Note: In production, generate this file with:
 // npx supabase gen types typescript --project-id [id] > src/types/database.ts
 
