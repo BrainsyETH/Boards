@@ -4,7 +4,7 @@
 // River header with at-a-glance navigability status
 // Back navigation is now handled by the global SiteHeader
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Info } from 'lucide-react';
 import type { RiverWithDetails, RiverCondition } from '@/types/api';
 
@@ -15,19 +15,31 @@ interface RiverHeaderProps {
 
 function InfoTooltip({ text }: { text: string }) {
   const [show, setShow] = useState(false);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  // Dismiss on any click outside
+  useEffect(() => {
+    if (!show) return;
+    const handleClick = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setShow(false);
+      }
+    };
+    const timer = setTimeout(() => document.addEventListener('click', handleClick), 0);
+    return () => { clearTimeout(timer); document.removeEventListener('click', handleClick); };
+  }, [show]);
 
   return (
-    <span className="relative inline-flex">
+    <span ref={ref} className="relative inline-flex">
       <button
         onClick={(e) => { e.stopPropagation(); setShow(!show); }}
-        onBlur={() => setShow(false)}
-        className="ml-0.5 opacity-40 hover:opacity-70 transition-opacity"
+        className="ml-1 p-0.5 opacity-50 hover:opacity-80 transition-opacity"
         aria-label="More info"
       >
-        <Info className="w-3 h-3" />
+        <Info className="w-3.5 h-3.5" />
       </button>
       {show && (
-        <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs text-white bg-neutral-900 rounded shadow-lg whitespace-nowrap z-50">
+        <span className="absolute bottom-full right-0 mb-2 px-3 py-1.5 text-xs text-white bg-neutral-800 rounded-lg shadow-lg max-w-[200px] z-50">
           {text}
         </span>
       )}

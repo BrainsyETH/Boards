@@ -242,9 +242,9 @@ export default function RiverPage() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 py-6">
-        <div className="flex flex-col lg:flex-row gap-6">
-          {/* Left Column - Planner */}
-          <div className="w-full lg:w-[400px] flex-shrink-0 order-2 lg:order-1">
+        {/* Planner - full width above map on desktop, below map on mobile */}
+        <div className="flex flex-col gap-4">
+          <div className="order-2 lg:order-1">
             <PlannerPanel
               river={river}
               accessPoints={accessPoints || []}
@@ -260,8 +260,8 @@ export default function RiverPage() {
             />
           </div>
 
-          {/* Right Column - Map */}
-          <div className="flex-1 order-1 lg:order-2">
+          {/* Map */}
+          <div className="order-1 lg:order-2">
             <div className="relative h-[350px] lg:h-[450px] rounded-xl overflow-hidden shadow-2xl border-2 border-neutral-200">
               {/* Weather Bug overlay */}
               <WeatherBug riverSlug={slug} riverId={river.id} />
