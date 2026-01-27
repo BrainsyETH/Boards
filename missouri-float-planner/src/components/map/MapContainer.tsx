@@ -102,7 +102,6 @@ export default function MapContainer({
   showLegend = false,
 }: MapContainerProps) {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const fullscreenRef = useRef<HTMLDivElement>(null);
   const map = useRef<maplibregl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
   const [weatherEnabled, setWeatherEnabled] = useState(showWeatherOverlay);
@@ -111,7 +110,7 @@ export default function MapContainer({
   const [mapStyle, setMapStyle] = useState<MapStyleKey>('liberty');
   const [showStylePicker, setShowStylePicker] = useState(false);
   const [legendExpanded, setLegendExpanded] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
   const radarSourceId = 'rainviewer-radar';
   const radarLayerId = 'rainviewer-radar-layer';
 
@@ -242,47 +241,27 @@ export default function MapContainer({
     onGaugeToggle?.(newValue);
   }, [gaugesEnabled, onGaugeToggle]);
 
-  // Toggle fullscreen
-  const toggleFullscreen = useCallback(() => {
-    const el = fullscreenRef.current;
-    if (!el) return;
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const doc = document as any;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const elem = el as any;
-
-    if (!doc.fullscreenElement && !doc.webkitFullscreenElement) {
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if (elem.webkitRequestFullscreen) {
-        elem.webkitRequestFullscreen();
-      }
-    } else {
-      if (doc.exitFullscreen) {
-        doc.exitFullscreen();
-      } else if (doc.webkitExitFullscreen) {
-        doc.webkitExitFullscreen();
-      }
-    }
+  // Toggle expanded map (CSS-based, stays within browser window)
+  const toggleExpanded = useCallback(() => {
+    setIsExpanded(prev => {
+      const next = !prev;
+      // Lock/unlock body scroll when expanding
+      document.body.style.overflow = next ? 'hidden' : '';
+      // Resize map after layout change
+      setTimeout(() => map.current?.resize(), 50);
+      return next;
+    });
   }, []);
 
-  // Listen for fullscreen changes
+  // Close expanded map on Escape key
   useEffect(() => {
-    const handleFullscreenChange = () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const doc = document as any;
-      setIsFullscreen(!!(doc.fullscreenElement || doc.webkitFullscreenElement));
-      // Resize map to fill new container size
-      setTimeout(() => map.current?.resize(), 100);
+    if (!isExpanded) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') toggleExpanded();
     };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
-    document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
-      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
-    };
-  }, []);
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [isExpanded, toggleExpanded]);
 
   // Fetch radar data when weather is enabled
   useEffect(() => {
@@ -403,11 +382,11 @@ export default function MapContainer({
   }, [initialBounds]);
 
   return (
-    <div ref={fullscreenRef} className={`relative w-full h-full min-h-[400px] ${isFullscreen ? 'bg-black' : ''}`}>
+    <div className={`${isExpanded ? 'fixed inset-0 z-50 bg-black' : 'relative w-full h-full min-h-[400px]'}`}>
       <div
         ref={mapContainer}
         className="w-full h-full"
-        style={{ pointerEvents: 'auto', minHeight: '400px' }}
+        style={{ pointerEvents: 'auto', minHeight: isExpanded ? undefined : '400px' }}
       />
       {mapLoaded && map.current && (
         <MapProvider map={map.current}>{children}</MapProvider>
@@ -415,8 +394,8 @@ export default function MapContainer({
 
       {/* Map Controls - right side, below MapLibre navigation controls */}
       <div className="absolute top-[120px] right-2.5 flex flex-col gap-3 md:gap-2 z-10">
-        {/* Style Picker - hidden on mobile unless fullscreen */}
-        <div className={`relative ${showStylePicker ? 'z-50' : ''} ${isFullscreen ? '' : 'hidden md:block'}`}>
+        {/* Style Picker - hidden on mobile unless expanded */}
+        <div className={`relative ${showStylePicker ? 'z-50' : ''} ${isExpanded ? '' : 'hidden md:block'}`}>
           <button
             onClick={() => setShowStylePicker(!showStylePicker)}
             className={`p-2.5 md:p-2 rounded-lg shadow-lg transition-all ${
@@ -447,10 +426,10 @@ export default function MapContainer({
           )}
         </div>
 
-        {/* Weather Overlay Toggle - hidden on mobile unless fullscreen */}
+        {/* Weather Overlay Toggle - hidden on mobile unless expanded */}
         <button
           onClick={toggleWeather}
-          className={`p-2.5 md:p-2 rounded-lg shadow-lg transition-all ${isFullscreen ? '' : 'hidden md:block'} ${
+          className={`p-2.5 md:p-2 rounded-lg shadow-lg transition-all ${isExpanded ? '' : 'hidden md:block'} ${
             weatherEnabled
               ? 'bg-river-water text-white'
               : 'bg-white/90 text-gray-700 hover:bg-white'
@@ -473,10 +452,10 @@ export default function MapContainer({
           </svg>
         </button>
 
-        {/* Gauge Stations Toggle - hidden on mobile unless fullscreen */}
+        {/* Gauge Stations Toggle - hidden on mobile unless expanded */}
         <button
           onClick={toggleGauges}
-          className={`p-2.5 md:p-2 rounded-lg shadow-lg transition-all ${isFullscreen ? '' : 'hidden md:block'} ${
+          className={`p-2.5 md:p-2 rounded-lg shadow-lg transition-all ${isExpanded ? '' : 'hidden md:block'} ${
             gaugesEnabled
               ? 'bg-blue-500 text-white'
               : 'bg-white/90 text-gray-700 hover:bg-white'
@@ -486,17 +465,17 @@ export default function MapContainer({
         >
           <Droplets className="w-5 h-5" />
         </button>
-
-        {/* Fullscreen Toggle - always visible */}
-        <button
-          onClick={toggleFullscreen}
-          className="p-2.5 md:p-2 rounded-lg shadow-lg transition-all bg-white/90 text-gray-700 hover:bg-white"
-          title={isFullscreen ? 'Exit fullscreen' : 'Fullscreen map'}
-          aria-label={isFullscreen ? 'Exit fullscreen' : 'Fullscreen map'}
-        >
-          {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
-        </button>
       </div>
+
+      {/* Expand/Collapse Toggle - separate position, bottom-right on mobile, in controls on desktop */}
+      <button
+        onClick={toggleExpanded}
+        className="absolute bottom-3 right-2.5 md:top-[120px] md:bottom-auto md:right-[52px] z-10 p-2.5 md:p-2 rounded-lg shadow-lg transition-all bg-white/90 text-gray-700 hover:bg-white"
+        title={isExpanded ? 'Collapse map' : 'Expand map'}
+        aria-label={isExpanded ? 'Collapse map' : 'Expand map'}
+      >
+        {isExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+      </button>
       
       {/* Weather Attribution */}
       {weatherEnabled && (

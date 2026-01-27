@@ -73,24 +73,10 @@ export default function DifficultyExperience({ river, defaultOpen = false }: Dif
 
         {/* Speed Expectation */}
         <div>
-          <p className="text-sm font-semibold text-neutral-700 mb-2">Speed Expectation</p>
+          <p className="text-sm font-semibold text-neutral-700 mb-1">Speed Expectation</p>
           <p className="text-sm text-neutral-600">
-            Float speed varies by vessel type and water conditions. Typical speeds:
+            Typical float speed is <span className="font-semibold text-neutral-900">1–4 mph</span> depending on vessel type, water level, and current conditions.
           </p>
-          <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
-            <div className="bg-neutral-50 rounded-lg p-2">
-              <p className="font-semibold text-neutral-900">Tubing</p>
-              <p className="text-neutral-600">1-2 mph</p>
-            </div>
-            <div className="bg-neutral-50 rounded-lg p-2">
-              <p className="font-semibold text-neutral-900">Canoe</p>
-              <p className="text-neutral-600">2-3 mph</p>
-            </div>
-            <div className="bg-neutral-50 rounded-lg p-2">
-              <p className="font-semibold text-neutral-900">Kayak</p>
-              <p className="text-neutral-600">3-4 mph</p>
-            </div>
-          </div>
         </div>
 
         {/* Suitability */}

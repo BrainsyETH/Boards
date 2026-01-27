@@ -73,45 +73,46 @@ export default function PlannerPanel({
   };
 
   return (
-    <div className="glass-card-dark rounded-2xl p-6 border border-white/10">
-      <h2 className="text-2xl font-bold text-white mb-4">Plan Your Float</h2>
-
+    <div className="glass-card-dark rounded-2xl p-4 lg:p-6 border border-white/10">
       {isLoading ? (
         <div className="flex items-center justify-center py-8">
           <LoadingSpinner size="md" />
         </div>
       ) : (
         <div className="space-y-4">
-          {/* Put-in Selector */}
-          <div>
-            <label className="block text-sm font-semibold text-white mb-2">
-              Put-in Point
-            </label>
-            <AccessPointSelector
-              accessPoints={accessPoints}
-              selectedId={selectedPutIn}
-              onSelect={onPutInChange}
-              placeholder="Select put-in point..."
-            />
+          {/* Header + Selectors - horizontal on desktop */}
+          <div className="lg:flex lg:items-end lg:gap-4">
+            <h2 className="text-xl lg:text-2xl font-bold text-white mb-3 lg:mb-0 lg:shrink-0">Plan Your Float</h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 lg:flex-1">
+              <div>
+                <label className="block text-sm font-semibold text-white mb-1.5">
+                  Put-in Point
+                </label>
+                <AccessPointSelector
+                  accessPoints={accessPoints}
+                  selectedId={selectedPutIn}
+                  onSelect={onPutInChange}
+                  placeholder="Select put-in point..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-semibold text-white mb-1.5">
+                  Take-out Point
+                </label>
+                <AccessPointSelector
+                  accessPoints={accessPoints}
+                  selectedId={selectedTakeOut}
+                  onSelect={onTakeOutChange}
+                  placeholder="Select take-out point..."
+                  excludeId={selectedPutIn}
+                  referenceMile={selectedPutInPoint?.riverMile ?? null}
+                  warnUpstream={Boolean(selectedPutInPoint)}
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Take-out Selector */}
-          <div>
-            <label className="block text-sm font-semibold text-white mb-2">
-              Take-out Point
-            </label>
-            <AccessPointSelector
-              accessPoints={accessPoints}
-              selectedId={selectedTakeOut}
-              onSelect={onTakeOutChange}
-              placeholder="Select take-out point..."
-              excludeId={selectedPutIn}
-              referenceMile={selectedPutInPoint?.riverMile ?? null}
-              warnUpstream={Boolean(selectedPutInPoint)}
-            />
-          </div>
-
-          {/* Plan Summary */}
+          {/* Plan Summary - full width, horizontal on desktop */}
           {showPlan && (
             <div className="border-t border-white/10 pt-4">
               <PlanSummary
