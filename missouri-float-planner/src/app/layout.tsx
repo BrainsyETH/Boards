@@ -27,8 +27,14 @@ const geistHeading = localFont({
   weight: "100 900",
 });
 
+const EDDY_LOGO_URL = 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter.png';
+
 export const metadata: Metadata = {
   metadataBase: new URL(BASE_URL),
+  icons: {
+    icon: EDDY_LOGO_URL,
+    apple: EDDY_LOGO_URL,
+  },
   title: {
     default: "Float MO - Missouri River Float Trip Planner",
     template: "%s | Float MO",
