@@ -1,7 +1,7 @@
 'use client';
 
 // src/components/river/ConditionsBlock.tsx
-// Conditions & Safety section using threshold-based condition codes
+// River Conditions section using threshold-based condition codes
 // Labels and colors match GaugeOverview for consistency
 
 import { useState } from 'react';
@@ -102,7 +102,7 @@ export default function ConditionsBlock({ riverSlug, condition, nearestGauge, ha
 
   if (isLoading) {
     return (
-      <CollapsibleSection title="Conditions & Safety" defaultOpen={false} badge={badge}>
+      <CollapsibleSection title="River Conditions" defaultOpen={false} badge={badge}>
         <div className="animate-pulse space-y-3">
           <div className="h-20 bg-neutral-200 rounded-lg"></div>
           <div className="h-12 bg-neutral-200 rounded-lg"></div>
@@ -113,7 +113,7 @@ export default function ConditionsBlock({ riverSlug, condition, nearestGauge, ha
 
   if (!displayCondition) {
     return (
-      <CollapsibleSection title="Conditions & Safety" defaultOpen={false} badge={badge}>
+      <CollapsibleSection title="River Conditions" defaultOpen={false} badge={badge}>
         <p className="text-sm text-neutral-500">Condition data not available at this time.</p>
       </CollapsibleSection>
     );
@@ -124,7 +124,7 @@ export default function ConditionsBlock({ riverSlug, condition, nearestGauge, ha
     : null;
 
   return (
-    <CollapsibleSection title="Conditions & Safety" defaultOpen={false} badge={badge}>
+    <CollapsibleSection title="River Conditions" defaultOpen={false} badge={badge}>
       <div className="space-y-3">
         {/* Flow Rating Summary */}
         <div className={`rounded-lg p-3 ${config.bgClass}`}>
