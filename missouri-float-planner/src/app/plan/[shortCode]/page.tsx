@@ -90,28 +90,17 @@ export default function SharedPlanPage() {
     : undefined;
 
   return (
-    <div className="h-[calc(100vh-3.5rem)] flex flex-col bg-neutral-50">
+    <div className="min-h-[calc(100vh-3.5rem)] flex flex-col bg-neutral-50">
       {/* Plan title bar */}
-      <div className="flex-shrink-0 px-4 py-3 bg-white border-b-2 border-neutral-200">
+      <div className="flex-shrink-0 px-4 py-3 bg-white border-b-2 border-neutral-200 text-center">
         <h1 className="text-lg font-bold text-neutral-900">Float Plan &middot; {plan.river.name}</h1>
       </div>
 
-      {/* Map and Plan */}
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden">
-        {/* Map */}
-        <div className="flex-1 relative min-h-[400px] lg:min-h-0 order-2 lg:order-1">
-          <MapContainer initialBounds={bounds} showLegend={true}>
-            <AccessPointMarkers
-              accessPoints={accessPoints}
-              selectedPutIn={plan.putIn.id}
-              selectedTakeOut={plan.takeOut.id}
-            />
-          </MapContainer>
-        </div>
-
-        {/* Plan Summary Sidebar */}
-        <div className="w-full lg:w-96 bg-white lg:border-l border-neutral-200 overflow-y-auto order-1 lg:order-2">
-          <div className="p-6">
+      {/* Mobile: stacked layout that scrolls naturally. Desktop: side-by-side fixed height. */}
+      <main className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden">
+        {/* Plan Summary */}
+        <div className="w-full lg:w-96 bg-white lg:border-r border-neutral-200 lg:overflow-y-auto">
+          <div className="max-w-lg mx-auto lg:max-w-none p-6">
             <PlanSummary
               plan={plan}
               isLoading={false}
@@ -120,10 +109,21 @@ export default function SharedPlanPage() {
             />
           </div>
         </div>
+
+        {/* Map */}
+        <div className="flex-1 relative min-h-[400px] lg:min-h-0">
+          <MapContainer initialBounds={bounds} showLegend={true}>
+            <AccessPointMarkers
+              accessPoints={accessPoints}
+              selectedPutIn={plan.putIn.id}
+              selectedTakeOut={plan.takeOut.id}
+            />
+          </MapContainer>
+        </div>
       </main>
 
       {/* Footer */}
-      <footer className="bg-primary-800 border-t-2 border-neutral-900 px-4 py-3">
+      <footer className="flex-shrink-0 bg-primary-800 border-t-2 border-neutral-900 px-4 py-3">
         <div className="max-w-7xl mx-auto flex items-center justify-between text-sm text-primary-200">
           <p>Float MO &middot; Water data from USGS</p>
           <p className="hidden md:block">Always check local conditions before floating</p>
