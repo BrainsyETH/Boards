@@ -1,5 +1,5 @@
 // src/types/geo.ts
-// GeoJSON and geographic types for Missouri Float Planner
+// GeoJSON and geographic types for Eddy
 
 import type { Feature, FeatureCollection, LineString, Point, Position } from 'geojson';
 

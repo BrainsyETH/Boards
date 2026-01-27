@@ -1,5 +1,5 @@
 // src/types/api.ts
-// API request/response types for Missouri Float Planner
+// API request/response types for Eddy
 
 export interface River {
   id: string;

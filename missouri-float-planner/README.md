@@ -1,6 +1,6 @@
-# Missouri Float Planner
+# Eddy
 
-A web application for planning float trips on Missouri rivers. Select put-in and take-out points on an interactive map, and get estimates for river distance, float time, and drive-back shuttle time based on real-time water conditions.
+Your Missouri float trip assistant. Plan trips on Ozarks rivers with real-time water conditions, access points, and float time estimates — powered by live USGS gauge data.
 
 ## Features
 
@@ -124,7 +124,7 @@ npm run db:snap-access-points
 ## Project Structure
 
 ```
-missouri-float-planner/
+eddy/
 ├── src/
 │   ├── app/              # Next.js app router pages
 │   ├── components/       # React components
