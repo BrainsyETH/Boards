@@ -75,20 +75,35 @@ export async function generateMetadata({ params }: PlanLayoutProps): Promise<Met
       };
     }
 
-    // Fetch river, access points, and vessel type in parallel
-    const [riverResult, putInResult, takeOutResult, vesselResult] = await Promise.all([
+    // Fetch river, access points, vessel type, and gauge station in parallel
+    const [riverResult, putInResult, takeOutResult, vesselResult, gaugeResult] = await Promise.all([
       supabase.from('rivers').select('name, slug, region').eq('id', savedPlan.river_id).single(),
       supabase.from('access_points').select('name').eq('id', savedPlan.start_access_id).single(),
       supabase.from('access_points').select('name').eq('id', savedPlan.end_access_id).single(),
       savedPlan.vessel_type_id
         ? supabase.from('vessel_types').select('name').eq('id', savedPlan.vessel_type_id).single()
         : Promise.resolve({ data: null, error: null }),
+      supabase
+        .from('river_gauges')
+        .select('gauge_stations ( name )')
+        .eq('river_id', savedPlan.river_id)
+        .eq('is_primary', true)
+        .limit(1)
+        .maybeSingle(),
     ]);
 
     const riverName = riverResult.data?.name || 'Missouri River';
     const putInName = putInResult.data?.name || 'Start';
     const takeOutName = takeOutResult.data?.name || 'End';
     const vesselName = vesselResult.data?.name || 'Canoe';
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const gaugeStationRaw = gaugeResult.data?.gauge_stations as any;
+    const gaugeName = Array.isArray(gaugeStationRaw)
+      ? gaugeStationRaw[0]?.name
+      : gaugeStationRaw?.name || '';
+    const gaugeHeight = savedPlan.gauge_reading_at_creation
+      ? parseFloat(savedPlan.gauge_reading_at_creation).toFixed(2)
+      : '';
     const distanceMiles = savedPlan.distance_miles
       ? parseFloat(savedPlan.distance_miles).toFixed(1)
       : '';
@@ -134,6 +149,8 @@ export async function generateMetadata({ params }: PlanLayoutProps): Promise<Met
     if (floatTimeFormatted) ogParams.set('floatTime', floatTimeFormatted);
     if (vesselName) ogParams.set('vessel', vesselName);
     if (driveBackFormatted) ogParams.set('driveBack', driveBackFormatted);
+    if (gaugeName) ogParams.set('gaugeName', gaugeName);
+    if (gaugeHeight) ogParams.set('gaugeHeight', gaugeHeight);
 
     const ogImageUrl = `${BASE_URL}/api/og/plan?${ogParams.toString()}`;
     const pageUrl = `${BASE_URL}/plan/${shortCode}`;
