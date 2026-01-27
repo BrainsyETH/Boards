@@ -50,11 +50,28 @@ export default function SharedPlanPage() {
   }, [shortCode]);
 
   const handleShare = async () => {
+    const shareUrl = window.location.href;
+
+    // Use Web Share API on mobile (avoids clipboard permission issues)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Float Plan - ${plan?.river.name ?? 'River'}`,
+          url: shareUrl,
+        });
+        return;
+      } catch {
+        // User cancelled or share failed, fall through to clipboard
+      }
+    }
+
+    // Fallback to clipboard
     try {
-      await navigator.clipboard.writeText(window.location.href);
+      await navigator.clipboard.writeText(shareUrl);
       alert('Link copied to clipboard!');
     } catch {
-      alert('Failed to copy link');
+      // Last resort: prompt with selectable text
+      window.prompt('Copy this link:', shareUrl);
     }
   };
 
@@ -96,30 +113,27 @@ export default function SharedPlanPage() {
         <h1 className="text-lg font-bold text-neutral-900">Float Plan &middot; {plan.river.name}</h1>
       </div>
 
-      {/* Mobile: stacked layout that scrolls naturally. Desktop: side-by-side fixed height. */}
-      <main className="flex-1 flex flex-col lg:flex-row lg:overflow-hidden">
-        {/* Plan Summary */}
-        <div className="w-full lg:w-96 bg-white lg:border-r border-neutral-200 lg:overflow-y-auto">
-          <div className="max-w-lg mx-auto lg:max-w-none p-6">
-            <PlanSummary
-              plan={plan}
-              isLoading={false}
-              onClose={() => {}}
-              onShare={handleShare}
-            />
-          </div>
+      {/* Plan Summary - full width on top */}
+      <div className="flex-shrink-0 bg-white border-b border-neutral-200">
+        <div className="max-w-5xl mx-auto px-4 py-6">
+          <PlanSummary
+            plan={plan}
+            isLoading={false}
+            onClose={() => {}}
+            onShare={handleShare}
+          />
         </div>
+      </div>
 
-        {/* Map */}
-        <div className="flex-1 relative min-h-[400px] lg:min-h-0">
-          <MapContainer initialBounds={bounds} showLegend={true}>
-            <AccessPointMarkers
-              accessPoints={accessPoints}
-              selectedPutIn={plan.putIn.id}
-              selectedTakeOut={plan.takeOut.id}
-            />
-          </MapContainer>
-        </div>
+      {/* Map - fills remaining space */}
+      <main className="flex-1 relative min-h-[350px]">
+        <MapContainer initialBounds={bounds} showLegend={true}>
+          <AccessPointMarkers
+            accessPoints={accessPoints}
+            selectedPutIn={plan.putIn.id}
+            selectedTakeOut={plan.takeOut.id}
+          />
+        </MapContainer>
       </main>
 
       {/* Footer */}

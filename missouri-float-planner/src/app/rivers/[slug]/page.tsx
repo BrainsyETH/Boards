@@ -303,14 +303,7 @@ export default function RiverPage() {
 
         {/* Info Sections - full width below planner/map, consistent on desktop and mobile */}
         <div className="space-y-4 mt-6">
-          {/* Gauge Stations */}
-          <GaugeOverview
-            gauges={gaugeStations}
-            riverId={river.id}
-            isLoading={!allGaugeStations}
-          />
-
-          {/* Conditions & Safety */}
+          {/* River Conditions */}
           <ConditionsBlock
             riverId={river.id}
             riverSlug={slug}
@@ -318,6 +311,13 @@ export default function RiverPage() {
             nearestGauge={nearestGauge}
             hasPutInSelected={!!selectedPutIn}
             isLoading={conditionsLoading}
+          />
+
+          {/* Gauge Stations */}
+          <GaugeOverview
+            gauges={gaugeStations}
+            riverId={river.id}
+            isLoading={!allGaugeStations}
           />
 
           {/* Difficulty & Experience */}
