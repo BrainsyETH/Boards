@@ -257,6 +257,7 @@ export default function RiverPage() {
               planLoading={planLoading}
               showPlan={showPlan}
               onShowPlanChange={setShowPlan}
+              vesselTypeId={selectedVesselTypeId}
             />
           </div>
 
