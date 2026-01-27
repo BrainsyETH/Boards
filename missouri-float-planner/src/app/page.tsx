@@ -65,7 +65,7 @@ function HomeContent() {
               alt="Eddy the Otter"
               width={200}
               height={200}
-              className="mx-auto h-44 md:h-52 w-auto drop-shadow-[0_4px_24px_rgba(240,112,82,0.3)]"
+              className="mx-auto h-52 md:h-64 w-auto drop-shadow-[0_4px_24px_rgba(240,112,82,0.3)]"
               priority
             />
           </div>
