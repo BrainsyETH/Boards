@@ -28,6 +28,7 @@ interface PlannerPanelProps {
   planLoading: boolean;
   showPlan: boolean;
   onShowPlanChange: (show: boolean) => void;
+  vesselTypeId: string | null;
 }
 
 export default function PlannerPanel({
@@ -42,13 +43,14 @@ export default function PlannerPanel({
   planLoading,
   showPlan,
   onShowPlanChange,
+  vesselTypeId,
 }: PlannerPanelProps) {
   const selectedPutInPoint = selectedPutIn
     ? accessPoints.find((point) => point.id === selectedPutIn)
     : null;
 
   const handleShare = async () => {
-    if (!selectedPutIn || !selectedTakeOut) return;
+    if (!selectedPutIn || !selectedTakeOut || !vesselTypeId) return;
 
     try {
       const response = await fetch('/api/plan/save', {
@@ -58,6 +60,7 @@ export default function PlannerPanel({
           riverId: river.id,
           startId: selectedPutIn,
           endId: selectedTakeOut,
+          vesselTypeId,
         }),
       });
 
