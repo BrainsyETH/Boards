@@ -53,7 +53,7 @@ export async function GET() {
             </svg>
           </div>
           <span style={{ fontSize: '28px', fontWeight: 700, color: '#A3D1DB', letterSpacing: '-0.02em' }}>
-            FLOAT MO
+            EDDY
           </span>
         </div>
 

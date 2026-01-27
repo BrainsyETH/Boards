@@ -81,7 +81,7 @@ export async function GET(request: NextRequest) {
                 </svg>
               </div>
               <span style={{ fontSize: '20px', fontWeight: 700, color: '#72B5C4' }}>
-                FLOAT MO
+                EDDY
               </span>
               <span style={{ fontSize: '20px', color: '#4A9AAD', margin: '0 4px' }}>·</span>
               <span style={{ fontSize: '18px', color: '#72B5C4' }}>{region}</span>
