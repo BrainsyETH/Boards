@@ -43,6 +43,25 @@ const DATE_RANGES = [
   { days: 30, label: '30 Days' },
 ];
 
+// River-specific floating summaries (local knowledge)
+const RIVER_SUMMARIES: Record<string, { title: string; summary: string; tip: string }> = {
+  'current-river': {
+    title: 'Current River',
+    summary: 'Most floaters agree that anything above 2.0 ft at Akers is good to go. The Current is spring-fed, so it rarely gets too low for a fun float. Below 1.5 ft you\'ll be dragging in the riffles.',
+    tip: 'The upper Current (Montauk to Akers) needs slightly more water than the lower sections.',
+  },
+  'eleven-point-river': {
+    title: 'Eleven Point River',
+    summary: 'A gem of the Ozarks with reliable spring flow. Most consider 2.5 ft and above at Bardley ideal. It\'s floatable down to about 2.0 ft, but expect some scraping on gravel bars.',
+    tip: 'The Eleven Point has excellent water clarity—great for spotting wildlife and fish.',
+  },
+  'jacks-fork-river': {
+    title: 'Jacks Fork River',
+    summary: 'The Jacks Fork is shallower than the Current and more dependent on rainfall. Above 3.0 ft at Alley Spring is optimal. It\'s still floatable at 2.5 ft, but you\'ll work harder in the shallows.',
+    tip: 'After heavy rain, the Jacks Fork rises and falls faster than the Current—check recent trends.',
+  },
+};
+
 export default function GaugesPage() {
   const [gaugeData, setGaugeData] = useState<GaugesResponse | null>(null);
   const [loading, setLoading] = useState(true);
@@ -181,6 +200,22 @@ export default function GaugesPage() {
   };
 
   const hasActiveFilters = selectedRiver !== 'all' || selectedCondition !== 'all';
+
+  // Get river summary if a specific river is selected
+  const selectedRiverSummary = useMemo(() => {
+    if (selectedRiver === 'all') return null;
+
+    // Find the river name from the rivers list
+    const riverEntry = rivers.find(([id]) => id === selectedRiver);
+    if (!riverEntry) return null;
+
+    const riverName = riverEntry[1];
+
+    // Convert river name to slug format for lookup
+    const slug = riverName.toLowerCase().replace(/\s+/g, '-');
+
+    return RIVER_SUMMARIES[slug] || null;
+  }, [selectedRiver, rivers]);
 
   return (
     <div className="min-h-screen bg-neutral-50">
@@ -350,6 +385,28 @@ export default function GaugesPage() {
                 </div>
               </div>
             </div>
+
+            {/* River Summary (when specific river selected) */}
+            {selectedRiverSummary && (
+              <div className="bg-gradient-to-r from-primary-50 to-accent-50 border-2 border-primary-200 rounded-xl p-5 mb-6">
+                <div className="flex items-start gap-4">
+                  <div className="flex-shrink-0 w-10 h-10 bg-primary-500 rounded-full flex items-center justify-center">
+                    <Droplets className="w-5 h-5 text-white" />
+                  </div>
+                  <div className="flex-1">
+                    <h3 className="font-bold text-neutral-900 mb-1">
+                      {selectedRiverSummary.title} — Local Knowledge
+                    </h3>
+                    <p className="text-sm text-neutral-700 mb-2">
+                      {selectedRiverSummary.summary}
+                    </p>
+                    <p className="text-xs text-primary-700 bg-primary-100 rounded-lg px-3 py-1.5 inline-block">
+                      <span className="font-semibold">💡 Tip:</span> {selectedRiverSummary.tip}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Gauge Cards Grid */}
             {processedGauges.length > 0 ? (
