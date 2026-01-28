@@ -85,7 +85,7 @@ export async function GET(request: NextRequest) {
           position: 'relative',
         }}
       >
-        {/* TOP LEFT - Eddy the Otter + Branding */}
+        {/* TOP LEFT - Eddy the Otter */}
         <div
           style={{
             position: 'absolute',
@@ -101,21 +101,8 @@ export async function GET(request: NextRequest) {
             src={cond.otterImage}
             width={120}
             height={120}
-            style={{ objectFit: 'contain', marginBottom: '8px' }}
+            style={{ objectFit: 'contain' }}
           />
-          <div
-            style={{
-              display: 'flex',
-              padding: '8px 16px',
-              background: '#F07052',
-              border: '4px solid #000',
-              boxShadow: '4px 4px 0 #000',
-            }}
-          >
-            <span style={{ fontSize: '18px', fontWeight: 900, color: 'white', letterSpacing: '0.15em' }}>
-              EDDY
-            </span>
-          </div>
         </div>
 
         {/* MAIN CONTENT */}
@@ -125,7 +112,7 @@ export async function GET(request: NextRequest) {
             height: '630px',
             display: 'flex',
             flexDirection: 'column',
-            padding: '32px 48px 32px 180px',
+            padding: '32px 180px 32px 180px',
           }}
         >
           {/* River name */}
@@ -175,7 +162,7 @@ export async function GET(request: NextRequest) {
             </div>
           </div>
 
-          {/* Expanded Gauge data card - Full width */}
+          {/* Gauge data card */}
           <div
             style={{
               display: 'flex',
@@ -186,20 +173,21 @@ export async function GET(request: NextRequest) {
               boxShadow: '10px 10px 0 #000',
             }}
           >
-            {/* Condition badge - Expanded */}
-            <div
-              style={{
-                display: 'flex',
-                padding: '20px 40px',
-                background: cond.bg,
-                border: '5px solid #000',
-                boxShadow: '8px 8px 0 #000',
-                marginBottom: '24px',
-              }}
-            >
-              <span style={{ fontSize: '56px', fontWeight: 900, color: cond.textColor, letterSpacing: '-0.02em' }}>
-                {cond.label}
-              </span>
+            {/* Condition badge - wraps to text */}
+            <div style={{ display: 'flex', marginBottom: '24px' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  padding: '20px 40px',
+                  background: cond.bg,
+                  border: '5px solid #000',
+                  boxShadow: '8px 8px 0 #000',
+                }}
+              >
+                <span style={{ fontSize: '56px', fontWeight: 900, color: cond.textColor, letterSpacing: '-0.02em' }}>
+                  {cond.label}
+                </span>
+              </div>
             </div>
 
             {/* Gauge data - Larger and more readable */}
@@ -220,7 +208,7 @@ export async function GET(request: NextRequest) {
                 </div>
               )}
 
-              {dischargeCfs && (
+              {dischargeCfs && dischargeCfs !== '' && (
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                   <span style={{ fontSize: '16px', fontWeight: 800, color: '#857D70', letterSpacing: '0.1em', marginBottom: '8px' }}>
                     DISCHARGE (CFS)
