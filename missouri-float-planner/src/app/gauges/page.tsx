@@ -508,7 +508,9 @@ export default function GaugesPage() {
                                           <span className="text-neutral-600">Okay</span>
                                         </div>
                                         <span className="font-mono text-neutral-900">
-                                          {gauge.primaryRiver.levelLow !== null
+                                          {gauge.primaryRiver.levelLow !== null && gauge.primaryRiver.levelOptimalMin !== null
+                                            ? `${gauge.primaryRiver.levelLow} - ${(gauge.primaryRiver.levelOptimalMin - 0.01).toFixed(2)} ft`
+                                            : gauge.primaryRiver.levelLow !== null
                                             ? `≥ ${gauge.primaryRiver.levelLow} ft`
                                             : 'N/A'}
                                         </span>
@@ -519,8 +521,21 @@ export default function GaugesPage() {
                                           <span className="text-neutral-600">Low</span>
                                         </div>
                                         <span className="font-mono text-neutral-900">
-                                          {gauge.primaryRiver.levelTooLow !== null
+                                          {gauge.primaryRiver.levelTooLow !== null && gauge.primaryRiver.levelLow !== null
+                                            ? `${gauge.primaryRiver.levelTooLow} - ${(gauge.primaryRiver.levelLow - 0.01).toFixed(2)} ft`
+                                            : gauge.primaryRiver.levelTooLow !== null
                                             ? `≥ ${gauge.primaryRiver.levelTooLow} ft`
+                                            : 'N/A'}
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                          <span className="w-2.5 h-2.5 rounded-full bg-neutral-400"></span>
+                                          <span className="text-neutral-600">Too Low</span>
+                                        </div>
+                                        <span className="font-mono text-neutral-900">
+                                          {gauge.primaryRiver.levelTooLow !== null
+                                            ? `< ${gauge.primaryRiver.levelTooLow} ft`
                                             : 'N/A'}
                                         </span>
                                       </div>
@@ -530,7 +545,9 @@ export default function GaugesPage() {
                                           <span className="text-neutral-600">High</span>
                                         </div>
                                         <span className="font-mono text-neutral-900">
-                                          {gauge.primaryRiver.levelHigh !== null
+                                          {gauge.primaryRiver.levelHigh !== null && gauge.primaryRiver.levelDangerous !== null
+                                            ? `${gauge.primaryRiver.levelHigh} - ${(gauge.primaryRiver.levelDangerous - 0.01).toFixed(2)} ft`
+                                            : gauge.primaryRiver.levelHigh !== null
                                             ? `≥ ${gauge.primaryRiver.levelHigh} ft`
                                             : 'N/A'}
                                         </span>
