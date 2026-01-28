@@ -174,7 +174,7 @@ export default function SiteHeader() {
                   : 'text-primary-100 hover:bg-white/5 hover:text-white'
               }`}
             >
-              <span className="font-medium">About / How It Works</span>
+              <span className="font-medium">About Eddy</span>
             </Link>
 
             <Link

@@ -39,13 +39,13 @@ const conditionDescriptions: Record<ConditionCode, {
   optimal: {
     title: 'Optimal Conditions',
     description: 'Water levels are ideal for floating. This is the sweet spot where you\'ll have plenty of depth to avoid scraping, but flows aren\'t dangerously fast. Most paddlers will find these conditions enjoyable and safe.',
-    recommendation: 'Great for all skill levels. Perfect time to float!',
+    recommendation: 'A great time to float! Always check conditions before floating, though.',
     icon: '🎯',
   },
   high: {
     title: 'High Water - Experienced Only',
     description: 'Water levels are elevated with faster currents and increased hazards. Strainers, sweepers, and hydraulics become more dangerous. Navigation requires skill and quick decision-making. Float times will be faster than normal.',
-    recommendation: 'Only for experienced paddlers comfortable with swift water rescue and river reading. Beginners should wait for lower water.',
+    recommendation: 'It is recommended to try another day.',
     icon: '🌊',
   },
   dangerous: {
