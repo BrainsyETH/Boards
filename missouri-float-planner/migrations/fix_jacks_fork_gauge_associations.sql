@@ -43,6 +43,17 @@ BEGIN
   RAISE NOTICE 'Jacks Fork River ID: %', jacks_fork_id;
   RAISE NOTICE 'Current River ID: %', current_river_id;
 
+  -- Step 0: Remove incorrect associations where Jacks Fork gauges are linked to OTHER rivers
+  -- (e.g., Niangua River) - these gauges should ONLY be associated with Jacks Fork River
+  DELETE FROM river_gauges
+  WHERE river_id != jacks_fork_id
+  AND gauge_station_id IN (
+    SELECT id FROM gauge_stations
+    WHERE usgs_site_id IN ('07065200', '07065495', '07066000')
+  );
+
+  RAISE NOTICE 'Removed incorrect non-Jacks Fork associations for Jacks Fork gauges';
+
   -- Step 1: Remove incorrect Current River gauge associations from Jacks Fork
   -- These gauges should only be associated with Current River, not Jacks Fork
   DELETE FROM river_gauges
@@ -74,9 +85,9 @@ BEGIN
     1.0,    -- Too low
     1.3,    -- Low
     1.5,    -- Optimal min
-    3.5,    -- Optimal max
-    4.0,    -- High
-    5.0     -- Dangerous
+    3.0,    -- Optimal max - more cautious
+    3.5,    -- High - suggest another day
+    4.0     -- Dangerous - river likely closed
   FROM gauge_stations gs
   WHERE gs.usgs_site_id = '07065200'
   ON CONFLICT (gauge_station_id, river_id)
@@ -109,8 +120,8 @@ BEGIN
     1.5,    -- Too low - below this, very difficult
     2.0,    -- Low - will drag with gear
     2.5,    -- Optimal min - good conditions start
-    3.5,    -- Optimal max
-    3.65,   -- High - flood level begins
+    3.0,    -- Optimal max - more cautious
+    3.5,    -- High - suggest another day, flood level approaching
     4.0     -- Dangerous - parks close the river
   FROM gauge_stations gs
   WHERE gs.usgs_site_id = '07065495'
@@ -145,9 +156,9 @@ BEGIN
     1.0,    -- Too low
     1.5,    -- Low - average level, may drag loaded
     2.0,    -- Optimal min
-    3.5,    -- Optimal max
-    4.0,    -- High - river closes
-    5.3     -- Dangerous - flood level
+    3.0,    -- Optimal max - more cautious
+    3.5,    -- High - suggest another day
+    4.0     -- Dangerous - river closes
   FROM gauge_stations gs
   WHERE gs.usgs_site_id = '07066000'
   ON CONFLICT (gauge_station_id, river_id)
