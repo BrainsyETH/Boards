@@ -38,8 +38,8 @@ const RIVER_SUMMARIES: Record<string, { title: string; summary: string; tip: str
   },
   'eleven-point-river': {
     title: 'Eleven Point River',
-    summary: 'A gem of the Ozarks with reliable spring flow. Most consider 2.5 ft and above at Bardley ideal. It\'s floatable down to about 2.0 ft, but expect some scraping on gravel bars.',
-    tip: 'The Eleven Point has excellent water clarity—great for spotting wildlife and fish.',
+    summary: 'The Bardley gauge (16 mi downstream from Greer) is the key reference. 3.0–3.5 ft is optimal for floating. Average is ~3.0 ft. Above 4 ft gets murky/muddy and undesirable. Only experienced floaters at 4–5 ft. At 5 ft, outfitters stop putting in and Forest Service closes the river. Flood stage is 10 ft.',
+    tip: 'The Eleven Point has excellent water clarity when conditions are right. Mid-June through mid-September offers the best floating with clear water. Spring rains (March–May) can cause rapid rises and muddy conditions.',
   },
   'jacks-fork-river': {
     title: 'Jacks Fork River',
