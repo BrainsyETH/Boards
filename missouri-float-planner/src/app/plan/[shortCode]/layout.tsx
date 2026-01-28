@@ -75,31 +75,19 @@ export async function generateMetadata({ params }: PlanLayoutProps): Promise<Met
       };
     }
 
-    // Fetch river, access points, vessel type, and gauge station in parallel
-    const [riverResult, putInResult, takeOutResult, , gaugeResult] = await Promise.all([
+    // Fetch river and access points in parallel
+    const [riverResult, putInResult, takeOutResult] = await Promise.all([
       supabase.from('rivers').select('name, slug, region').eq('id', savedPlan.river_id).single(),
       supabase.from('access_points').select('name').eq('id', savedPlan.start_access_id).single(),
       supabase.from('access_points').select('name').eq('id', savedPlan.end_access_id).single(),
-      savedPlan.vessel_type_id
-        ? supabase.from('vessel_types').select('name').eq('id', savedPlan.vessel_type_id).single()
-        : Promise.resolve({ data: null, error: null }),
-      supabase
-        .from('river_gauges')
-        .select('gauge_stations ( name )')
-        .eq('river_id', savedPlan.river_id)
-        .eq('is_primary', true)
-        .limit(1)
-        .maybeSingle(),
     ]);
 
     const riverName = riverResult.data?.name || 'Missouri River';
     const putInName = putInResult.data?.name || 'Start';
     const takeOutName = takeOutResult.data?.name || 'End';
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const gaugeStationRaw = gaugeResult.data?.gauge_stations as any;
-    const gaugeName = Array.isArray(gaugeStationRaw)
-      ? gaugeStationRaw[0]?.name
-      : gaugeStationRaw?.name || '';
+
+    // Use the saved gauge name (segment-aware) instead of looking up primary gauge
+    const gaugeName = savedPlan.gauge_name_at_creation || 'USGS Gauge';
     const gaugeHeight = savedPlan.gauge_reading_at_creation
       ? parseFloat(savedPlan.gauge_reading_at_creation).toFixed(2)
       : '';
