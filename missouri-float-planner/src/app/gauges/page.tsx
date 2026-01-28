@@ -43,8 +43,8 @@ const RIVER_SUMMARIES: Record<string, { title: string; summary: string; tip: str
   },
   'jacks-fork-river': {
     title: 'Jacks Fork River',
-    summary: 'The Jacks Fork is shallower than the Current and more dependent on rainfall. Above 3.0 ft at Alley Spring is optimal. It\'s still floatable at 2.5 ft, but you\'ll work harder in the shallows.',
-    tip: 'After heavy rain, the Jacks Fork rises and falls faster than the Current—check recent trends.',
+    summary: 'The Jacks Fork is shallower than the Current and more rain-dependent. At Buck Hollow (upper), 2.5–3.5 ft is ideal; below 2.0 ft you\'ll drag with gear. At Alley Spring (lower), average is ~1.5 ft. River closes at 4.0 ft on both gauges.',
+    tip: 'The Jacks Fork rises and falls fast after rain. Upper sections above Bay Creek need higher water—check the Buck Hollow gauge specifically.',
   },
 };
 
