@@ -29,6 +29,9 @@ const DATE_RANGES = [
   { days: 30, label: '30 Days' },
 ];
 
+// OSNR (Ozark National Scenic Riverways) rivers
+const OSNR_RIVERS = ['current river', 'eleven point river', 'jacks fork river', 'jacks fork'];
+
 // River-specific floating summaries (local knowledge - SAFETY FIRST)
 const RIVER_SUMMARIES: Record<string, { title: string; summary: string; tip: string }> = {
   'current-river': {
@@ -55,6 +58,7 @@ export default function GaugesPage() {
   const [selectedRiver, setSelectedRiver] = useState<string>('all');
   const [selectedCondition, setSelectedCondition] = useState<ConditionCode | 'all'>('all');
   const [dateRange, setDateRange] = useState(7);
+  const [osnrOnly, setOsnrOnly] = useState(true); // OSNR filter on by default
 
   useEffect(() => {
     async function fetchGauges() {
@@ -116,7 +120,15 @@ export default function GaugesPage() {
 
     return gaugeData.gauges
       .filter(gauge => {
-        // Filter by river
+        // Filter by OSNR rivers
+        if (osnrOnly) {
+          const primaryRiver = gauge.thresholds?.find(t => t.isPrimary) || gauge.thresholds?.[0];
+          const riverName = primaryRiver?.riverName?.toLowerCase() || '';
+          const isOsnr = OSNR_RIVERS.some(r => riverName.includes(r) || r.includes(riverName));
+          if (!isOsnr) return false;
+        }
+
+        // Filter by specific river
         if (selectedRiver !== 'all') {
           const hasRiver = gauge.thresholds?.some(t => t.riverId === selectedRiver);
           if (!hasRiver) return false;
@@ -148,7 +160,7 @@ export default function GaugesPage() {
         };
         return conditionOrder[a.condition.code] - conditionOrder[b.condition.code];
       });
-  }, [gaugeData, selectedRiver, selectedCondition]);
+  }, [gaugeData, selectedRiver, selectedCondition, osnrOnly]);
 
   // Calculate stats for overview cards
   const stats = useMemo(() => {
@@ -178,13 +190,14 @@ export default function GaugesPage() {
     return `${Math.round(gauge.readingAgeHours / 24)}d ago`;
   };
 
-  // Clear all filters
+  // Clear all filters (OSNR stays on by default)
   const clearFilters = () => {
     setSelectedRiver('all');
     setSelectedCondition('all');
+    setOsnrOnly(true);
   };
 
-  const hasActiveFilters = selectedRiver !== 'all' || selectedCondition !== 'all';
+  const hasActiveFilters = selectedRiver !== 'all' || selectedCondition !== 'all' || !osnrOnly;
 
   // Get river summary if a specific river is selected
   const selectedRiverSummary = useMemo(() => {
@@ -331,6 +344,18 @@ export default function GaugesPage() {
             {/* Filter Bar */}
             <div className="bg-white border-2 border-neutral-200 rounded-xl p-4 mb-6">
               <div className="flex flex-wrap items-center gap-4">
+                {/* OSNR Toggle */}
+                <button
+                  onClick={() => setOsnrOnly(!osnrOnly)}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                    osnrOnly
+                      ? 'bg-[#7B2D3B] text-white shadow-md'
+                      : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
+                  }`}
+                >
+                  OSNR
+                </button>
+
                 {/* River filter */}
                 <div className="flex items-center gap-2">
                   <label className="text-sm font-medium text-neutral-600">River:</label>
