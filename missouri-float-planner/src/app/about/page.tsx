@@ -190,7 +190,7 @@ export default function AboutPage() {
         <CollapsibleSection
           title="How It Works"
           icon={<Gauge className="w-6 h-6 text-white" />}
-          defaultExpanded={true}
+          defaultExpanded={false}
         >
           <div className="space-y-4">
             {/* Live USGS Data */}
@@ -333,7 +333,7 @@ export default function AboutPage() {
         <CollapsibleSection
           title="Understanding Condition Codes"
           icon={<AlertTriangle className="w-6 h-6 text-white" />}
-          defaultExpanded={true}
+          defaultExpanded={false}
         >
           <p className="text-neutral-700 mb-6 leading-relaxed">
             Eddy uses seven condition codes to communicate water levels and safety. Here&apos;s what each
