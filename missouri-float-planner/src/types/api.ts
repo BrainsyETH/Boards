@@ -39,6 +39,7 @@ export interface AccessPoint {
   feeRequired: boolean;
   feeNotes: string | null;
   directionsOverride?: string | null;
+  imageUrl: string | null;
   coordinates: {
     lng: number;
     lat: number;
