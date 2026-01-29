@@ -25,6 +25,32 @@ import { useGaugeHistory } from '@/hooks/useGaugeHistory';
 
 const EDDY_FLOOD_IMAGE = 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter_flood.png';
 
+// Eddy otter images for different conditions
+const EDDY_CONDITION_IMAGES: Record<string, string> = {
+  green: 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter_green.png',
+  red: 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter_red.png',
+  yellow: 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter_yellow.png',
+  flag: 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy%20the%20otter%20with%20a%20flag.png',
+};
+
+// Map condition codes to Eddy images
+const getEddyImageForCondition = (code: ConditionCode): string => {
+  switch (code) {
+    case 'optimal':
+    case 'low': // "Okay - Floatable"
+      return EDDY_CONDITION_IMAGES.green;
+    case 'high':
+    case 'dangerous': // Flood
+      return EDDY_CONDITION_IMAGES.red;
+    case 'very_low': // "Low - Scraping Likely"
+      return EDDY_CONDITION_IMAGES.yellow;
+    case 'too_low':
+    case 'unknown':
+    default:
+      return EDDY_CONDITION_IMAGES.flag;
+  }
+};
+
 // Date range options for charts
 const DATE_RANGES = [
   { days: 7, label: '7 Days' },
@@ -551,7 +577,7 @@ export default function GaugesPage() {
                                   <Activity className="w-4 h-4" />
                                   Current Readings
                                 </h4>
-                                <div className="grid grid-cols-2 gap-3">
+                                <div className="grid grid-cols-3 gap-3">
                                   <div className="bg-white border border-neutral-200 rounded-lg p-3">
                                     <div className="flex items-center gap-2 mb-1">
                                       <Droplets className="w-4 h-4 text-primary-600" />
@@ -569,6 +595,15 @@ export default function GaugesPage() {
                                     <div className="text-2xl font-bold text-neutral-900">
                                       {gauge.dischargeCfs !== null ? `${gauge.dischargeCfs.toLocaleString()} cfs` : 'N/A'}
                                     </div>
+                                  </div>
+                                  <div className="bg-white border border-neutral-200 rounded-lg p-3 flex items-center justify-center">
+                                    <Image
+                                      src={getEddyImageForCondition(gauge.condition.code)}
+                                      alt={`Eddy - ${gauge.condition.label}`}
+                                      width={80}
+                                      height={80}
+                                      className="w-16 h-16 object-contain"
+                                    />
                                   </div>
                                 </div>
                               </div>

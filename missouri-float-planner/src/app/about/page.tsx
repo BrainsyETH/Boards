@@ -6,7 +6,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Droplets, MapPin, Clock, Gauge, TrendingUp, AlertTriangle, Info, ArrowRight, ChevronDown, Database, Waves } from 'lucide-react';
+import { Droplets, MapPin, Clock, Gauge, TrendingUp, AlertTriangle, Info, ChevronDown, Database, Waves } from 'lucide-react';
 import { CONDITION_COLORS, CONDITION_LABELS } from '@/constants';
 import type { ConditionCode } from '@/types/api';
 
@@ -305,29 +305,6 @@ export default function AboutPage() {
             </div>
           </div>
         </CollapsibleSection>
-
-        {/* Link to Gauge Stations Page */}
-        <section>
-          <Link href="/gauges" className="block">
-            <div className="bg-white border-2 border-primary-300 rounded-xl p-6 shadow-sm hover:shadow-md hover:border-primary-400 transition-all group">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-lg" style={{ backgroundColor: '#2D7889' }}>
-                    <Gauge className="w-8 h-8 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold text-neutral-900 mb-1">View All Gauge Stations</h3>
-                    <p className="text-neutral-700">
-                      See real-time USGS data, current readings, and detailed thresholds for every gauge station
-                      on all monitored rivers.
-                    </p>
-                  </div>
-                </div>
-                <ArrowRight className="w-6 h-6 text-primary-600 group-hover:translate-x-1 transition-transform flex-shrink-0" />
-              </div>
-            </div>
-          </Link>
-        </section>
 
         {/* Condition Codes Explained */}
         <CollapsibleSection
