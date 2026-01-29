@@ -172,29 +172,29 @@ function HomeContent() {
 
               {/* Condition Stats Grid */}
               <div className="grid grid-cols-3 gap-2 mb-4 flex-1">
-                <div className="bg-white/10 rounded-lg p-2 text-center">
-                  <span className="block text-lg font-bold text-neutral-400">{gaugeStats?.tooLow ?? '-'}</span>
-                  <span className="block text-[10px] font-medium text-neutral-400">Too Low</span>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-neutral-500">{gaugeStats?.tooLow ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-neutral-400">Too Low</span>
                 </div>
-                <div className="bg-white/10 rounded-lg p-2 text-center">
-                  <span className="block text-lg font-bold text-yellow-400">{gaugeStats?.low ?? '-'}</span>
-                  <span className="block text-[10px] font-medium text-yellow-400/80">Low</span>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-yellow-500">{gaugeStats?.low ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-yellow-500/80">Low</span>
                 </div>
-                <div className="bg-white/10 rounded-lg p-2 text-center">
-                  <span className="block text-lg font-bold text-lime-400">{gaugeStats?.okay ?? '-'}</span>
-                  <span className="block text-[10px] font-medium text-lime-400/80">Okay</span>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-lime-500">{gaugeStats?.okay ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-lime-500/80">Okay</span>
                 </div>
-                <div className="bg-white/10 rounded-lg p-2 text-center">
-                  <span className="block text-lg font-bold text-emerald-400">{gaugeStats?.optimal ?? '-'}</span>
-                  <span className="block text-[10px] font-medium text-emerald-400/80">Optimal</span>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-emerald-500">{gaugeStats?.optimal ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-emerald-500/80">Optimal</span>
                 </div>
-                <div className="bg-white/10 rounded-lg p-2 text-center">
-                  <span className="block text-lg font-bold text-orange-400">{gaugeStats?.high ?? '-'}</span>
-                  <span className="block text-[10px] font-medium text-orange-400/80">High</span>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-orange-500">{gaugeStats?.high ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-orange-500/80">High</span>
                 </div>
-                <div className="bg-white/10 rounded-lg p-2 text-center">
-                  <span className="block text-lg font-bold text-red-400">{gaugeStats?.flood ?? '-'}</span>
-                  <span className="block text-[10px] font-medium text-red-400/80">Flood</span>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-red-500">{gaugeStats?.flood ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-red-500/80">Flood</span>
                 </div>
               </div>
 
