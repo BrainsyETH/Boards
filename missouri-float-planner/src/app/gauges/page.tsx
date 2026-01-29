@@ -21,6 +21,7 @@ import { computeCondition, getConditionTailwindColor, getConditionShortLabel, ty
 import type { GaugesResponse, GaugeStation } from '@/app/api/gauges/route';
 import type { ConditionCode } from '@/types/api';
 import { useGaugeHistory } from '@/hooks/useGaugeHistory';
+import GaugeWeather from '@/components/ui/GaugeWeather';
 
 const EDDY_FLOOD_IMAGE = 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter_flood.png';
 
@@ -673,6 +674,13 @@ export default function GaugesPage() {
                                   </div>
                                 </div>
                               )}
+
+                              {/* Weather */}
+                              <GaugeWeather
+                                lat={gauge.coordinates.lat}
+                                lon={gauge.coordinates.lng}
+                                enabled={isExpanded}
+                              />
 
                               {/* Location */}
                               <div className="flex items-center gap-2 text-xs text-neutral-500">
