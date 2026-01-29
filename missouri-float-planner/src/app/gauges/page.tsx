@@ -58,8 +58,8 @@ const DATE_RANGES = [
   { days: 30, label: '30 Days' },
 ];
 
-// OSNR (Ozark National Scenic Riverways) rivers
-const OSNR_RIVERS = ['current river', 'eleven point river', 'jacks fork river', 'jacks fork'];
+// ONSR (Ozark National Scenic Riverways) rivers
+const ONSR_RIVERS = ['current river', 'eleven point river', 'jacks fork river', 'jacks fork'];
 
 // River-specific floating summaries (local knowledge - SAFETY FIRST)
 const RIVER_SUMMARIES: Record<string, { title: string; summary: string; tip: string }> = {
@@ -87,7 +87,7 @@ export default function GaugesPage() {
   const [selectedRiver, setSelectedRiver] = useState<string>('all');
   const [selectedCondition, setSelectedCondition] = useState<ConditionCode | 'all'>('all');
   const [dateRange, setDateRange] = useState(7);
-  const [osnrOnly, setOsnrOnly] = useState(true); // OSNR filter on by default
+  const [onsrOnly, setOnsrOnly] = useState(true); // ONSR filter on by default
 
   useEffect(() => {
     async function fetchGauges() {
@@ -149,14 +149,14 @@ export default function GaugesPage() {
 
     return gaugeData.gauges
       .filter(gauge => {
-        // Filter by OSNR rivers (exclude unknown/empty river names)
-        if (osnrOnly) {
+        // Filter by ONSR rivers (exclude unknown/empty river names)
+        if (onsrOnly) {
           const primaryRiver = gauge.thresholds?.find(t => t.isPrimary) || gauge.thresholds?.[0];
           const riverName = primaryRiver?.riverName?.toLowerCase() || '';
           // Skip gauges with no river or unknown river
           if (!riverName || riverName === 'unknown' || riverName.includes('unknown')) return false;
-          const isOsnr = OSNR_RIVERS.some(r => riverName.includes(r) || r.includes(riverName));
-          if (!isOsnr) return false;
+          const isOnsr = ONSR_RIVERS.some(r => riverName.includes(r) || r.includes(riverName));
+          if (!isOnsr) return false;
         }
 
         // Filter by specific river
@@ -191,7 +191,7 @@ export default function GaugesPage() {
         };
         return conditionOrder[a.condition.code] - conditionOrder[b.condition.code];
       });
-  }, [gaugeData, selectedRiver, selectedCondition, osnrOnly]);
+  }, [gaugeData, selectedRiver, selectedCondition, onsrOnly]);
 
   // Calculate stats for overview cards
   const stats = useMemo(() => {
@@ -221,14 +221,14 @@ export default function GaugesPage() {
     return `${Math.round(gauge.readingAgeHours / 24)}d ago`;
   };
 
-  // Clear all filters (OSNR stays on by default)
+  // Clear all filters (ONSR stays on by default)
   const clearFilters = () => {
     setSelectedRiver('all');
     setSelectedCondition('all');
-    setOsnrOnly(true);
+    setOnsrOnly(true);
   };
 
-  const hasActiveFilters = selectedRiver !== 'all' || selectedCondition !== 'all' || !osnrOnly;
+  const hasActiveFilters = selectedRiver !== 'all' || selectedCondition !== 'all' || !onsrOnly;
 
   // Get river summary if a specific river is selected
   const selectedRiverSummary = useMemo(() => {
@@ -397,17 +397,17 @@ export default function GaugesPage() {
                   </select>
                 </div>
 
-                {/* OSNR Toggle */}
+                {/* ONSR Toggle */}
                 <button
-                  onClick={() => setOsnrOnly(!osnrOnly)}
+                  onClick={() => setOnsrOnly(!onsrOnly)}
                   className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
-                    osnrOnly
+                    onsrOnly
                       ? 'bg-[#7B2D3B] text-white shadow-md'
                       : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200'
                   }`}
                   title="Ozark National Scenic Riverways - Current, Eleven Point, Jacks Fork"
                 >
-                  OSNR
+                  ONSR
                 </button>
 
                 {/* Date range for charts */}
