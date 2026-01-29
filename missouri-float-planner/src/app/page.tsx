@@ -3,15 +3,16 @@
 // src/app/page.tsx
 // Landing page for Eddy
 
-import { Suspense, useState, useMemo } from 'react';
+import { Suspense, useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Droplets, Clock, Waves, ChevronDown, Timer, ArrowRight } from 'lucide-react';
+import { MapPin, Droplets, Clock, ChevronDown, ArrowRight } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useRivers } from '@/hooks/useRivers';
 import { useAccessPoints } from '@/hooks/useAccessPoints';
-import { useVesselTypes } from '@/hooks/useVesselTypes';
 import type { ConditionCode } from '@/types/api';
+
+const EDDY_FLOOD_IMAGE = 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter_flood.png';
 
 // Matches GaugeOverview labels and colors
 const conditionColors: Record<ConditionCode, string> = {
@@ -53,8 +54,56 @@ export default function Home() {
   );
 }
 
+// Gauge condition stats type
+interface GaugeStats {
+  tooLow: number;
+  low: number;
+  okay: number;
+  optimal: number;
+  high: number;
+  flood: number;
+}
+
 function HomeContent() {
   const { data: rivers, isLoading, error } = useRivers();
+  const [gaugeStats, setGaugeStats] = useState<GaugeStats | null>(null);
+
+  // Fetch gauge stats for the River Levels card
+  useEffect(() => {
+    async function fetchGaugeStats() {
+      try {
+        const response = await fetch('/api/gauges');
+        if (response.ok) {
+          const data = await response.json();
+          // Calculate stats from gauges
+          const stats: GaugeStats = { tooLow: 0, low: 0, okay: 0, optimal: 0, high: 0, flood: 0 };
+          data.gauges?.forEach((gauge: { gaugeHeightFt: number | null; thresholds?: Array<{ isPrimary?: boolean; levelTooLow: number | null; levelLow: number | null; levelOptimalMin: number | null; levelOptimalMax: number | null; levelHigh: number | null; levelDangerous: number | null }> }) => {
+            const threshold = gauge.thresholds?.find(t => t.isPrimary) || gauge.thresholds?.[0];
+            if (!threshold || gauge.gaugeHeightFt === null) return;
+
+            const h = gauge.gaugeHeightFt;
+            if (threshold.levelDangerous !== null && h >= threshold.levelDangerous) {
+              stats.flood++;
+            } else if (threshold.levelHigh !== null && h >= threshold.levelHigh) {
+              stats.high++;
+            } else if (threshold.levelOptimalMin !== null && threshold.levelOptimalMax !== null && h >= threshold.levelOptimalMin && h <= threshold.levelOptimalMax) {
+              stats.optimal++;
+            } else if (threshold.levelLow !== null && h >= threshold.levelLow) {
+              stats.okay++;
+            } else if (threshold.levelTooLow !== null && h >= threshold.levelTooLow) {
+              stats.low++;
+            } else {
+              stats.tooLow++;
+            }
+          });
+          setGaugeStats(stats);
+        }
+      } catch (error) {
+        console.error('Failed to fetch gauge stats:', error);
+      }
+    }
+    fetchGaugeStats();
+  }, []);
 
   return (
     <div className="min-h-[calc(100vh-3.5rem)] flex flex-col bg-neutral-50">
@@ -98,19 +147,68 @@ function HomeContent() {
 
       {/* Main content */}
       <section className="flex-1 py-10 md:py-14">
-        <div className="max-w-5xl mx-auto px-4 space-y-12">
-          {/* Float Estimator */}
-          <div>
-            <h2 className="text-2xl font-heading font-bold text-neutral-900 mb-6">
-              Float Estimator
-            </h2>
+        <div className="max-w-5xl mx-auto px-4 space-y-10">
+          {/* Top Row: Float Estimator + Check River Levels side by side */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Float Estimator - Half width */}
             <FloatEstimator rivers={rivers || []} />
+
+            {/* Check River Levels - Half width */}
+            <Link
+              href="/gauges"
+              className="group flex flex-col glass-card-dark rounded-2xl p-5 lg:p-6 border border-white/10
+                         hover:border-primary-400/50 transition-all no-underline"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <Image
+                  src={EDDY_FLOOD_IMAGE}
+                  alt="Eddy the Otter checking water levels"
+                  width={120}
+                  height={120}
+                  className="w-12 h-12 md:w-14 md:h-14 object-contain"
+                />
+                <h2 className="text-xl lg:text-2xl font-bold text-white">Check River Levels</h2>
+              </div>
+
+              {/* Condition Stats Grid */}
+              <div className="grid grid-cols-3 gap-2 mb-4 flex-1">
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-neutral-500">{gaugeStats?.tooLow ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-neutral-400">Too Low</span>
+                </div>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-yellow-500">{gaugeStats?.low ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-yellow-500/80">Low</span>
+                </div>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-lime-500">{gaugeStats?.okay ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-lime-500/80">Okay</span>
+                </div>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-emerald-500">{gaugeStats?.optimal ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-emerald-500/80">Optimal</span>
+                </div>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-orange-500">{gaugeStats?.high ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-orange-500/80">High</span>
+                </div>
+                <div className="bg-white rounded-lg p-2.5 flex flex-col items-center justify-center">
+                  <span className="text-xl font-bold text-red-500">{gaugeStats?.flood ?? '-'}</span>
+                  <span className="text-[11px] font-semibold text-red-500/80">Flood</span>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-4 border-t border-white/10">
+                <span className="text-sm font-medium text-primary-300">View Dashboard</span>
+                <ArrowRight className="w-5 h-5 text-primary-300 group-hover:translate-x-1 transition-transform" />
+              </div>
+            </Link>
           </div>
 
-          {/* Plan Your Float */}
+          {/* Rivers Section - Full width below */}
           <div>
             <h2 className="text-2xl font-heading font-bold text-neutral-900 mb-6">
-              Plan Your Float
+              Choose a River
             </h2>
 
             {isLoading && (
@@ -169,33 +267,6 @@ function HomeContent() {
               </div>
             )}
           </div>
-
-          {/* Check River Levels */}
-          <div>
-            <h2 className="text-2xl font-heading font-bold text-neutral-900 mb-6">
-              Check River Levels
-            </h2>
-            <Link
-              href="/gauges"
-              className="group block bg-white border-2 border-neutral-200 rounded-lg p-5 shadow-sm
-                         hover:border-primary-400 hover:shadow-md transition-all no-underline"
-            >
-              <div className="flex items-center gap-4">
-                <div className="flex-shrink-0 w-16 h-16 bg-primary-100 rounded-xl flex items-center justify-center">
-                  <Waves className="w-8 h-8 text-primary-600" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-lg font-bold text-neutral-900 group-hover:text-primary-700 transition-colors">
-                    River Levels Dashboard
-                  </h3>
-                  <p className="text-sm text-neutral-500 mt-1">
-                    Real-time USGS gauge data, flow trends, and current conditions for all Missouri rivers
-                  </p>
-                </div>
-                <ArrowRight className="w-5 h-5 text-neutral-400 group-hover:text-primary-600 transition-colors" />
-              </div>
-            </Link>
-          </div>
         </div>
       </section>
 
@@ -211,6 +282,8 @@ function HomeContent() {
 }
 
 // Float Estimator Component
+const EDDY_CANOE_IMAGE = 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy%20the%20otter%20in%20a%20cool%20canoe.png';
+
 interface FloatEstimatorProps {
   rivers: Array<{
     id: string;
@@ -225,44 +298,9 @@ function FloatEstimator({ rivers }: FloatEstimatorProps) {
   const [selectedRiverSlug, setSelectedRiverSlug] = useState<string>('');
   const [selectedPutIn, setSelectedPutIn] = useState<string>('');
   const [selectedTakeOut, setSelectedTakeOut] = useState<string>('');
-  const [selectedVessel, setSelectedVessel] = useState<string>('');
 
   // Fetch access points for selected river
   const { data: accessPoints = [], isLoading: accessPointsLoading } = useAccessPoints(selectedRiverSlug || null);
-
-  // Fetch vessel types
-  const { data: vesselTypes = [] } = useVesselTypes();
-
-  // Calculate float distance and time estimate
-  const estimate = useMemo(() => {
-    if (!selectedPutIn || !selectedTakeOut || !selectedVessel) return null;
-
-    const putIn = accessPoints.find((ap) => ap.id === selectedPutIn);
-    const takeOut = accessPoints.find((ap) => ap.id === selectedTakeOut);
-    const vessel = vesselTypes.find((v) => v.id === selectedVessel);
-
-    if (!putIn || !takeOut || !vessel) return null;
-
-    const distance = Math.abs(takeOut.riverMile - putIn.riverMile);
-    if (distance === 0) return null;
-
-    // Use vessel's normal speed
-    const speedMph = vessel.speeds.normal;
-    const timeHours = distance / speedMph;
-
-    // Format time
-    const hours = Math.floor(timeHours);
-    const minutes = Math.round((timeHours - hours) * 60);
-
-    return {
-      distance: distance.toFixed(1),
-      timeHours: hours,
-      timeMinutes: minutes,
-      putInName: putIn.name,
-      takeOutName: takeOut.name,
-      vesselName: vessel.name,
-    };
-  }, [selectedPutIn, selectedTakeOut, selectedVessel, accessPoints, vesselTypes]);
 
   // Filter take-out options to only show points downstream of put-in
   const takeOutOptions = useMemo(() => {
@@ -285,124 +323,108 @@ function FloatEstimator({ rivers }: FloatEstimatorProps) {
     setSelectedTakeOut('');
   };
 
+  // Check if form is complete
+  const canSubmit = selectedRiverSlug && selectedPutIn && selectedTakeOut;
+
   return (
-    <div className="bg-white border-2 border-neutral-200 rounded-lg p-5 shadow-sm">
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="glass-card-dark rounded-2xl p-5 lg:p-6 border border-white/10 flex flex-col">
+      {/* Header with Eddy */}
+      <div className="flex items-center gap-3 mb-4">
+        <Image
+          src={EDDY_CANOE_IMAGE}
+          alt="Eddy the Otter in a canoe"
+          width={120}
+          height={120}
+          className="w-12 h-12 md:w-14 md:h-14 object-contain"
+        />
+        <h2 className="text-xl lg:text-2xl font-bold text-white">Plan Your Float</h2>
+      </div>
+
+      {/* Selectors - Stacked vertically for compact layout */}
+      <div className="space-y-3 flex-1">
         {/* River Select */}
         <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1.5">River</label>
+          <label className="block text-sm font-semibold text-white mb-1.5">River</label>
           <div className="relative">
             <select
               value={selectedRiverSlug}
               onChange={(e) => handleRiverChange(e.target.value)}
-              className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 appearance-none cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2.5 bg-white/25 border border-white/30 rounded-lg text-white appearance-none cursor-pointer focus:ring-2 focus:ring-primary-400 focus:border-primary-400 backdrop-blur-sm"
             >
-              <option value="">Select river...</option>
+              <option value="" className="bg-neutral-800">Select river...</option>
               {rivers.map(river => (
-                <option key={river.id} value={river.slug}>{river.name}</option>
+                <option key={river.id} value={river.slug} className="bg-neutral-800">{river.name}</option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
           </div>
         </div>
 
-        {/* Put-In Select */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1.5">Put-In</label>
-          <div className="relative">
-            <select
-              value={selectedPutIn}
-              onChange={(e) => handlePutInChange(e.target.value)}
-              disabled={!selectedRiverSlug || accessPointsLoading}
-              className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 appearance-none cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-neutral-100 disabled:cursor-not-allowed"
-            >
-              <option value="">{accessPointsLoading ? 'Loading...' : 'Select put-in...'}</option>
-              {accessPoints.map(ap => (
-                <option key={ap.id} value={ap.id}>
-                  {ap.name} (Mile {ap.riverMile.toFixed(1)})
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+        {/* Put-In and Take-Out in a row */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Put-In Select */}
+          <div>
+            <label className="block text-sm font-semibold text-white mb-1.5">Put-In</label>
+            <div className="relative">
+              <select
+                value={selectedPutIn}
+                onChange={(e) => handlePutInChange(e.target.value)}
+                disabled={!selectedRiverSlug || accessPointsLoading}
+                className="w-full px-3 py-2.5 bg-white/25 border border-white/30 rounded-lg text-white appearance-none cursor-pointer focus:ring-2 focus:ring-primary-400 focus:border-primary-400 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              >
+                <option value="" className="bg-neutral-800">{accessPointsLoading ? 'Loading...' : 'Select...'}</option>
+                {accessPoints.map(ap => (
+                  <option key={ap.id} value={ap.id} className="bg-neutral-800">
+                    {ap.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
+            </div>
           </div>
-        </div>
 
-        {/* Take-Out Select */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1.5">Take-Out</label>
-          <div className="relative">
-            <select
-              value={selectedTakeOut}
-              onChange={(e) => setSelectedTakeOut(e.target.value)}
-              disabled={!selectedPutIn}
-              className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 appearance-none cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500 disabled:bg-neutral-100 disabled:cursor-not-allowed"
-            >
-              <option value="">Select take-out...</option>
-              {takeOutOptions.map(ap => (
-                <option key={ap.id} value={ap.id}>
-                  {ap.name} (Mile {ap.riverMile.toFixed(1)})
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
-          </div>
-        </div>
-
-        {/* Vessel Select */}
-        <div>
-          <label className="block text-sm font-medium text-neutral-700 mb-1.5">Vessel</label>
-          <div className="relative">
-            <select
-              value={selectedVessel}
-              onChange={(e) => setSelectedVessel(e.target.value)}
-              className="w-full px-3 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 appearance-none cursor-pointer focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-            >
-              <option value="">Select vessel...</option>
-              {vesselTypes.map(vessel => (
-                <option key={vessel.id} value={vessel.id}>{vessel.name}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400 pointer-events-none" />
+          {/* Take-Out Select */}
+          <div>
+            <label className="block text-sm font-semibold text-white mb-1.5">Take-Out</label>
+            <div className="relative">
+              <select
+                value={selectedTakeOut}
+                onChange={(e) => setSelectedTakeOut(e.target.value)}
+                disabled={!selectedPutIn}
+                className="w-full px-3 py-2.5 bg-white/25 border border-white/30 rounded-lg text-white appearance-none cursor-pointer focus:ring-2 focus:ring-primary-400 focus:border-primary-400 backdrop-blur-sm disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              >
+                <option value="" className="bg-neutral-800">Select...</option>
+                {takeOutOptions.map(ap => (
+                  <option key={ap.id} value={ap.id} className="bg-neutral-800">
+                    {ap.name}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Results */}
-      {estimate && (
-        <div className="mt-5 pt-5 border-t border-neutral-200">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-lg">
-                <MapPin className="w-4 h-4 text-primary-600" />
-                <span className="text-sm font-medium text-primary-900">{estimate.distance} miles</span>
-              </div>
-              <div className="flex items-center gap-2 px-4 py-2 bg-primary-50 rounded-lg">
-                <Timer className="w-4 h-4 text-primary-600" />
-                <span className="text-sm font-medium text-primary-900">
-                  {estimate.timeHours > 0 && `${estimate.timeHours}h `}{estimate.timeMinutes}m
-                </span>
-              </div>
-            </div>
-            <Link
-              href={`/rivers/${selectedRiverSlug}?putIn=${selectedPutIn}&takeOut=${selectedTakeOut}&vessel=${selectedVessel}`}
-              className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-primary-600 hover:bg-primary-700 text-white font-medium rounded-lg transition-colors"
-            >
-              Plan This Trip
-              <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          <p className="mt-3 text-xs text-neutral-500">
-            Estimate based on {estimate.vesselName} at optimal conditions. Actual time may vary based on water levels and stops.
-          </p>
-        </div>
-      )}
-
-      {/* Empty state hint */}
-      {!estimate && selectedRiverSlug && !accessPointsLoading && (
-        <p className="mt-4 text-sm text-neutral-500 text-center">
-          Select put-in, take-out, and vessel type to see your float estimate
-        </p>
-      )}
+      {/* Submit Button */}
+      <div className="mt-4 pt-4 border-t border-white/10">
+        {canSubmit ? (
+          <Link
+            href={`/rivers/${selectedRiverSlug}?putIn=${selectedPutIn}&takeOut=${selectedTakeOut}`}
+            className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-accent-500 hover:bg-accent-600 text-white font-semibold rounded-xl transition-colors shadow-lg"
+          >
+            View Trip Details
+            <ArrowRight className="w-5 h-5" />
+          </Link>
+        ) : (
+          <button
+            disabled
+            className="flex items-center justify-center gap-2 w-full px-6 py-3 bg-white/10 text-white/50 font-semibold rounded-xl cursor-not-allowed"
+          >
+            Select all options above
+          </button>
+        )}
+      </div>
     </div>
   );
 }
