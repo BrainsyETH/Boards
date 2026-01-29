@@ -69,9 +69,12 @@ function HomeContent() {
               priority
             />
           </div>
-          <h1 className="text-5xl md:text-6xl font-bold text-white mb-3" style={{ fontFamily: 'var(--font-display)', color: '#F07052' }}>
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-1" style={{ fontFamily: 'var(--font-display)', color: '#F07052' }}>
             Eddy
           </h1>
+          <p className="text-xl md:text-2xl text-white/90 font-medium mb-3">
+            Your Ozark Float Trip Companion
+          </p>
           <p className="text-lg text-white/70 max-w-xl mx-auto mb-8">
             Real-time water conditions, access points, and float time estimates
             for the best rivers in the Ozarks.

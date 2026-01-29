@@ -85,7 +85,7 @@ export default function SiteHeader() {
               About
             </Link>
 
-            {/* Gauges link */}
+            {/* River Levels link */}
             <Link
               href="/gauges"
               className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
@@ -94,10 +94,10 @@ export default function SiteHeader() {
                   : 'text-primary-100 hover:text-white hover:bg-white/10'
               }`}
             >
-              Gauges
+              River Levels
             </Link>
 
-            {/* Rivers dropdown */}
+            {/* Plan Your Float dropdown */}
             <div ref={dropdownRef} className="relative">
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
@@ -107,7 +107,7 @@ export default function SiteHeader() {
                     : 'text-primary-100 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <span>{activeRiver ? activeRiver.name : 'Rivers'}</span>
+                <span>{activeRiver ? activeRiver.name : 'Plan Your Float'}</span>
                 <ChevronDown className={`w-4 h-4 transition-transform ${dropdownOpen ? 'rotate-180' : ''}`} />
               </button>
 
@@ -185,11 +185,11 @@ export default function SiteHeader() {
                   : 'text-primary-100 hover:bg-white/5 hover:text-white'
               }`}
             >
-              <span className="font-medium">Gauge Stations</span>
+              <span className="font-medium">River Levels</span>
             </Link>
 
             <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#72B5C4' }}>
-              Rivers
+              Plan Your Float
             </p>
             <div className="space-y-0.5">
               {rivers?.map((river) => (
