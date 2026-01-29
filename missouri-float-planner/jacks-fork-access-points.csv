@@ -1,0 +1,10 @@
+river_slug,name,type,latitude,longitude,is_public,ownership,description,fee_required,fee_notes
+jacks-fork,MDC South Prong Access,boat_ramp,37.234,-91.780,true,MDC,MDC South Prong Access at Hwy. Y Bridge. Beautiful section but not recommended during low-water.,false,
+jacks-fork,Buck Hollow,campground,37.056,-91.668,true,NPS,State Hwy. 17 Bridge at Buck Hollow. Usual put-in for upper section of river. Park Service campground.,false,
+jacks-fork,Salvation Army Camp,campground,37.041,-91.635,false,private,Salvation Army camp on left. Access and camp.,false,
+jacks-fork,Rymers Access,campground,37.024,-91.573,true,NPS,Rymers Access and campground on right.,false,
+jacks-fork,Bunker Hill,access,37.017,-91.557,false,private,Bunker Hill (Missouri State Teachers Association resort) on left. No public access.,false,
+jacks-fork,Bay Creek,campground,37.009,-91.503,true,NPS,Bay Creek on left. Access and camp.,false,
+jacks-fork,Alley Spring,boat_ramp,37.151,-91.432,true,NPS,Alley Spring - 10th largest spring in state. Old mill camping and access.,false,
+jacks-fork,Shawnee Creek,campground,37.156,-91.365,true,NPS,Shawnee Creek on right. Access and camp.,false,
+jacks-fork,Two Rivers,boat_ramp,37.160,-91.352,true,NPS,Confluence with Current River. Best take-out 0.75 mile downstream at ferry landing.,false,
