@@ -30,7 +30,7 @@ export default function BlogPage() {
             </div>
           </div>
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4" style={{ fontFamily: 'var(--font-display)' }}>
-            Float Trip Guides
+            Eddy's Thoughts
           </h1>
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
             Expert tips, river guides, and planning advice for Missouri float trips
