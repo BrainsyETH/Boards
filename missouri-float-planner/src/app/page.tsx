@@ -6,34 +6,13 @@
 import { Suspense, useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Droplets, Clock, ChevronDown, ArrowRight } from 'lucide-react';
+import { MapPin, Droplets, Clock, ChevronDown, ArrowRight, BookOpen } from 'lucide-react';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
 import { useRivers } from '@/hooks/useRivers';
 import { useAccessPoints } from '@/hooks/useAccessPoints';
 import type { ConditionCode } from '@/types/api';
 
 const EDDY_FLOOD_IMAGE = 'https://q5skne5bn5nbyxfw.public.blob.vercel-storage.com/Eddy_Otter/Eddy_the_Otter_flood.png';
-
-// Matches GaugeOverview labels and colors
-const conditionColors: Record<ConditionCode, string> = {
-  optimal: 'bg-emerald-500',
-  low: 'bg-lime-500',
-  very_low: 'bg-yellow-500',
-  high: 'bg-orange-500',
-  too_low: 'bg-neutral-400',
-  dangerous: 'bg-red-600',
-  unknown: 'bg-neutral-400',
-};
-
-const conditionLabels: Record<ConditionCode, string> = {
-  optimal: 'Optimal',
-  low: 'Okay',
-  very_low: 'Low',
-  high: 'High',
-  too_low: 'Too Low',
-  dangerous: 'Flood',
-  unknown: 'Unknown',
-};
 
 function HomeLoading() {
   return (
@@ -65,7 +44,7 @@ interface GaugeStats {
 }
 
 function HomeContent() {
-  const { data: rivers, isLoading, error } = useRivers();
+  const { data: rivers } = useRivers();
   const [gaugeStats, setGaugeStats] = useState<GaugeStats | null>(null);
 
   // Fetch gauge stats for the River Levels card
@@ -205,76 +184,97 @@ function HomeContent() {
             </Link>
           </div>
 
-          {/* Rivers Section - Full width below */}
+          {/* Float Trip Guides Section */}
           <div>
-            <h2 className="text-2xl font-heading font-bold text-neutral-900 mb-6">
-              Choose a River
-            </h2>
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-heading font-bold text-neutral-900">
+                Float Trip Guides
+              </h2>
+              <Link
+                href="/blog"
+                className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
+              >
+                View all guides
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
 
-            {isLoading && (
-              <div className="flex justify-center py-12">
-                <LoadingSpinner size="lg" />
-              </div>
-            )}
+            <div className="grid gap-4 md:grid-cols-2">
+              {/* Featured Blog Post */}
+              <Link
+                href="/blog/best-float-rivers-missouri-2026"
+                className="group block bg-white border-2 border-neutral-200 rounded-xl p-6 shadow-sm
+                           hover:border-primary-400 hover:shadow-md transition-all no-underline"
+              >
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="p-2 rounded-lg bg-primary-100">
+                    <BookOpen className="w-5 h-5 text-primary-600" />
+                  </div>
+                  <span className="px-3 py-1 rounded-full text-xs font-semibold bg-primary-100 text-primary-700">
+                    Guide
+                  </span>
+                  <span className="text-xs text-neutral-500">12 min read</span>
+                </div>
 
-            {error && (
-              <div className="text-center py-12">
-                <p className="text-neutral-600 mb-4">Unable to load rivers. Please try again.</p>
-                <button onClick={() => window.location.reload()} className="btn-primary">
-                  Retry
-                </button>
-              </div>
-            )}
+                <h3 className="text-lg font-bold text-neutral-900 mb-2 group-hover:text-primary-700 transition-colors">
+                  Best Float Rivers in Missouri: Complete Guide 2026
+                </h3>
 
-            {rivers && (
-              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {rivers.map((river) => (
-                  <Link
-                    key={river.id}
-                    href={`/rivers/${river.slug}`}
-                    className="group block bg-white border-2 border-neutral-200 rounded-lg p-5 shadow-sm
-                               hover:border-primary-400 hover:shadow-md transition-all no-underline"
-                  >
-                    <div className="flex items-start justify-between mb-3">
-                      <h3 className="text-lg font-bold text-neutral-900 group-hover:text-primary-700 transition-colors">
-                        {river.name}
-                      </h3>
-                      {river.currentCondition && (
-                        <span className={`flex items-center gap-1.5 text-xs font-medium px-2 py-1 rounded-full ${
-                          river.currentCondition.code === 'optimal'
-                            ? 'bg-support-100 text-support-700'
-                            : river.currentCondition.code === 'unknown'
-                            ? 'bg-neutral-100 text-neutral-600'
-                            : river.currentCondition.code === 'dangerous' || river.currentCondition.code === 'too_low'
-                            ? 'bg-red-50 text-red-700'
-                            : 'bg-yellow-50 text-yellow-700'
-                        }`}>
-                          <span className={`w-1.5 h-1.5 rounded-full ${conditionColors[river.currentCondition.code]}`} />
-                          {conditionLabels[river.currentCondition.code]}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-500">
-                      <span>{river.lengthMiles.toFixed(1)} miles</span>
-                      {river.region && <span>{river.region}</span>}
-                      {river.difficultyRating && <span>{river.difficultyRating}</span>}
-                    </div>
-                    <div className="mt-3 text-sm font-medium text-primary-600 group-hover:text-primary-700">
-                      View river &rarr;
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            )}
+                <p className="text-sm text-neutral-600 mb-4">
+                  Discover the top 8 float rivers in Missouri, from beginner-friendly creeks to scenic Ozark waterways. Compare difficulty, scenery, and access points.
+                </p>
+
+                <div className="flex items-center gap-1 text-sm font-medium text-primary-600 group-hover:text-primary-700">
+                  Read guide
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Link>
+
+              {/* More Guides CTA */}
+              <Link
+                href="/blog"
+                className="group flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-200 rounded-xl p-6
+                           hover:border-primary-400 hover:shadow-md transition-all no-underline min-h-[200px]"
+              >
+                <div className="p-3 rounded-full bg-primary-200 mb-4">
+                  <BookOpen className="w-8 h-8 text-primary-600" />
+                </div>
+                <h3 className="text-lg font-bold text-primary-800 mb-2">
+                  Explore All Guides
+                </h3>
+                <p className="text-sm text-primary-600 text-center mb-4">
+                  Tips, tricks, and everything you need for your next float trip
+                </p>
+                <span className="flex items-center gap-1 text-sm font-semibold text-primary-700 group-hover:gap-2 transition-all">
+                  Browse guides
+                  <ArrowRight className="w-4 h-4" />
+                </span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-primary-800 border-t-2 border-neutral-900 px-4 py-3">
-        <div className="max-w-5xl mx-auto flex items-center justify-between text-sm text-primary-200">
-          <p>Eddy &middot; Water data from USGS</p>
-          <p className="hidden md:block">Always check local conditions before floating</p>
+      <footer className="bg-primary-800 border-t-2 border-neutral-900 px-4 py-6">
+        <div className="max-w-5xl mx-auto">
+          {/* Safety Disclaimer */}
+          <div className="mb-4 p-4 bg-primary-700/50 rounded-lg border border-primary-600/30">
+            <p className="text-sm text-primary-100 text-center">
+              <strong className="text-white">Safety First:</strong> Eddy is a planning guide only. Always consult local outfitters and authorities for current conditions before floating. Water levels can change rapidly. Wear life jackets and never float alone.
+            </p>
+          </div>
+
+          {/* Footer Links */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 text-sm text-primary-200">
+            <div className="flex items-center gap-4">
+              <p>Eddy &middot; Water data from USGS</p>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>
+            </div>
+            <p className="text-center md:text-right text-primary-300">
+              &copy; {new Date().getFullYear()} eddy.guide &middot; For informational purposes only
+            </p>
+          </div>
         </div>
       </footer>
     </div>

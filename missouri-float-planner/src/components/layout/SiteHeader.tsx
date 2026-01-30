@@ -56,7 +56,7 @@ export default function SiteHeader() {
   return (
     <header className="sticky top-0 z-50 border-b-2 border-neutral-900" style={{ backgroundColor: '#163F4A' }}>
       <div className="max-w-7xl mx-auto px-4">
-        <div className="flex items-center justify-between h-14">
+        <div className="flex items-center h-14">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5 no-underline">
             <Image
@@ -71,32 +71,8 @@ export default function SiteHeader() {
             </span>
           </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {/* About link */}
-            <Link
-              href="/about"
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
-                pathname === '/about'
-                  ? 'text-white bg-white/10'
-                  : 'text-primary-100 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              About
-            </Link>
-
-            {/* River Levels link */}
-            <Link
-              href="/gauges"
-              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
-                pathname === '/gauges'
-                  ? 'text-white bg-white/10'
-                  : 'text-primary-100 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              River Levels
-            </Link>
-
+          {/* Desktop nav - Left aligned after logo */}
+          <nav className="hidden md:flex items-center gap-1 ml-8">
             {/* Plan Your Float dropdown */}
             <div ref={dropdownRef} className="relative">
               <button
@@ -112,7 +88,7 @@ export default function SiteHeader() {
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-1 w-72 bg-white border-2 border-neutral-200 rounded-lg shadow-xl overflow-hidden animate-in">
+                <div className="absolute left-0 mt-1 w-72 bg-white border-2 border-neutral-200 rounded-lg shadow-xl overflow-hidden animate-in">
                   <div className="py-1">
                     {rivers?.map((river) => (
                       <Link
@@ -149,7 +125,34 @@ export default function SiteHeader() {
                 </div>
               )}
             </div>
+
+            {/* River Levels link */}
+            <Link
+              href="/gauges"
+              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
+                pathname === '/gauges'
+                  ? 'text-white bg-white/10'
+                  : 'text-primary-100 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              River Levels
+            </Link>
+
+            {/* About link */}
+            <Link
+              href="/about"
+              className={`px-3 py-2 rounded-md text-sm font-semibold transition-colors ${
+                pathname === '/about'
+                  ? 'text-white bg-white/10'
+                  : 'text-primary-100 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              About
+            </Link>
           </nav>
+
+          {/* Spacer to push hamburger to right */}
+          <div className="flex-1" />
 
           {/* Mobile hamburger */}
           <button
@@ -166,32 +169,11 @@ export default function SiteHeader() {
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-white/10" style={{ backgroundColor: '#0F2D35' }}>
           <div className="px-4 py-3">
-            <Link
-              href="/about"
-              className={`flex items-center px-3 py-3 rounded-md no-underline transition-colors mb-1 ${
-                pathname === '/about'
-                  ? 'bg-white/10 text-white'
-                  : 'text-primary-100 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              <span className="font-medium">About Eddy</span>
-            </Link>
-
-            <Link
-              href="/gauges"
-              className={`flex items-center px-3 py-3 rounded-md no-underline transition-colors mb-3 ${
-                pathname === '/gauges'
-                  ? 'bg-white/10 text-white'
-                  : 'text-primary-100 hover:bg-white/5 hover:text-white'
-              }`}
-            >
-              <span className="font-medium">River Levels</span>
-            </Link>
-
+            {/* Plan Your Float section first */}
             <p className="text-xs font-semibold uppercase tracking-wide mb-2" style={{ color: '#72B5C4' }}>
               Plan Your Float
             </p>
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 mb-3">
               {rivers?.map((river) => (
                 <Link
                   key={river.id}
@@ -223,6 +205,30 @@ export default function SiteHeader() {
                 </Link>
               ))}
             </div>
+
+            {/* River Levels */}
+            <Link
+              href="/gauges"
+              className={`flex items-center px-3 py-3 rounded-md no-underline transition-colors mb-1 ${
+                pathname === '/gauges'
+                  ? 'bg-white/10 text-white'
+                  : 'text-primary-100 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              <span className="font-medium">River Levels</span>
+            </Link>
+
+            {/* About */}
+            <Link
+              href="/about"
+              className={`flex items-center px-3 py-3 rounded-md no-underline transition-colors ${
+                pathname === '/about'
+                  ? 'bg-white/10 text-white'
+                  : 'text-primary-100 hover:bg-white/5 hover:text-white'
+              }`}
+            >
+              <span className="font-medium">About</span>
+            </Link>
           </div>
         </div>
       )}
