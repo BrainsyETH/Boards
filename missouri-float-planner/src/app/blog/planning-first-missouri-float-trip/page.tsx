@@ -442,7 +442,7 @@ export default function PlanningFirstTripPage() {
             <ul className="list-disc pl-6 space-y-2 text-gray-700 mb-6">
               <li><strong>Ozark National Scenic Riverways:</strong> Free, no permit needed</li>
               <li>Camp only on gravel bars below the high-water mark</li>
-              <li>No camping on private property (look for "No Trespassing" signs)</li>
+              <li>No camping on private property (look for &ldquo;No Trespassing&rdquo; signs)</li>
               <li>First-come, first-served (no reservations)</li>
             </ul>
 
