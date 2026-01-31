@@ -9,6 +9,14 @@ export const metadata: Metadata = {
 
 const blogPosts = [
   {
+    slug: 'planning-first-missouri-float-trip',
+    title: 'Planning Your First Missouri Float Trip: Complete Guide',
+    description: 'Everything you need to know for your first float trip in Missouri. Learn about choosing rivers, essential gear, safety protocols, camping, and Leave No Trace principles.',
+    date: '2026-01-31',
+    readTime: '18 min read',
+    category: 'Guides',
+  },
+  {
     slug: 'best-float-rivers-missouri-2026',
     title: 'Best Float Rivers in Missouri: Complete Guide 2026',
     description: 'Discover the top 8 float rivers in Missouri, from beginner-friendly creeks to scenic Ozark waterways. Compare difficulty, scenery, and access points.',
