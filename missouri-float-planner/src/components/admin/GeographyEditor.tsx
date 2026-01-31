@@ -4,7 +4,8 @@
 // Main geography editor component with improved state management
 
 import { useState, useEffect, useCallback } from 'react';
-import { Plus, MousePointer2, X, Save, Trash2, ExternalLink, MapPin, Navigation, Eye, EyeOff } from 'lucide-react';
+import { Plus, MousePointer2, X, Save, Trash2, ExternalLink, MapPin, Navigation, Eye, EyeOff, ImagePlus } from 'lucide-react';
+import Image from 'next/image';
 import AccessPointEditor from './AccessPointEditor';
 import RiverLineEditor from './RiverLineEditor';
 import CreateAccessPointModal from './CreateAccessPointModal';
@@ -44,6 +45,7 @@ interface AccessPoint {
   directionsOverride?: string | null;
   drivingLat?: number | null;
   drivingLng?: number | null;
+  imageUrls?: string[];
   approved: boolean;
   riverName?: string;
   hasInvalidCoords?: boolean;
@@ -69,6 +71,7 @@ export default function GeographyEditor() {
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set());
   const [showTypeFilter, setShowTypeFilter] = useState(false);
+  const [newImageUrl, setNewImageUrl] = useState('');
 
   // Available access point types
   const ACCESS_POINT_TYPES = [
@@ -251,6 +254,7 @@ export default function GeographyEditor() {
           directionsOverride: editingDetails.directionsOverride,
           drivingLat: editingDetails.drivingLat,
           drivingLng: editingDetails.drivingLng,
+          imageUrls: editingDetails.imageUrls,
         }),
       });
 
@@ -790,6 +794,73 @@ export default function GeographyEditor() {
                 placeholder="Additional details about this access point..."
                 className="w-full px-3 py-2 border border-bluff-300 rounded-lg text-sm focus:ring-2 focus:ring-river-500 focus:border-river-500 resize-none"
               />
+            </div>
+
+            {/* Images Section */}
+            <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+              <label className="block text-sm font-medium text-purple-800 mb-2 flex items-center gap-2">
+                <ImagePlus size={14} />
+                Images ({editingDetails.imageUrls?.length || 0})
+              </label>
+
+              {/* Existing Images */}
+              {editingDetails.imageUrls && editingDetails.imageUrls.length > 0 && (
+                <div className="flex gap-2 flex-wrap mb-3">
+                  {editingDetails.imageUrls.map((url, index) => (
+                    <div key={index} className="relative w-16 h-16 rounded-lg overflow-hidden bg-purple-100 group">
+                      <Image
+                        src={url}
+                        alt={`Image ${index + 1}`}
+                        fill
+                        className="object-cover"
+                        sizes="64px"
+                      />
+                      <button
+                        onClick={() => {
+                          const newUrls = editingDetails.imageUrls?.filter((_, i) => i !== index) || [];
+                          setEditingDetails({ ...editingDetails, imageUrls: newUrls });
+                        }}
+                        className="absolute top-0.5 right-0.5 p-0.5 bg-red-600 hover:bg-red-700 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove image"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Add Image URL */}
+              <div className="flex gap-2">
+                <input
+                  type="url"
+                  value={newImageUrl}
+                  onChange={(e) => setNewImageUrl(e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                  className="flex-1 px-2 py-1.5 border border-purple-200 rounded text-sm bg-white focus:ring-2 focus:ring-purple-400 focus:border-purple-400"
+                />
+                <button
+                  onClick={() => {
+                    if (newImageUrl.trim()) {
+                      const currentUrls = editingDetails.imageUrls || [];
+                      if (!currentUrls.includes(newImageUrl.trim())) {
+                        setEditingDetails({
+                          ...editingDetails,
+                          imageUrls: [...currentUrls, newImageUrl.trim()],
+                        });
+                      }
+                      setNewImageUrl('');
+                    }
+                  }}
+                  disabled={!newImageUrl.trim()}
+                  className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white rounded text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Add
+                </button>
+              </div>
+              <p className="text-xs text-purple-500 mt-1">
+                Add image URLs. Changes are saved when you click &quot;Save Changes&quot;.
+              </p>
             </div>
 
             {/* Google Maps Links */}

@@ -17,29 +17,14 @@ const MAP_STYLES = {
     url: 'https://tiles.openfreemap.org/styles/liberty',
     dark: false,
   },
-  voyager: {
-    name: 'Standard',
-    url: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
-    dark: false,
-  },
   positron: {
     name: 'Light',
     url: 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json',
     dark: false,
   },
-  bright: {
-    name: 'Bright',
-    url: 'https://tiles.openfreemap.org/styles/bright',
-    dark: false,
-  },
   satellite: {
     name: 'Satellite',
     url: '', // Custom style object used instead
-    dark: true,
-  },
-  dark: {
-    name: 'Dark',
-    url: 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json',
     dark: true,
   },
 } as const;
@@ -465,12 +450,22 @@ export default function MapContainer({
         >
           <Droplets className="w-5 h-5" />
         </button>
+
+        {/* Expand/Collapse Toggle - in controls column on desktop, bottom-right on mobile */}
+        <button
+          onClick={toggleExpanded}
+          className={`p-2.5 md:p-2 rounded-lg shadow-lg transition-all bg-white/90 text-gray-700 hover:bg-white ${isExpanded ? '' : 'hidden md:block'}`}
+          title={isExpanded ? 'Collapse map' : 'Expand map'}
+          aria-label={isExpanded ? 'Collapse map' : 'Expand map'}
+        >
+          {isExpanded ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+        </button>
       </div>
 
-      {/* Expand/Collapse Toggle - separate position, bottom-right on mobile, in controls on desktop */}
+      {/* Mobile-only expand button - bottom-right */}
       <button
         onClick={toggleExpanded}
-        className="absolute bottom-3 right-2.5 md:top-[120px] md:bottom-auto md:right-[52px] z-10 p-2.5 md:p-2 rounded-lg shadow-lg transition-all bg-white/90 text-gray-700 hover:bg-white"
+        className="absolute bottom-3 right-2.5 z-10 p-2.5 rounded-lg shadow-lg transition-all bg-white/90 text-gray-700 hover:bg-white md:hidden"
         title={isExpanded ? 'Collapse map' : 'Expand map'}
         aria-label={isExpanded ? 'Collapse map' : 'Expand map'}
       >
@@ -486,10 +481,10 @@ export default function MapContainer({
 
       {/* Collapsible Map Legend - default minimized */}
       {showLegend && (
-        <div className="absolute bottom-2 right-2 z-10 rounded-xl border border-white/10 bg-river-night/80 text-xs text-white shadow-lg backdrop-blur">
+        <div className="absolute bottom-2 right-2 z-10 rounded-xl border-2 border-neutral-700 bg-neutral-900/95 text-xs text-white shadow-xl">
           <button
             onClick={() => setLegendExpanded(!legendExpanded)}
-            className="flex items-center gap-2 px-3 py-2 w-full hover:bg-white/5 transition-colors rounded-xl"
+            className="flex items-center gap-2 px-3 py-2 w-full hover:bg-white/10 transition-colors rounded-xl"
           >
             <svg
               className={`w-3 h-3 transition-transform ${legendExpanded ? 'rotate-180' : ''}`}
@@ -499,10 +494,10 @@ export default function MapContainer({
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
             </svg>
-            <span className="text-[11px] font-semibold text-river-gravel">Legend</span>
+            <span className="text-[11px] font-semibold text-white">Legend</span>
           </button>
           {legendExpanded && (
-            <div className="flex flex-col gap-1 px-3 pb-2">
+            <div className="flex flex-col gap-1.5 px-3 pb-2.5 pt-1 border-t border-neutral-700">
               <LegendItem color="#478559" label="Put-in" />
               <LegendItem color="#f95d9b" label="Take-out" />
               <LegendItem color="#c7b8a6" label="Access point" />
@@ -521,11 +516,11 @@ function LegendItem({ color, label }: { color: string; label: string }) {
   return (
     <div className="flex items-center gap-2">
       <span
-        className="inline-flex h-2.5 w-2.5 rounded-full"
+        className="inline-flex h-3 w-3 rounded-full border border-white/20"
         style={{ backgroundColor: color }}
         aria-hidden="true"
       />
-      <span className="text-[11px] text-white/80">{label}</span>
+      <span className="text-[11px] text-white">{label}</span>
     </div>
   );
 }
