@@ -184,17 +184,17 @@ function HomeContent() {
             </Link>
           </div>
 
-          {/* Float Trip Guides Section */}
+          {/* Eddy's Thoughts Section */}
           <div>
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-heading font-bold text-neutral-900">
-                Float Trip Guides
+              <h2 className="text-2xl font-heading font-bold" style={{ color: '#F07052' }}>
+                Eddy&apos;s Thoughts
               </h2>
               <Link
                 href="/blog"
                 className="text-sm font-medium text-primary-600 hover:text-primary-700 flex items-center gap-1"
               >
-                View all guides
+                View all
                 <ArrowRight className="w-4 h-4" />
               </Link>
             </div>
@@ -225,12 +225,12 @@ function HomeContent() {
                 </p>
 
                 <div className="flex items-center gap-1 text-sm font-medium text-primary-600 group-hover:text-primary-700">
-                  Read guide
+                  Read more
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </div>
               </Link>
 
-              {/* More Guides CTA */}
+              {/* More Posts CTA */}
               <Link
                 href="/blog"
                 className="group flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 to-primary-100 border-2 border-primary-200 rounded-xl p-6
@@ -240,13 +240,13 @@ function HomeContent() {
                   <BookOpen className="w-8 h-8 text-primary-600" />
                 </div>
                 <h3 className="text-lg font-bold text-primary-800 mb-2">
-                  Explore All Guides
+                  Explore All Posts
                 </h3>
                 <p className="text-sm text-primary-600 text-center mb-4">
                   Tips, tricks, and everything you need for your next float trip
                 </p>
                 <span className="flex items-center gap-1 text-sm font-semibold text-primary-700 group-hover:gap-2 transition-all">
-                  Browse guides
+                  Browse posts
                   <ArrowRight className="w-4 h-4" />
                 </span>
               </Link>

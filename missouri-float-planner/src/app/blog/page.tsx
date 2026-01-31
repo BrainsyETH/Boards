@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 import { ArrowRight, BookOpen } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Float Trip Guides & Resources',
+  title: "Eddy's Thoughts - Float Trip Guides & Resources",
   description: 'Expert guides and tips for planning the perfect float trip on Missouri rivers. Learn about water conditions, access points, and the best times to float.',
 };
 
@@ -29,11 +29,11 @@ export default function BlogPage() {
               <BookOpen className="w-8 h-8 text-primary-300" />
             </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4" style={{ fontFamily: 'var(--font-display)' }}>
-            Eddy's Thoughts
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: 'var(--font-display)', color: '#F07052' }}>
+            Eddy&apos;s Thoughts
           </h1>
           <p className="text-lg md:text-xl text-white/80 max-w-2xl mx-auto">
-            Expert tips, river guides, and planning advice for Missouri float trips
+            Tips, guides, and planning advice for Missouri float trips
           </p>
         </div>
       </section>
